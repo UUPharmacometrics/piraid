@@ -1,0 +1,22 @@
+Package: IRTmix
+Version: 0.1
+Date: 2018-08-31
+Title: Generation and diagnosis of non-linear mixed effects 'IRT' models
+Author: Rikard Nordgren <rikard.nordgren@farmbio.uu.se>
+Authors@R: c(person("Rikard", "Nordgren", role=c("aut", "cre", "cph"), email="rikard.nordgren@farmbio.uu.se"),
+             person("Sebastian", "Ueckert", role=c("aut", "cph")),
+             person("Mats O.", "Karlsson", role=c("aut", "cph")))
+Maintainer: Rikard Nordgren <rikard.nordgren@farmbio.uu.se>
+Depends:
+    R (>= 2.14.1)
+Imports:
+    methods
+Suggests: knitr, rmarkdown, testthat
+VignetteBuilder: knitr
+NeedsCompilation: no
+Description: Automatic generation of different types of item response theory (IRT) models.
+    Diagnostic tools for IRT modelling.
+URL: https://github.com/UUPharmacometrics/IRTmix
+BugReports: https://github.com/UUPharmacometrics/IRTmix/issues
+License: LGPL-3
+Copyright: 2018 Rikard Nordgren, Sebastian Ueckert and Mats O. Karlsson

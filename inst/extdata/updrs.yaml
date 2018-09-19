@@ -1,0 +1,137 @@
+scale_name: UPDRS
+- item:
+    number: 14
+    levels: 3
+    type: ordcat
+- item:
+    number: 15
+    levels: 4
+    type: ordcat
+- item:
+    number: 16
+    levels: 2
+    type: ordcat
+- item:
+    number: 17
+    levels: 3
+    type: ordcat
+- item:
+    number: 18
+    levels: 3
+    type: ordcat
+- item:
+    number: 19
+    levels: 2
+    type: ordcat
+- item:
+    number: 20
+    levels: 4
+    type: ordcat
+- item:
+    number: 21
+    levels: 3
+    type: ordcat
+- item:
+    number: 22
+    levels: 3
+    type: ordcat
+- item:
+    number: 24
+    levels: 3
+    type: ordcat
+- item:
+    number: 25
+    levels: 3
+    type: ordcat
+- item:
+    number: 26
+    levels: 2
+    type: ordcat
+- item:
+    number: 27
+    levels: 3
+    type: ordcat
+- item:
+    number: 28
+    levels: 4
+    type: ordcat
+- item:
+    number: 29
+    levels: 4
+    type: ordcat
+- item:
+    number: 30
+    levels: 4
+    type: ordcat
+- item:
+    number: 31
+    levels: 3
+    type: ordcat
+- item:
+    number: 32
+    levels: 4
+    type: ordcat
+- item:
+    number: 33
+    levels: 3
+    type: ordcat
+- item:
+    number: 34
+    levels: 4
+    type: ordcat
+- item:
+    number: 35
+    levels: 4
+    type: ordcat
+- item:
+    number: 36
+    levels: 4
+    type: ordcat
+- item:
+    number: 37
+    levels: 3
+    type: ordcat
+- item:
+    number: 38
+    levels: 4
+    type: ordcat
+- item:
+    number: 39
+    levels: 3
+    type: ordcat
+- item:
+    number: 40
+    levels: 4
+    type: ordcat
+- item:
+    number: 41
+    levels: 4
+    type: ordcat
+- item:
+    number: 42
+    levels: 4
+    type: ordcat
+- item:
+    number: 43
+    levels: 3
+    type: ordcat
+- item:
+    number: 44
+    levels: 3
+    type: ordcat
+- item:
+    number: 45
+    levels: 3
+    type: ordcat
+- item:
+    number: 47
+    levels: 3
+    type: ordcat
+- item:
+    number: 48
+    levels: 3
+    type: ordcat
+- item:
+    number: 49
+    levels: 4
+    type: ordcat

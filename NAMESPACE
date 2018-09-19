@@ -1,1 +1,6 @@
 import(methods)
+export(render)
+export(irt_model)
+S3method(render, irt_model)
+export(irt_item)
+S3method(render, irt_item)

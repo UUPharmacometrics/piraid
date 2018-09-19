@@ -1,4 +1,4 @@
-Package: IRTmix
+Package: nmIRT
 Version: 0.1
 Date: 2018-08-31
 Title: Generation and diagnosis of non-linear mixed effects 'IRT' models
@@ -16,7 +16,7 @@ VignetteBuilder: knitr
 NeedsCompilation: no
 Description: Automatic generation of different types of item response theory (IRT) models.
     Diagnostic tools for IRT modelling.
-URL: https://github.com/UUPharmacometrics/IRTmix
-BugReports: https://github.com/UUPharmacometrics/IRTmix/issues
+URL: https://github.com/UUPharmacometrics/nmIRT
+BugReports: https://github.com/UUPharmacometrics/nmIRT/issues
 License: LGPL-3
 Copyright: 2018 Rikard Nordgren, Sebastian Ueckert and Mats O. Karlsson

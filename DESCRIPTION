@@ -10,7 +10,8 @@ Maintainer: Rikard Nordgren <rikard.nordgren@farmbio.uu.se>
 Depends:
     R (>= 2.14.1)
 Imports:
-    methods
+    methods,
+    yaml
 Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 NeedsCompilation: no

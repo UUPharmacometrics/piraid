@@ -1,44 +1,90 @@
 irt_model <- function() {
-    structure(list(), class="irt_model")
+    structure(list(items=list()), class="irt_model")
 }
 
 render <- function(x) UseMethod("render")
 
-render.irt_model <- function(x) {
-    cat("Will render now!")
+render.irt_model <- function(model) {
+    next_theta <- 1
+    cg <- code_generator()
+    cg <- add_line(cg, "$PROBLEM")
+    cg <- add_line(cg, "$PRED")
+    cg <- add_line(cg, "PSI=THETA(1)+ETA(1)")
+    cg <- add_code(cg, type_constants(model))
+    cg <- add_empty_line(cg)
+    cg <- banner_comment(cg, "assignment of item parameters")
+    for (item in model$items) {
+        res <- irt_item_assignment_code(item, next_theta)
+        next_theta <- res$next_theta
+        cg <- add_code(cg, res$code)
+    }
+    cg <- add_empty_line(cg)
+    cg <- add_code(cg, data_models_code(model))
+    cg <- add_code(cg, simulation_code(model))
+    get_code(cg)
+}
+
+add_item <- function(model, item) {
+    model$items <- c(model$items, list(item))
+    model
 }
 
 
-code_generator <- function() {
-    structure(list(indent_level=0, code=c()), class="code_generator")
+# Get a sorted array of ordered categorical levels
+ordcat_levels <- function(model) {
+    levels <- c()
+    for (item in model$items) {
+        if (item$type == "ordcat") {
+            levels <- c(levels, item$levels) 
+        }
+    }
+    sort(unique(levels))
 }
 
-add_line <- function(generator, line) {
-    generator$code = c(generator$code, paste0(strrep(" ", generator$indent_level * 4), line))
-    generator
+type_constants <- function(model) {
+    cg <- code_generator()
+    cg <- banner_comment(cg, "constants to select model type")
+    levels <- ordcat_levels(model)
+    cg <- add_line(cg, "MODEL=0")
+    if (length(levels) > 0) {
+        for (l in levels) {
+            cg <- add_line(cg, paste0("OC", l, "=", l))
+        } 
+    }
+    cg
 }
 
-add_empty_line <- function(generator) {
-    add_line(generator, "")
-}
-
-increase_indent <- function(generator) {
-    generator$indent_level = generator$indent_level + 1
-    generator
-}
-
-decrease_indent <- function(generator) {
-    generator$indent_level = generator$indent_level - 1
-    generator
-}
-
-get_code <- function(generator) {
-    paste(generator$code, collapse='\n')
+data_models_code <- function(model) {
+    cg <- code_generator()
+    ordcat_levels <- ordcat_levels(model)
+    if (length(ordcat_levels) > 0) {
+        for (l in ordcat_levels) {
+            cg <- add_code(cg, ordered_categorical_data_model_code(l))
+            cg <- add_empty_line(cg)
+        }
+    }
+    cg
 }
 
 
-irt_item <- function(type="ordered categorical", number, levels) {
-    structure(list(type=type, number=number, levels=levels), class="irt_item")
+predefined_scale <- function(model, scale) {
+    scale <- tolower(scale)
+    path <- system.file("extdata", paste0(scale, ".yaml"), package="nmIRT")
+    if (path == "") {
+        stop("Error: No such predefined scale. Available scale is UPDRS")
+    }
+    db <- yaml::read_yaml(path)
+    for (item in db$items) {
+        new_irt_item <- irt_item(number=item$number, levels=item$levels, type=item$type)
+        model <- add_item(model, new_irt_item)
+    }
+    model
+}
+
+
+
+irt_item <- function(number, levels, type) {
+    structure(list(number=number, levels=levels, type=type), class="irt_item")
 }
 
 irt_item_assignment_code <- function(item, next_theta) {
@@ -54,44 +100,72 @@ irt_item_assignment_code <- function(item, next_theta) {
     }
     cg <- decrease_indent(cg)
     cg <- add_line(cg, "ENDIF")
-    get_code(cg)
+    list(code=cg, next_theta=next_theta)
 }
 
-banner_comment <- function(s) {
-    start <- strrep("-", 25)
-    end <- sttrep("-", 80 - 25 - length(s))
-    paste0(";", start, s, end)
-}
 
 ordered_categorical_data_model_code <- function(levels) {
     cg <- code_generator()
-    cg <- add_line(cg, banner_comment(paste0("ordered categorical data model with ", levels, " levels")))
+    cg <- banner_comment(cg, paste0("ordered categorical data model with ", levels, " levels"))
     cg <- add_line(cg, paste0("IF(MODEL.EQ.OC", levels, ") THEN"))
     cg <- increase_indent(cg)
     cg <- add_line(cg, "DIFG1=DIF1")
-    for (i in 1:levels - 1) {
-        cg <- add_line(cg, paste0("DIFG", i + 1, "=DIFG", i, "+DIF", i + 1))
+    if (levels > 2) {
+        for (i in 1:(levels - 2)) {
+            cg <- add_line(cg, paste0("DIFG", i + 1, "=DIFG", i, "+DIF", i + 1))
+        }
     }
     cg <- add_empty_line(cg)
-    for (i in 1:levels - 1) {
-        cg <- add_line(cg, paste0("PGE", i, "=EXP(DIS*(PSI-DIFG", i, "))/(1+EXP(DIS*(PSI-DIFG", i))
+    for (i in 1:(levels - 1)) {
+        cg <- add_line(cg, paste0("PGE", i, "=EXP(DIS*(PSI-DIFG", i, "))/(1+EXP(DIS*(PSI-DIFG", i, ")))"))
     } 
+    cg <- add_empty_line(cg)
     cg <- add_line(cg, "P0=1-PGE1")
     if (levels > 2) {
-        for (i in 1:levels - 2) {
+        for (i in 1:(levels - 2)) {
             cg <- add_line(cg, paste0("P", i, "=PGE", i, "-PGE", i + 1))
         }
     }
     cg <- add_line(cg, paste0("P", levels - 1, "=PGE", levels - 1))
-    cg <- add_empty_line(cg)
     cg <- decrease_indent(cg)
-    cg <- add_line("ENDIF")
+    cg <- add_line(cg, "ENDIF")
     cg <- add_empty_line(cg)
-    for (i in 0:levels - 1) {
-        cg <- add_line(cg, "IF(MODEL.EQ.OC", levels, ".AND.DV.EQ.", i, ") P=P", i)
+    for (i in 0:(levels - 1)) {
+        cg <- add_line(cg, paste0("IF(MODEL.EQ.OC", levels, ".AND.DV.EQ.", i, ") P=P", i))
     }
     cg <- add_line(cg, "IF(P.LT.1E-16) P=1E-16")
     cg <- add_line(cg, "IF(P.GT.(1-1E-16)) P=1-1E-16")
     cg <- add_line(cg, paste0("IF(MODEL.EQ.OC", levels, ") Y=-2*LOG(P)"))
-    get_code(cg)
+    cg
+}
+
+
+simulation_code <- function(model) {
+    cg <- code_generator()
+    cg <- banner_comment(cg, "simulation code")
+    cg <- add_line(cg, "IF(ICALL.EQ.4) THEN")
+    cg <- increase_indent(cg)
+    levels <- ordcat_levels(model)
+    for (l in levels) {
+        cg <- add_code(cg, ordered_categorical_simulation_code(l))
+        cg <- add_empty_line(cg)
+    }
+    cg <- add_line(cg, "DV=SDV")
+    cg <- decrease_indent(cg)
+    cg <- add_line(cg, "ENDIF")
+    cg
+}
+
+ordered_categorical_simulation_code <- function(levels) {
+    cg <- code_generator()
+    cg <- add_line(cg, paste0("IF(MODEL.EQ.OC", levels, ") THEN"))
+    cg <- increase_indent(cg)
+    cg <- add_line(cg, "CALL RANDOM(2, R)")
+    cg <- add_line(cg, "SDV=0")
+    for (i in 1:(levels - 1)) {
+        cg <- add_line(cg, paste0("IF(R.LT.PGE", i, ") SDV=", i))
+    }
+    cg <- decrease_indent(cg)
+    cg <- add_line(cg, "ENDIF")
+    cg
 }

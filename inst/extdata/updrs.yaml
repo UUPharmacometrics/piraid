@@ -1,137 +1,104 @@
 scale_name: UPDRS
-- item:
-    number: 14
+items:
+  - number: 14
     levels: 3
     type: ordcat
-- item:
-    number: 15
+  - number: 15
     levels: 4
     type: ordcat
-- item:
-    number: 16
+  - number: 16
     levels: 2
     type: ordcat
-- item:
-    number: 17
+  - number: 17
     levels: 3
     type: ordcat
-- item:
-    number: 18
+  - number: 18
     levels: 3
     type: ordcat
-- item:
-    number: 19
+  - number: 19
     levels: 2
     type: ordcat
-- item:
-    number: 20
+  - number: 20
     levels: 4
     type: ordcat
-- item:
-    number: 21
+  - number: 21
     levels: 3
     type: ordcat
-- item:
-    number: 22
+  - number: 22
     levels: 3
     type: ordcat
-- item:
-    number: 24
+  - number: 24
     levels: 3
     type: ordcat
-- item:
-    number: 25
+  - number: 25
     levels: 3
     type: ordcat
-- item:
-    number: 26
+  - number: 26
     levels: 2
     type: ordcat
-- item:
-    number: 27
+  - number: 27
     levels: 3
     type: ordcat
-- item:
-    number: 28
+  - number: 28
     levels: 4
     type: ordcat
-- item:
-    number: 29
+  - number: 29
     levels: 4
     type: ordcat
-- item:
-    number: 30
+  - number: 30
     levels: 4
     type: ordcat
-- item:
-    number: 31
+  - number: 31
     levels: 3
     type: ordcat
-- item:
-    number: 32
+  - number: 32
     levels: 4
     type: ordcat
-- item:
-    number: 33
+  - number: 33
     levels: 3
     type: ordcat
-- item:
-    number: 34
+  - number: 34
     levels: 4
     type: ordcat
-- item:
-    number: 35
+  - number: 35
     levels: 4
     type: ordcat
-- item:
-    number: 36
+  - number: 36
     levels: 4
     type: ordcat
-- item:
-    number: 37
+  - number: 37
     levels: 3
     type: ordcat
-- item:
-    number: 38
+  - number: 38
     levels: 4
     type: ordcat
-- item:
-    number: 39
+  - number: 39
     levels: 3
     type: ordcat
-- item:
-    number: 40
+  - number: 40
     levels: 4
     type: ordcat
-- item:
-    number: 41
+  - number: 41
     levels: 4
     type: ordcat
-- item:
-    number: 42
+  - number: 42
     levels: 4
     type: ordcat
-- item:
-    number: 43
+  - number: 43
     levels: 3
     type: ordcat
-- item:
-    number: 44
+  - number: 44
     levels: 3
     type: ordcat
-- item:
-    number: 45
+  - number: 45
     levels: 3
     type: ordcat
-- item:
-    number: 47
+  - number: 47
     levels: 3
     type: ordcat
-- item:
-    number: 48
+  - number: 48
     levels: 3
     type: ordcat
-- item:
-    number: 49
+  - number: 49
     levels: 4
     type: ordcat

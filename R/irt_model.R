@@ -1,8 +1,15 @@
-irt_model <- function() {
-    structure(list(items=list()), class="irt_model")
+irt_model <- function(scale) {
+    structure(list(scale=scale), class="irt_model")
 }
 
+
+set_scale <- function(model, scale) {
+    model$scale <- scale
+}
+
+
 render <- function(x) UseMethod("render")
+
 
 render.irt_model <- function(model) {
     next_theta <- 1
@@ -13,7 +20,7 @@ render.irt_model <- function(model) {
     cg <- add_code(cg, type_constants(model))
     cg <- add_empty_line(cg)
     cg <- banner_comment(cg, "assignment of item parameters")
-    for (item in model$items) {
+    for (item in model$scale$items) {
         res <- irt_item_assignment_code(item, next_theta)
         next_theta <- res$next_theta
         cg <- add_code(cg, res$code)
@@ -24,27 +31,11 @@ render.irt_model <- function(model) {
     get_code(cg)
 }
 
-add_item <- function(model, item) {
-    model$items <- c(model$items, list(item))
-    model
-}
-
-
-# Get a sorted array of ordered categorical levels
-ordcat_levels <- function(model) {
-    levels <- c()
-    for (item in model$items) {
-        if (item$type == "ordcat") {
-            levels <- c(levels, item$levels) 
-        }
-    }
-    sort(unique(levels))
-}
 
 type_constants <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "constants to select model type")
-    levels <- ordcat_levels(model)
+    levels <- ordcat_levels(model$scale)
     cg <- add_line(cg, "MODEL=0")
     if (length(levels) > 0) {
         for (l in levels) {
@@ -54,9 +45,10 @@ type_constants <- function(model) {
     cg
 }
 
+
 data_models_code <- function(model) {
     cg <- code_generator()
-    ordcat_levels <- ordcat_levels(model)
+    ordcat_levels <- ordcat_levels(model$scale)
     if (length(ordcat_levels) > 0) {
         for (l in ordcat_levels) {
             cg <- add_code(cg, ordered_categorical_data_model_code(l))
@@ -64,27 +56,6 @@ data_models_code <- function(model) {
         }
     }
     cg
-}
-
-
-predefined_scale <- function(model, scale) {
-    scale <- tolower(scale)
-    path <- system.file("extdata", paste0(scale, ".yaml"), package="nmIRT")
-    if (path == "") {
-        stop("Error: No such predefined scale. Available scale is UPDRS")
-    }
-    db <- yaml::read_yaml(path)
-    for (item in db$items) {
-        new_irt_item <- irt_item(number=item$number, levels=item$levels, type=item$type)
-        model <- add_item(model, new_irt_item)
-    }
-    model
-}
-
-
-
-irt_item <- function(number, levels, type) {
-    structure(list(number=number, levels=levels, type=type), class="irt_item")
 }
 
 irt_item_assignment_code <- function(item, next_theta) {
@@ -145,7 +116,7 @@ simulation_code <- function(model) {
     cg <- banner_comment(cg, "simulation code")
     cg <- add_line(cg, "IF(ICALL.EQ.4) THEN")
     cg <- increase_indent(cg)
-    levels <- ordcat_levels(model)
+    levels <- ordcat_levels(model$scale)
     for (l in levels) {
         cg <- add_code(cg, ordered_categorical_simulation_code(l))
         cg <- add_empty_line(cg)
@@ -155,6 +126,7 @@ simulation_code <- function(model) {
     cg <- add_line(cg, "ENDIF")
     cg
 }
+
 
 ordered_categorical_simulation_code <- function(levels) {
     cg <- code_generator()

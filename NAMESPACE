@@ -1,6 +1,7 @@
 import(methods)
 export(render)
 export(irt_model)
+export(irt_scale)
 export(predefined_scale)
 S3method(render, irt_model)
 export(irt_item)

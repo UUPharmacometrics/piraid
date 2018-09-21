@@ -3,18 +3,32 @@ irt_scale <- function() {
 }
 
 predefined_scale <- function(scale_name) {
-    scale <- irt_scale()
     scale_name <- tolower(scale_name)
     path <- system.file("extdata", paste0(scale_name, ".yaml"), package="nmIRT")
     if (path == "") {
         stop("Error: No such predefined scale. Available scale is UPDRS")
     }
-    db <- yaml::read_yaml(path)
+    load_scale(path)
+}
+
+load_scale <- function(filename) {
+    scale <- irt_scale()
+    db <- yaml::read_yaml(filename)
     for (item in db$items) {
         new_irt_item <- irt_item(number=item$number, levels=item$levels, type=item$type)
         scale <- add_item(scale, new_irt_item)
     }
     scale
+}
+
+# Determine the scale from a dataset using the ITEM, DV and MDV columns
+scale_from_dataset <- function(filename, item='ITEM', dv='DV') {
+    df <- read.csv(filename)
+    if ('MDV' %in% colnames(df)) {
+        df <- dplyr::filter(df, MDV == 0)
+    }
+    df <- dplyr::select(df, !!item, !!dv)
+    distinct <- dplyr::group_by_(df, item) %>% distinct_(dv) %>% arrange_(item, dv)
 }
 
 add_item <- function(scale, item) {

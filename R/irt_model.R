@@ -21,7 +21,7 @@ render.irt_model <- function(model) {
     cg <- add_empty_line(cg)
     cg <- banner_comment(cg, "assignment of item parameters")
     for (item in model$scale$items) {
-        res <- irt_item_assignment_code(item, next_theta)
+        res <- irt_item_assignment_code(model$scale, item, next_theta)
         next_theta <- res$next_theta
         cg <- add_code(cg, res$code)
     }
@@ -35,12 +35,11 @@ render.irt_model <- function(model) {
 type_constants <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "constants to select model type")
-    levels <- ordcat_levels(model$scale)
+    #levels <- ordcat_levels(model$scale)
+    levels <- ordcat_level_arrays(model$scale)
     cg <- add_line(cg, "MODEL=0")
-    if (length(levels) > 0) {
-        for (l in levels) {
-            cg <- add_line(cg, paste0("OC", l, "=", l))
-        } 
+    for (i in 1:length(levels)) {
+        cg <- add_line(cg, paste0("OC", i, "=", i, '    ; ', levels_as_string(levels[[i]])))
     }
     cg
 }
@@ -58,14 +57,25 @@ data_models_code <- function(model) {
     cg
 }
 
-irt_item_assignment_code <- function(item, next_theta) {
+# Return code symbol for type constant given scale and item
+model_type_constant <- function(scale, item) {
+    ordcat_levels <- ordcat_level_arrays(scale)
+    for (i in 1:length(ordcat_levels)) {
+        if (length(item$levels) == length(ordcat_levels[[i]]) && all(item$levels == ordcat_levels[[i]])) {
+            return(paste0("OC", i))
+        }
+    }
+}
+
+
+irt_item_assignment_code <- function(scale, item, next_theta) {
     cg <- code_generator()
     cg <- add_line(cg, paste0("IF(ITEM.EQ.", item$number, ") THEN"))
     cg <- increase_indent(cg)
-    cg <- add_line(cg, paste0("MODEL=OC", item$levels))
+    cg <- add_line(cg, paste0("MODEL=", model_type_constant(scale, item)))
     cg <- add_line(cg, paste0("DIS=THETA(", next_theta, ")"))
     next_theta <- next_theta + 1
-    for (i in 1:(item$levels - 1)) {
+    for (i in 1:(length(item$levels) - 1)) {
         cg <- add_line(cg, paste0("DIF", i, "=THETA(", next_theta, ")"))
         next_theta <- next_theta + 1
     }
@@ -101,9 +111,10 @@ ordered_categorical_data_model_code <- function(levels) {
     cg <- decrease_indent(cg)
     cg <- add_line(cg, "ENDIF")
     cg <- add_empty_line(cg)
-    for (i in 0:(levels - 1)) {
+    for (i in 0:(levels - 2)) {
         cg <- add_line(cg, paste0("IF(MODEL.EQ.OC", levels, ".AND.DV.EQ.", i, ") P=P", i))
     }
+    cg <- add_line(cg, paste0("IF(MODEL.EQ.OC", levels, ".AND.DV.GE.", levels - 1, ") P=P", levels - 1))
     cg <- add_line(cg, "IF(P.LT.1E-16) P=1E-16")
     cg <- add_line(cg, "IF(P.GT.(1-1E-16)) P=1-1E-16")
     cg <- add_line(cg, paste0("IF(MODEL.EQ.OC", levels, ") Y=-2*LOG(P)"))

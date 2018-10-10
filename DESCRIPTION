@@ -12,7 +12,8 @@ Depends:
 Imports:
     methods,
     yaml,
-    dplyr
+    dplyr,
+    stringr
 Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 NeedsCompilation: no

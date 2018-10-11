@@ -32,7 +32,7 @@ scale_from_dataset <- function(df, item='ITEM', dv='DV') {
         df <- dplyr::filter(df, MDV == 0)
     }
     df <- dplyr::select(df, !!item, !!dv)
-    distinct <- dplyr::group_by_(df, item) %>% distinct_(dv) %>% summarise(DV=list(!!sym(dv)))
+    distinct <- dplyr::group_by_(df, item) %>% dplyr::distinct_(dv) %>% dplyr::summarise(DV=list(!!rlang::sym(dv)))
     for (i in  1:nrow(distinct)) {
         item_no <- distinct[i, 'ITEM']
         levels <- distinct[i, 'DV'][[1]][[1]]

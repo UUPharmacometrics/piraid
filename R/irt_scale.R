@@ -22,13 +22,24 @@ load_scale <- function(filename) {
 }
 
 # Determine the scale from a dataset using the ITEM, DV and MDV columns
-scale_from_dataset <- function(filename, item='ITEM', dv='DV') {
-    df <- read.csv(filename)
+# df can be a data.frame or a filename
+scale_from_dataset <- function(df, item='ITEM', dv='DV') {
+    if (is.character(df)) {
+        df <- read.csv(df)
+    }
+    scale <- irt_scale()
     if ('MDV' %in% colnames(df)) {
         df <- dplyr::filter(df, MDV == 0)
     }
     df <- dplyr::select(df, !!item, !!dv)
-    distinct <- dplyr::group_by_(df, item) %>% distinct_(dv) %>% arrange_(item, dv)
+    distinct <- dplyr::group_by_(df, item) %>% distinct_(dv) %>% summarise(DV=list(!!sym(dv)))
+    for (i in  1:nrow(distinct)) {
+        item_no <- distinct[i, 'ITEM']
+        levels <- distinct[i, 'DV'][[1]][[1]]
+        new_item <- irt_item(as.numeric(item_no), levels, "ordcat")     # Assuming ordered categorical here
+        scale <- add_item(scale, new_item)
+    }
+    scale
 }
 
 add_item <- function(scale, item) {

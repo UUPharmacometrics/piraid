@@ -14,9 +14,7 @@ render.irt_model <- function(model) {
     next_theta <- 1
     cg <- code_generator()
     cg <- add_line(cg, "$PROBLEM")
-    if (!is.null(model$dataset)) {
-        cg <- add_line(cg, paste0("$DATA ", model$dataset))
-    }
+    cg <- add_code(cg, data_and_input_code(model))
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$PRED")
     cg <- add_line(cg, "PSI=THETA(1)+ETA(1)")
@@ -38,6 +36,17 @@ add_dataset <- function(model, filename) {
     model$dataset <- filename
     model
 }
+
+data_and_input_code <- function(model) {
+    cg <- code_generator()
+    if (!is.null(model$dataset)) {
+        df <- read.csv(model$dataset, nrows=0)
+        cg <- add_line(cg, paste0("$INPUT ", paste(colnames(df), collapse='')))
+        cg <- add_line(cg, paste0("$DATA ", model$dataset))
+    }
+    cg
+}
+
 
 type_constants <- function(model) {
     cg <- code_generator()

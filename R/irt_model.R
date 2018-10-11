@@ -47,10 +47,10 @@ type_constants <- function(model) {
 
 data_models_code <- function(model) {
     cg <- code_generator()
-    ordcat_levels <- ordcat_levels(model$scale)
+    ordcat_levels <- ordcat_level_arrays(model$scale)
     if (length(ordcat_levels) > 0) {
         for (l in ordcat_levels) {
-            cg <- add_code(cg, ordered_categorical_data_model_code(l))
+            cg <- add_code(cg, ordered_categorical_data_model_code(model$scale, l))
             cg <- add_empty_line(cg)
         }
     }
@@ -85,39 +85,40 @@ irt_item_assignment_code <- function(scale, item, next_theta) {
 }
 
 
-ordered_categorical_data_model_code <- function(levels) {
+ordered_categorical_data_model_code <- function(scale, levels) {
+    dummy_item <- irt_item(0, levels, "ordcat")
     cg <- code_generator()
-    cg <- banner_comment(cg, paste0("ordered categorical data model with ", levels, " levels"))
-    cg <- add_line(cg, paste0("IF(MODEL.EQ.OC", levels, ") THEN"))
+    cg <- banner_comment(cg, paste0("ordered categorical data model with ", length(levels), " levels: ", levels_as_string(levels)))
+    cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ") THEN"))
     cg <- increase_indent(cg)
     cg <- add_line(cg, "DIFG1=DIF1")
-    if (levels > 2) {
-        for (i in 1:(levels - 2)) {
+    if (length(levels) > 2) {
+        for (i in 1:(length(levels) - 2)) {
             cg <- add_line(cg, paste0("DIFG", i + 1, "=DIFG", i, "+DIF", i + 1))
         }
     }
     cg <- add_empty_line(cg)
-    for (i in 1:(levels - 1)) {
+    for (i in 1:(length(levels) - 1)) {
         cg <- add_line(cg, paste0("PGE", i, "=EXP(DIS*(PSI-DIFG", i, "))/(1+EXP(DIS*(PSI-DIFG", i, ")))"))
     } 
     cg <- add_empty_line(cg)
-    cg <- add_line(cg, "P0=1-PGE1")
-    if (levels > 2) {
-        for (i in 1:(levels - 2)) {
-            cg <- add_line(cg, paste0("P", i, "=PGE", i, "-PGE", i + 1))
+    cg <- add_line(cg, paste0("P", levels[1], "=1-PGE1"))
+    if (length(levels) > 2) {
+        for (i in 1:(length(levels) - 2)) {
+            cg <- add_line(cg, paste0("P", levels[i + 1], "=PGE", i, "-PGE", i + 1))
         }
     }
-    cg <- add_line(cg, paste0("P", levels - 1, "=PGE", levels - 1))
+    cg <- add_line(cg, paste0("P", levels[length(levels)], "=PGE", i + 1))
     cg <- decrease_indent(cg)
     cg <- add_line(cg, "ENDIF")
     cg <- add_empty_line(cg)
-    for (i in 0:(levels - 2)) {
-        cg <- add_line(cg, paste0("IF(MODEL.EQ.OC", levels, ".AND.DV.EQ.", i, ") P=P", i))
+    for (e in levels[-length(levels)]) {
+        cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ".AND.DV.EQ.", e, ") P=P", e))
     }
-    cg <- add_line(cg, paste0("IF(MODEL.EQ.OC", levels, ".AND.DV.GE.", levels - 1, ") P=P", levels - 1))
+    cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ".AND.DV.GE.", levels[length(levels)], ") P=P", levels[length(levels)]))
     cg <- add_line(cg, "IF(P.LT.1E-16) P=1E-16")
     cg <- add_line(cg, "IF(P.GT.(1-1E-16)) P=1-1E-16")
-    cg <- add_line(cg, paste0("IF(MODEL.EQ.OC", levels, ") Y=-2*LOG(P)"))
+    cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ") Y=-2*LOG(P)"))
     cg
 }
 
@@ -127,9 +128,9 @@ simulation_code <- function(model) {
     cg <- banner_comment(cg, "simulation code")
     cg <- add_line(cg, "IF(ICALL.EQ.4) THEN")
     cg <- increase_indent(cg)
-    levels <- ordcat_levels(model$scale)
+    levels <- ordcat_level_arrays(model$scale)
     for (l in levels) {
-        cg <- add_code(cg, ordered_categorical_simulation_code(l))
+        cg <- add_code(cg, ordered_categorical_simulation_code(model$scale, l))
         cg <- add_empty_line(cg)
     }
     cg <- add_line(cg, "DV=SDV")
@@ -139,14 +140,15 @@ simulation_code <- function(model) {
 }
 
 
-ordered_categorical_simulation_code <- function(levels) {
+ordered_categorical_simulation_code <- function(scale, levels) {
+    dummy_item <- irt_item(0, levels, "ordcat")
     cg <- code_generator()
-    cg <- add_line(cg, paste0("IF(MODEL.EQ.OC", levels, ") THEN"))
+    cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ") THEN"))
     cg <- increase_indent(cg)
     cg <- add_line(cg, "CALL RANDOM(2, R)")
-    cg <- add_line(cg, "SDV=0")
-    for (i in 1:(levels - 1)) {
-        cg <- add_line(cg, paste0("IF(R.LT.PGE", i, ") SDV=", i))
+    cg <- add_line(cg, paste0("SDV=", levels[1]))
+    for (i in 1:(length(levels) - 1)) {
+        cg <- add_line(cg, paste0("IF(R.LT.PGE", i, ") SDV=", levels[i + 1]))
     }
     cg <- decrease_indent(cg)
     cg <- add_line(cg, "ENDIF")

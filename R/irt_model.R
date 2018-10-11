@@ -10,11 +10,14 @@ set_scale <- function(model, scale) {
 
 render <- function(x) UseMethod("render")
 
-
 render.irt_model <- function(model) {
     next_theta <- 1
     cg <- code_generator()
     cg <- add_line(cg, "$PROBLEM")
+    if (!is.null(model$dataset)) {
+        cg <- add_line(cg, paste0("$DATA ", model$dataset))
+    }
+    cg <- add_empty_line(cg)
     cg <- add_line(cg, "$PRED")
     cg <- add_line(cg, "PSI=THETA(1)+ETA(1)")
     cg <- add_code(cg, type_constants(model))
@@ -31,6 +34,10 @@ render.irt_model <- function(model) {
     get_code(cg)
 }
 
+add_dataset <- function(model, filename) {
+    model$dataset <- filename
+    model
+}
 
 type_constants <- function(model) {
     cg <- code_generator()

@@ -1,4 +1,4 @@
-scale_name: UPDRS
+scale_name: MDS-UPDRS
 items:
   - number: 14
     levels: '[0,4]'

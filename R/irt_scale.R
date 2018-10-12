@@ -31,6 +31,9 @@ scale_from_dataset <- function(df, item='ITEM', dv='DV') {
     if ('MDV' %in% colnames(df)) {
         df <- dplyr::filter(df, MDV == 0)
     }
+    if ('EVID' %in% colnames(df)) {
+        df <- dplyr::filter(df, EVID == 0)
+    }
     df <- dplyr::select(df, !!item, !!dv)
     distinct <- dplyr::group_by_(df, item) %>% dplyr::distinct_(dv) %>% dplyr::summarise(DV=list(!!rlang::sym(dv)))
     for (i in  1:nrow(distinct)) {

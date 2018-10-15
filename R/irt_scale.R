@@ -17,6 +17,12 @@ predefined_scale <- function(scale_name) {
     load_scale(path)
 }
 
+#' Load a scale from file
+#'
+#' \code{load_scale} loads a scale file from disk and returns a scale object
+#'
+#' @param filename
+#' @return A scale object
 load_scale <- function(filename) {
     scale <- irt_scale()
     db <- yaml::read_yaml(filename)
@@ -25,6 +31,19 @@ load_scale <- function(filename) {
         scale <- add_item(scale, new_irt_item)
     }
     scale
+}
+
+#' Save a scale to file
+#'
+#' \code{save_scale} saves a scale object to a file
+#'
+#' @param scale
+#' @param filename
+save_scale <- function(scale, filename) {
+    for (i in 1:(length(scale$items))) {
+        scale$items[[i]]$levels <- levels_as_string(scale$items[[i]]$levels)
+    }
+    yaml::as.yaml(scale)
 }
 
 # Determine the scale from a dataset using the ITEM, DV and MDV columns

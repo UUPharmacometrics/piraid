@@ -46,7 +46,11 @@ scale_from_dataset <- function(df, item='ITEM', dv='DV') {
 }
 
 add_item <- function(scale, item) {
-    scale$items <- c(scale$items, list(item))
+    if (length(item$levels) < 2) {
+        warning(paste0("Item ", item$number, " has only 1 level and will not be added to the scale."))
+    } else {
+        scale$items <- c(scale$items, list(item))
+    }
     scale
 }
 

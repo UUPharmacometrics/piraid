@@ -43,7 +43,7 @@ save_scale <- function(scale, filename) {
     for (i in 1:(length(scale$items))) {
         scale$items[[i]]$levels <- levels_as_string(scale$items[[i]]$levels)
     }
-    yaml::as.yaml(scale)
+    yaml::write_yaml(scale, filename)
 }
 
 # Determine the scale from a dataset using the ITEM, DV and MDV columns

@@ -24,7 +24,7 @@ test_that("Add item", {
 })
 
 test_that("Predefined scale", {
-    scale <- predefined_scale("UPDRS")
+    scale <- predefined_scale("MDS-UPDRS")
     item <- get_item(scale, 14)
     expect_equal(item$number, 14)
     expect_equal(item$levels, c(0, 1, 2, 3, 4))

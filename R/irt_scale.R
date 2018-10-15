@@ -12,7 +12,7 @@ predefined_scale <- function(scale_name) {
     scale_name <- tolower(scale_name)
     path <- system.file("extdata", paste0(scale_name, ".yaml"), package="nmIRT")
     if (path == "") {
-        stop("Error: No such predefined scale. Available scale is UPDRS")
+        stop("Error: No such predefined scale. Available scale is MDS-UPDRS")
     }
     load_scale(path)
 }
@@ -79,7 +79,7 @@ get_item <- function(scale, number) {
 #' @return A new scale with the item added
 #' @keywords internal
 #' @examples
-#' scale <- predefined_scale("UPDRS")
+#' scale <- predefined_scale("MDS-UPDRS")
 #' item <- irt_item(99, c(1,2,3), "ordcat")
 #' scale <- add_item(scale, item)
 add_item <- function(scale, item) {

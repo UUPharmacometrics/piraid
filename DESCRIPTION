@@ -1,4 +1,5 @@
 Package: nmIRT
+Encoding: UTF-8
 Version: 0.1
 Date: 2018-08-31
 Title: Generation and diagnosis of non-linear mixed effects 'IRT' models
@@ -23,3 +24,4 @@ URL: https://github.com/UUPharmacometrics/nmIRT
 BugReports: https://github.com/UUPharmacometrics/nmIRT/issues
 License: LGPL-3
 Copyright: 2018 Rikard Nordgren, Sebastian Ueckert and Mats O. Karlsson
+RoxygenNote: 6.1.0

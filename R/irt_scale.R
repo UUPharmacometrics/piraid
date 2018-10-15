@@ -2,6 +2,12 @@ irt_scale <- function() {
     structure(list(items=list()), class="irt_scale")
 }
 
+#' Retrieve a built in scale
+#' 
+#' \code{predefined_scale} returns a scale object from a build in scale
+#'
+#' @param scale_name The name of the scale
+#' @return A scale object or an error if the scale does not exist
 predefined_scale <- function(scale_name) {
     scale_name <- tolower(scale_name)
     path <- system.file("extdata", paste0(scale_name, ".yaml"), package="nmIRT")
@@ -45,8 +51,41 @@ scale_from_dataset <- function(df, item='ITEM', dv='DV') {
     scale
 }
 
+#' Get an item from a scale
+#' 
+#' \code{get_item} returns the item with the specified number (id)
+#'
+#' @param scale The scale
+#' @param number The item number to retrieve
+#' @return The item with corresponding number or NULL if not found
+#' @keywords internal
+get_item <- function(scale, number) {
+    for (item in scale$items) {
+        if (item$number == number) {
+            return(item)
+        }
+    }
+    NULL
+}
+
+#' Add an item to a scale
+#'
+#' \code{add_item} returns a new scale with item added
+#' Will not add items with less than 2 levels and warn instead.
+#' Will not add items with the same number as item already in scale
+#'
+#' @param scale An irt_scale object
+#' @param item An irt_item to add to scale
+#' @return A new scale with the item added
+#' @keywords internal
+#' @examples
+#' scale <- predefined_scale("UPDRS")
+#' item <- irt_item(99, c(1,2,3), "ordcat")
+#' scale <- add_item(scale, item)
 add_item <- function(scale, item) {
-    if (length(item$levels) < 2) {
+    if (!is.null(get_item(scale, item$number))) {
+        warning(paste0("Item ", item$number, " is already present in the scale and will not be added."))
+    } else if (length(item$levels) < 2) {
         warning(paste0("Item ", item$number, " has only 1 level and will not be added to the scale."))
     } else {
         scale$items <- c(scale$items, list(item))

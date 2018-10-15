@@ -27,7 +27,7 @@ load_scale <- function(filename) {
     scale <- irt_scale()
     db <- yaml::read_yaml(filename)
     for (item in db$items) {
-        new_irt_item <- irt_item(number=item$number, levels=item_levels(item$levels), type=item$type, categories=item$categories)
+        new_irt_item <- irt_item(number=item$number, levels=item_levels(item$levels), type=item$type, categories=strsplit(item$categories, ",")[[1]])
         scale <- add_item(scale, new_irt_item)
     }
     scale
@@ -42,8 +42,27 @@ load_scale <- function(filename) {
 save_scale <- function(scale, filename) {
     for (i in 1:(length(scale$items))) {
         scale$items[[i]]$levels <- levels_as_string(scale$items[[i]]$levels)
+        if (!is.null(scale$items[[i]]$categories)) {
+            scale$items[[i]]$categories <- paste(scale$items[[i]]$categories, collapse=",")
+        }
     }
     yaml::write_yaml(scale, filename)
+}
+
+#' Select categories
+#'
+#' \code{select_categories} get a new scale with items from selected categories only
+#'
+#' @param scale
+#' @param categories
+select_categories <- function(scale, categories) {
+    new_scale <- irt_scale()
+    for (item in scale$items) {
+        if (any(categories %in% item$categories)) {
+            new_scale <- add_item(new_scale, item)
+        }
+    }
+    new_scale
 }
 
 # Determine the scale from a dataset using the ITEM, DV and MDV columns

@@ -27,7 +27,7 @@ load_scale <- function(filename) {
     scale <- irt_scale()
     db <- yaml::read_yaml(filename)
     for (item in db$items) {
-        new_irt_item <- irt_item(number=item$number, levels=item_levels(item$levels), type=item$type)
+        new_irt_item <- irt_item(number=item$number, levels=item_levels(item$levels), type=item$type, categories=item$categories)
         scale <- add_item(scale, new_irt_item)
     }
     scale
@@ -137,8 +137,8 @@ ordcat_level_arrays <- function(scale) {
 }
 
 
-irt_item <- function(number, levels, type) {
-    structure(list(number=number, levels=levels, type=type), class="irt_item")
+irt_item <- function(number, levels, type, categories=NULL) {
+    structure(list(number=number, levels=levels, type=type, categories=categories), class="irt_item")
 }
 
 

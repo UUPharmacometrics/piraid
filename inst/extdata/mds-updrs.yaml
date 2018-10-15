@@ -1,138 +1,137 @@
-scale_name: MDS-UPDRS
 items:
   - number: 14
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 15
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 16
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 17
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 18
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 19
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 20
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 21
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 22
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 24
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 25
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 26
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 27
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 28
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 29
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 30
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 31
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 32
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 33
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 34
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 35
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 36
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 37
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 38
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 39
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 40
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 41
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 42
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 43
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 44
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 45
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 47
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 48
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor
   - number: 49
     levels: '[0,4]'
     type: ordcat
-    subscale: motor
+    categories: motor

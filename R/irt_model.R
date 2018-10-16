@@ -170,3 +170,14 @@ ordered_categorical_simulation_code <- function(scale, levels) {
     cg <- add_line(cg, "ENDIF")
     cg
 }
+
+initial_thetas <- function(model) {
+    stopifnot('dataset' %in% names(model))
+    df <- read.csv(model$dataset, stringAsFactors=FALSE)
+    df <- df %>%
+        dplyr::select(DV, ITEM) %>%      
+        dplyr::mutate(DV=as.numeric(replace(DV, DV=='.', '0'))) %>%
+        dplyr::mutate(DUMMYCOL=row_number()) %>%
+        tidyr::spread(ITEM, DV, fill=0) %>%
+        dplyr::select(-DUMMYCOL)
+}

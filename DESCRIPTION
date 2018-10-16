@@ -14,7 +14,8 @@ Imports:
     methods,
     yaml,
     dplyr,
-    stringr
+    stringr,
+    tidyr
 Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 NeedsCompilation: no

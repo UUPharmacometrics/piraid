@@ -1,4 +1,43 @@
 items:
+  - number: 1
+    levels: '[0,4]'
+    type: ordcat
+  - number: 2
+    levels: '[0,4]'
+    type: ordcat
+  - number: 3
+    levels: '[0,4]'
+    type: ordcat
+  - number: 4
+    levels: '[0,4]'
+    type: ordcat
+  - number: 5
+    levels: '[0,4]'
+    type: ordcat
+  - number: 6
+    levels: '[0,4]'
+    type: ordcat
+  - number: 7
+    levels: '[0,4]'
+    type: ordcat
+  - number: 8
+    levels: '[0,4]'
+    type: ordcat
+  - number: 9
+    levels: '[0,4]'
+    type: ordcat
+  - number: 10
+    levels: '[0,4]'
+    type: ordcat
+  - number: 11
+    levels: '[0,4]'
+    type: ordcat
+  - number: 12
+    levels: '[0,4]'
+    type: ordcat
+  - number: 13
+    levels: '[0,4]'
+    type: ordcat
   - number: 14
     levels: '[0,4]'
     type: ordcat

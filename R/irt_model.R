@@ -1,10 +1,31 @@
-irt_model <- function(scale) {
-    structure(list(scale=scale), class="irt_model")
+#' Create an IRT model object
+#' 
+#' \code{irt_model} returns a newly created model object
+#'
+#' @param scale The scale
+#' @param base_scale A base scale on which the scale is based
+#' @return A model object
+irt_model <- function(scale, base_scale) {
+    if (missing(base_scale)) {
+        base_scale <- scale
+    }
+    structure(list(scale=scale, base_scale=scale), class="irt_model")
 }
 
-
-set_scale <- function(model, scale) {
+#' Change the scale and/or base scale of an IRT model object
+#' 
+#' \code{set_scale} returns a newly created model object
+#'
+#' @param scale The scale
+#' @param base_scale A base scale on which the scale is based
+#' @return The updated model object
+set_scale <- function(model, scale, base_scale) {
     model$scale <- scale
+    if (missing(base_scale)) {
+        base_scale <- scale
+    }
+    model$base_scale <- base_scale
+    model
 }
 
 
@@ -29,6 +50,8 @@ render.irt_model <- function(model) {
     cg <- add_empty_line(cg)
     cg <- add_code(cg, data_models_code(model))
     cg <- add_code(cg, simulation_code(model))
+    cg <- add_code(cg, initial_thetas(model))
+    cg <- add_code(cg, initial_item_thetas(model))
     get_code(cg)
 }
 
@@ -172,12 +195,60 @@ ordered_categorical_simulation_code <- function(scale, levels) {
 }
 
 initial_thetas <- function(model) {
-    stopifnot('dataset' %in% names(model))
-    df <- read.csv(model$dataset, stringAsFactors=FALSE)
-    df <- df %>%
+    cg <- code_generator()
+    cg <- add_line(cg, "$THETA")
+    cg <- add_line(cg, "0.1  ; PSI")
+    cg
+}
+
+initial_item_thetas <- function(model) {
+    #stopifnot('dataset' %in% names(model))
+    #df <- read.csv(model$dataset, stringAsFactors=FALSE)
+    #initial_thetas_from_dataset(df, model$scale)
+    cg <- code_generator()
+    for (base_item in model$base_scale$items) {
+        item <- get_item(model$scale, base_item$number) 
+        if (is.null(item)) {
+            cg <- theta_placeholder(cg, item)
+        } else {
+            cg <- add_line(cg, paste0("(0,1) ; I", item$number, "DIS"))
+            for (i in seq(1, length(item$levels) - 1)) {
+                cg <- add_line(cg, paste0("(0.1) ; I", item$number, "DIF", i))
+            }
+        }
+    }
+    cg
+}
+
+theta_placeholder <- function(cg, item) {
+    cg <- code_generator()
+    for (dummy in length(item$levels)) {
+        cg <- add_line(cg, "0 FIX; THETA PLACEHOLDER")
+    }
+    cg 
+}
+
+initial_thetas_from_dataset <- function(df, scale) {
+    wide <- df %>%
         dplyr::select(DV, ITEM) %>%      
         dplyr::mutate(DV=as.numeric(replace(DV, DV=='.', '0'))) %>%
-        dplyr::mutate(DUMMYCOL=row_number()) %>%
+        dplyr::mutate(DUMMYCOL=dplyr::row_number()) %>%    # Needed this dummy column for spread to work
         tidyr::spread(ITEM, DV, fill=0) %>%
         dplyr::select(-DUMMYCOL)
+    item_df <- data.frame(row.names=1:nrow(wide))
+    for (col in colnames(wide)) {
+        item <- nmIRT:::get_item(scale, as.numeric(col))
+        if (is.null(item)) {
+            next
+        }
+        levels <- item$levels
+        data <- wide[[col]]
+        # Successively binarize the levels like (0)-(1,2),(0,1)-(2)
+        for (i in 1:(length(levels) - 1)) {
+            cur_levels <- levels[1:i]
+            item_df[paste0(col, "_", i)] <- as.integer(! (data %in% cur_levels))
+        }
+    }
+    fit <- ltm::rasch(item_df, constraint = cbind(length(item_df) + 1, 1))
+    fit
 }

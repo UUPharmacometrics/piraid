@@ -27,7 +27,12 @@ load_scale <- function(filename) {
     scale <- irt_scale()
     db <- yaml::read_yaml(filename)
     for (item in db$items) {
-        new_irt_item <- irt_item(number=item$number, levels=item_levels(item$levels), type=item$type, categories=strsplit(item$categories, ",")[[1]])
+        if (is.null(item$categories)) {
+            categories <- c()
+        } else {
+            categories <- strsplit(item$categories, ",")[[1]]
+        }
+        new_irt_item <- irt_item(number=item$number, levels=item_levels(item$levels), type=item$type, categories=categories)
         scale <- add_item(scale, new_irt_item)
     }
     scale
@@ -127,6 +132,16 @@ add_item <- function(scale, item) {
         warning(paste0("Item ", item$number, " has only 1 level and will not be added to the scale."))
     } else {
         scale$items <- c(scale$items, list(item))
+    }
+    scale
+}
+
+remove_item <- function(scale, number) {
+    for (i in seq(1, length(scale$items))) {
+        if (scale$items[[i]]$number == number) {
+            scale$items[[i]] <- NULL
+            break
+        }
     }
     scale
 }

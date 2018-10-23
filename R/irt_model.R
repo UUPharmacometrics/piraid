@@ -9,7 +9,7 @@ irt_model <- function(scale, base_scale) {
     if (missing(base_scale)) {
         base_scale <- scale
     }
-    structure(list(scale=scale, base_scale=scale), class="irt_model")
+    structure(list(scale=scale, base_scale=base_scale), class="irt_model")
 }
 
 #' Change the scale and/or base scale of an IRT model object
@@ -209,7 +209,7 @@ initial_item_thetas <- function(model) {
     for (base_item in model$base_scale$items) {
         item <- get_item(model$scale, base_item$number) 
         if (is.null(item)) {
-            cg <- theta_placeholder(cg, item)
+            cg <- theta_placeholder(cg, base_item)
         } else {
             cg <- add_line(cg, paste0("(0,1) ; I", item$number, "DIS"))
             for (i in seq(1, length(item$levels) - 1)) {
@@ -221,8 +221,7 @@ initial_item_thetas <- function(model) {
 }
 
 theta_placeholder <- function(cg, item) {
-    cg <- code_generator()
-    for (dummy in length(item$levels)) {
+    for (dummy in item$levels) {
         cg <- add_line(cg, "0 FIX; THETA PLACEHOLDER")
     }
     cg 

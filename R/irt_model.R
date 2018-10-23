@@ -34,6 +34,7 @@ render <- function(x) UseMethod("render")
 render.irt_model <- function(model) {
     next_theta <- 1
     cg <- code_generator()
+    cg <- add_line(cg, "$SIZES LIM6=4000")
     cg <- add_line(cg, "$PROBLEM")
     cg <- add_code(cg, data_and_input_code(model))
     cg <- add_empty_line(cg)
@@ -50,6 +51,11 @@ render.irt_model <- function(model) {
     cg <- add_empty_line(cg)
     cg <- add_code(cg, data_models_code(model))
     cg <- add_code(cg, simulation_code(model))
+    cg <- add_empty_line(cg)
+    cg <- add_code(cg, estimation_task(model))
+    cg <- add_empty_line(cg)
+    cg <- add_code(cg, omegas(model))
+    cg <- add_empty_line(cg)
     cg <- add_code(cg, initial_thetas(model))
     cg <- add_code(cg, initial_item_thetas(model))
     get_code(cg)
@@ -64,8 +70,8 @@ data_and_input_code <- function(model) {
     cg <- code_generator()
     if (!is.null(model$dataset)) {
         df <- read.csv(model$dataset, nrows=0)
-        cg <- add_line(cg, paste0("$INPUT ", paste(colnames(df), collapse='')))
-        cg <- add_line(cg, paste0("$DATA ", model$dataset))
+        cg <- add_line(cg, paste0("$INPUT ", paste(colnames(df), collapse=' ')))
+        cg <- add_line(cg, paste0("$DATA ", normalizePath(model$dataset)))
     }
     cg
 }
@@ -151,7 +157,10 @@ ordered_categorical_data_model_code <- function(scale, levels) {
     cg <- decrease_indent(cg)
     cg <- add_line(cg, "ENDIF")
     cg <- add_empty_line(cg)
-    for (e in levels[-length(levels)]) {
+    cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ".AND.DV.LE.", levels[1], ") P=P", levels[1]))
+    remaining <- levels[-length(levels)]
+    remaining <- remaining[-1]
+    for (e in remaining) {
         cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ".AND.DV.EQ.", e, ") P=P", e))
     }
     cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ".AND.DV.GE.", levels[length(levels)], ") P=P", levels[length(levels)]))
@@ -178,6 +187,31 @@ simulation_code <- function(model) {
     cg
 }
 
+estimation_task <- function(model) {
+    cg <- code_generator()
+    cg <- banner_comment(cg, "estimation task")
+    cg <- add_line(cg, "$ESTIMATION METHOD=COND LAPLACE -2LL MAXEVAL=99999")
+    cg <- add_line(cg, "$COVARIANCE")
+    max <- 0
+    for (item in model$scale$items) {
+        if (length(item$levels) > max) {
+            max <- length(item$levels)
+        }
+    }
+    dif_numbers <- seq(1, max - 1)
+    columns <- c("ID", "ITEM", "DV", "PSI", "DIS", paste0("DIF", dif_numbers), paste0("DIFG", dif_numbers))
+    columns_str <- paste(columns, collapse=" ")
+    cg <- add_line(cg, paste0("$TABLE ", columns_str))
+    cg <- add_line(cg, "       FILE=item_parameters_tab1")
+    cg
+}
+
+omegas <- function(model) {
+    cg <- code_generator()
+    cg <- banner_comment(cg, "random effects")
+    cg <- add_line(cg, "$OMEGA 0.1")
+    cg
+}
 
 ordered_categorical_simulation_code <- function(scale, levels) {
     dummy_item <- irt_item(0, levels, "ordcat")
@@ -196,6 +230,7 @@ ordered_categorical_simulation_code <- function(scale, levels) {
 
 initial_thetas <- function(model) {
     cg <- code_generator()
+    cg <- banner_comment(cg, "item parameters")
     cg <- add_line(cg, "$THETA")
     cg <- add_line(cg, "0.1  ; PSI")
     cg

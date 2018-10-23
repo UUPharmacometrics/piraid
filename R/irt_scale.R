@@ -125,7 +125,7 @@ get_item <- function(scale, number) {
 #' scale <- predefined_scale("MDS-UPDRS")
 #' item <- irt_item(99, c(1,2,3), "ordcat")
 #' scale <- add_item(scale, item)
-add_item <- function(scale, item) {
+add_item <- function(scale, item, overwrite=FALSE) {
     if (!is.null(get_item(scale, item$number))) {
         warning(paste0("Item ", item$number, " is already present in the scale and will not be added."))
     } else if (length(item$levels) < 2) {
@@ -142,6 +142,38 @@ remove_item <- function(scale, number) {
             scale$items[[i]] <- NULL
             break
         }
+    }
+    scale
+}
+
+get_item_index <- function(scale, number) {
+    for (i in seq(1, length(scale$items))) {
+        if (scale$items[[i]]$number == number) {
+            return(i)
+        }
+    }
+    NULL
+}
+
+#' 
+#' Consolidated levels will also be consolidated after simulations
+#'
+consolidate_levels <- function(scale, item_number, levels) {
+    stopifnot(length(levels) >= 2)
+    item <- get_item(scale, item_number)
+    run <- rle(item$levels %in% levels)$values      # Check that consolidated levels are at an edge of the available levels and consecutive
+    low <- all(run == c(TRUE, FALSE))
+    high <- all(run == c(FALSE, TRUE))
+    if (length(run) == 2 && (low || high)) {
+        if (low) {
+            levels_to_remove <- sort(levels)[-length(levels)]
+        } else {
+            levels_to_remove <- sort(levels)[-1]
+        }
+        index <- get_item_index(scale, item_number)
+        scale$items[[index]]$levels <- setdiff(item$levels, levels_to_remove)
+    } else {
+        error("Could only consolidate levels at the low or high end of the level range")
     }
     scale
 }

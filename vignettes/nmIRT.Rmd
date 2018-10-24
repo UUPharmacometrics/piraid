@@ -59,7 +59,27 @@ scale <- scale_from_dataset("mydata.csv")
 model <- irt_model(scale)
 ```
 
+## Using a base scale for a model
+A model can have one scale and one base_scale. By default they are the same, but in some cases it is of benefit to use the base scale. A base scale is the scale from which the ordinary scale was derived. Let us say that you are using a predefined scale, but are modifing it in some way, for example by removing items. Then the base scale would still be the full scale allowing the model generation procedure to put placeholders for the missing items.
+```{r}
+base_scale <- predefined_scale("MDS-UPDRS")
+scale <- remove_item(base_scale, 14) # This will remove item number 14
+model <- irt_model(scale, base_scale)
+```
+
+## Attach a dataset to a model
+```{r, eval=FALSE}
+model <- add_dataset(model, "my.dta")
+```
+
 ## Generate the NONMEM code from a model object
 ```{r, fig.show='hold'}
-cat(render(model))
+scale <- scale_from_dataset(df)
+model <- irt_model(scale)
+print_model(model)
+```
+
+## Write the NONMEM code to a file
+```{r, eval=FALSE}
+save_model(model, "run1.mod")
 ```

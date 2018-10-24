@@ -29,9 +29,17 @@ set_scale <- function(model, scale, base_scale) {
 }
 
 
-render <- function(x) UseMethod("render")
+print_model <- function(model) {
+    cat(str_irt_model(model))
+}
 
-render.irt_model <- function(model) {
+save_model <- function(model, filename) {
+    fp <- file(filename)
+    writeLines(str_irt_model(model), fp)
+    close(fp)
+}
+
+str_irt_model <- function(model) {
     next_theta <- 1
     cg <- code_generator()
     cg <- add_line(cg, "$SIZES LIM6=4000")

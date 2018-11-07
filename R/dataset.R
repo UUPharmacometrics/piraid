@@ -32,13 +32,26 @@ wide_item_data <- function(df, baseline=FALSE) {
     dplyr::select(-ID, -TIME)
 }
 
-# Can handle bybassing a data.frame
-read_dataset <- function(filename) {
+# Can handle bypassing a data.frame
+# Reads in a dataset, checks for mandatory columns and renames columns to standard names
+read_dataset <- function(filename, id='ID', time='TIME', item='ITEM', dv='DV') {
     if (is.character(filename)) {
-        read.csv(filename, stringsAsFactors=FALSE)
+        df <- read.csv(filename, stringsAsFactors=FALSE)
     } else if (is.data.frame(filename)) {
-        filename
+        df <- filename
     } else {
         stop("Input to read_dataset is neither a filename nor a data.frame")
     }
+    
+    cols <- colnames(df)
+    replace(cols, cols==id, 'ID')
+    replace(cols, cols==time, 'TIME')
+    replace(cols, cols==item, 'ITEM')
+    replace(cols, cols==dv, 'DV')
+    mandatory_columns <- c('ID', 'TIME', 'ITEM', 'DV')
+    if (!all(mandatory_columns %in% cols)) {
+        stop(paste0("Mandatory columns ", paste(cols[!(mandatory_columns %in% cols)], collapse=", "), " not present in dataset"))
+    }
+    colnames(df) <- cols
+    df
 }

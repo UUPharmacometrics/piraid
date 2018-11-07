@@ -2,42 +2,55 @@ items:
   - number: 1
     levels: '[0,4]'
     type: ordcat
+    categories: non-motor
   - number: 2
     levels: '[0,4]'
     type: ordcat
+    categories: non-motor
   - number: 3
     levels: '[0,4]'
     type: ordcat
+    categories: non-motor
   - number: 4
     levels: '[0,4]'
     type: ordcat
+    categories: non-motor
   - number: 5
     levels: '[0,4]'
     type: ordcat
+    categories: non-motor
   - number: 6
     levels: '[0,4]'
     type: ordcat
+    categories: non-motor
   - number: 7
     levels: '[0,4]'
     type: ordcat
+    categories: non-motor
   - number: 8
     levels: '[0,4]'
     type: ordcat
+    categories: non-motor
   - number: 9
     levels: '[0,4]'
     type: ordcat
+    categories: non-motor
   - number: 10
     levels: '[0,4]'
     type: ordcat
+    categories: non-motor
   - number: 11
     levels: '[0,4]'
     type: ordcat
+    categories: non-motor
   - number: 12
     levels: '[0,4]'
     type: ordcat
+    categories: non-motor
   - number: 13
     levels: '[0,4]'
     type: ordcat
+    categories: non-motor
   - number: 14
     levels: '[0,4]'
     type: ordcat

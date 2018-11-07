@@ -16,7 +16,7 @@ Imports:
     dplyr,
     stringr,
     tidyr,
-    ltm
+    mirt
 Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 NeedsCompilation: no

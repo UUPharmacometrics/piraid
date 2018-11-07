@@ -77,12 +77,7 @@ scale_from_dataset <- function(df, item='ITEM', dv='DV') {
         df <- read.csv(df)
     }
     scale <- irt_scale()
-    if ('MDV' %in% colnames(df)) {
-        df <- dplyr::filter(df, MDV == 0)
-    }
-    if ('EVID' %in% colnames(df)) {
-        df <- dplyr::filter(df, EVID == 0)
-    }
+    df <- filter_observations(df)
     df <- dplyr::select(df, !!item, !!dv)
     distinct <- dplyr::group_by_(df, item) %>% dplyr::distinct_(dv) %>% dplyr::summarise(DV=list(!!rlang::sym(dv)))
     for (i in  1:nrow(distinct)) {
@@ -236,4 +231,13 @@ levels_as_string <- function(levels) {
     } else {    # Need to use () notation
         s <- paste0('(', paste(as.character(x), collapse=","), ')')
     }
+}
+
+# Get array of all item numbers from scale
+all_items <- function(scale) {
+    a <- c()
+    for (item in scale$items) {
+        a <- c(a, item$number)
+    }
+    a
 }

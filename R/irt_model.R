@@ -270,27 +270,86 @@ theta_placeholder <- function(cg, item) {
     cg 
 }
 
-initial_thetas_from_dataset <- function(df, scale) {
+initial_thetas_from_data <- function(df) {
     wide <- df %>%
-        dplyr::select(DV, ITEM) %>%      
-        dplyr::mutate(DV=as.numeric(replace(DV, DV=='.', '0'))) %>%
-        dplyr::mutate(DUMMYCOL=dplyr::row_number()) %>%    # Needed this dummy column for spread to work
-        tidyr::spread(ITEM, DV, fill=0) %>%
-        dplyr::select(-DUMMYCOL)
-    item_df <- data.frame(row.names=1:nrow(wide))
-    for (col in colnames(wide)) {
-        item <- nmIRT:::get_item(scale, as.numeric(col))
-        if (is.null(item)) {
-            next
-        }
-        levels <- item$levels
-        data <- wide[[col]]
-        # Successively binarize the levels like (0)-(1,2),(0,1)-(2)
-        for (i in 1:(length(levels) - 1)) {
-            cur_levels <- levels[1:i]
-            item_df[paste0(col, "_", i)] <- as.integer(! (data %in% cur_levels))
+        nmIRT:::prepare_dataset() %>%
+        wide_item_data(baseline=TRUE)
+
+    mirt_model <- mirt::mirt(data=wide, model=1, itemtype="graded")
+    coeffs <- coef(mirt_model, IRTpars=TRUE)
+    dataset_scale <- scale_from_dataset(df)
+    inits <- list()
+    
+    for (item in dataset_scale$items) {
+        scale_levels <- item$levels
+        print(item$number)
+        dataset_levels_with_na <- unique(wide[[item$number]])
+        dataset_levels <- sort(dataset_levels_with_na[!is.na(dataset_levels_with_na)])
+        item_coeffs <- as.numeric(coeffs[[item$number]])
+        if (length(scale_levels) == length(dataset_levels)) {
+            # Here the levels must be the same. This should be a previously checked invariant when 
+            # attaching the dataset.
+            inits <- c(inits, list(item_coeffs))
+        } else {
+            if (all(scale_levels[1:length(dataset_levels)] == dataset_levels)) {
+                # Missing level above
+                edge_initials <- rep("0 FIX", length(scale_levels) - length(dataset_levels))
+                inits <- c(inits, list(c(item_coeffs, edge_initials)))
+            } else if (all(tail(scale_levels, length(dataset_levels)) == dataset_levels)) {
+                # Missing level below
+                edge_initials <- rep("1 FIX", length(scale_levels) - length(dataset_levels))
+                inits <- c(inits, list(c(item_coeffs[1], edge_initials, item_coeffs[-1])))
+            } else {
+                # Level gaps
+                
+            }
         }
     }
-    fit <- ltm::rasch(item_df, constraint = cbind(length(item_df) + 1, 1))
-    fit
+    inits
+}
+
+# Supports filename or data.frame as data
+data_check <- function(model_or_data, scale=NULL) {
+    if (class(model_or_data) == "irt_model") {
+        dataset <- model_or_data$dataset
+        scale <- model_or_data$scale
+    } else {
+        dataset <- model_or_data
+    }
+
+    df <- read_dataset(dataset) %>%
+        prepare_dataset()
+
+    all_dataset_items <- unique(df$ITEM)
+    all_scale_items <- all_items(scale)
+    dataset_in_scale <- all_dataset_items %in% all_scale_items
+    if (!all(dataset_in_scale)) {
+        missing_items <- all_dataset_items[!dataset_in_scale]
+        cat("Items present in dataset but not in scale:", paste(missing_items, collapse=", "), "\n")
+    }
+    scale_in_dataset <- all_scale_items %in% all_dataset_items
+    if (!all(scale_in_dataset)) {
+        missing_items <- all_scale_items[!scale_in_dataset]
+        cat("Items present in scale but not in dataset:", paste(missing_items, collapse=", "), "\n")
+    }
+
+    wide <- wide_item_data(df)
+    missing_items <- c()
+    for (item in scale$items) {
+        n <- as.character(item$number)
+        if (n %in% colnames(wide)) {
+            dataset_levels <- sort(unique(wide[[n]]))
+            scale_levels <- item$levels
+            dataset_in_scale <- dataset_levels %in% scale_levels
+            if (!all(dataset_in_scale)) {
+                missing_levels <- dataset_levels[!dataset_in_scale]
+                cat("Levels present in dataset but not in scale for item", n, ":", paste(missing_levels, collapse=", "), "\n")
+            }
+            scale_in_dataset <- scale_levels %in% dataset_levels
+            if (!all(scale_in_dataset)) {
+                missing_levels <- scale_levels[!scale_in_dataset]
+                cat("Levels present in scale but not in dataset for item", n, ":", paste(missing_levels, collapse=", "), "\n")
+            }
+        }
+    }
 }

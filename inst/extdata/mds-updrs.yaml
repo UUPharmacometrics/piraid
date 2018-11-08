@@ -90,7 +90,7 @@ items:
   - number: 23
     levels: '[0,4]'
     type: ordcat
-    categories: 
+    categories: tremor 
   - number: 24
     levels: '[0,4]'
     type: ordcat
@@ -198,67 +198,67 @@ items:
   - number: 50
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 51
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 52
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 53
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 54
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 55
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 56
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 57
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 58
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 59
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 60
     levels: '[0,1]'
     type: binary
-    categories: motor
+    categories: tremor
   - number: 61
     levels: '[0,1]'
     type: binary
-    categories: motor
+    categories: tremor
   - number: 62
     levels: '[0,5]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 63
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 64
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 65
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: tremor
   - number: 66
     levels: '[0,4]'
     type: ordcat

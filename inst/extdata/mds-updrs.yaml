@@ -182,7 +182,7 @@ items:
   - number: 46
     levels: '[0,4]'
     type: ordcat
-    categories: 
+    categories: motor 
   - number: 47
     levels: '[0,4]'
     type: ordcat

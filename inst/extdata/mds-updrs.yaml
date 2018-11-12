@@ -262,12 +262,12 @@ items:
   - number: 66
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: motor-complications
   - number: 67
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: motor-complications
   - number: 68
     levels: '[0,4]'
     type: ordcat
-    categories: motor
+    categories: motor-complications

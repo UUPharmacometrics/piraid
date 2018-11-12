@@ -88,11 +88,17 @@ data_and_input_code <- function(model) {
 type_constants <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "constants to select model type")
-    #levels <- ordcat_levels(model$scale)
     levels <- ordcat_level_arrays(model$scale)
     cg <- add_line(cg, "MODEL=0")
     for (i in 1:length(levels)) {
         cg <- add_line(cg, paste0("OC", i, "=", i, '    ; ', levels_as_string(levels[[i]])))
+    }
+    i = i + 1
+    for (item in model$scale$items) {
+        if (item$type == "binary") {
+            cg <- add_line(cg, paste0("BIN=", i, '    ; binary ', levels_as_string(item$levels)))
+            break
+        }
     }
     cg
 }
@@ -100,6 +106,12 @@ type_constants <- function(model) {
 
 data_models_code <- function(model) {
     cg <- code_generator()
+    bin_items <- unique_binary_items(model$scale)
+    if (length(bin_items) > 0) {
+        for (item in bin_items) {
+            cg <- add_code(cg, binary_data_model_code(item))
+        }
+    }
     ordcat_levels <- ordcat_level_arrays(model$scale)
     if (length(ordcat_levels) > 0) {
         for (l in ordcat_levels) {
@@ -112,6 +124,9 @@ data_models_code <- function(model) {
 
 # Return code symbol for type constant given scale and item
 model_type_constant <- function(scale, item) {
+    if (item$type == "binary") {
+        return("BIN")
+    }
     ordcat_levels <- ordcat_level_arrays(scale)
     for (i in 1:length(ordcat_levels)) {
         if (length(item$levels) == length(ordcat_levels[[i]]) && all(item$levels == ordcat_levels[[i]])) {
@@ -126,11 +141,17 @@ irt_item_assignment_code <- function(scale, item, next_theta) {
     cg <- add_line(cg, paste0("IF(ITEM.EQ.", item$number, ") THEN"))
     cg <- increase_indent(cg)
     cg <- add_line(cg, paste0("MODEL=", model_type_constant(scale, item)))
-    cg <- add_line(cg, paste0("DIS=THETA(", next_theta, ")"))
-    next_theta <- next_theta + 1
-    for (i in 1:(length(item$levels) - 1)) {
-        cg <- add_line(cg, paste0("DIF", i, "=THETA(", next_theta, ")"))
+    if (item$type == "ordcat") {
+        cg <- add_line(cg, paste0("DIS=THETA(", next_theta, ")"))
         next_theta <- next_theta + 1
+        for (i in 1:(length(item$levels) - 1)) {
+            cg <- add_line(cg, paste0("DIF", i, "=THETA(", next_theta, ")"))
+            next_theta <- next_theta + 1
+        }
+    } else { # type == "binary"
+        cg <- add_line(cg, paste0("DIS=THETA(", next_theta, ")"))
+        cg <- add_line(cg, paste0("DIF=THETA(", next_theta, ")"))
+        cg <- add_line(cg, paste0("GUE=THETA(", next_theta, ")"))
     }
     cg <- decrease_indent(cg)
     cg <- add_line(cg, "ENDIF")

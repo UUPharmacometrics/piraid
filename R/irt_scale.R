@@ -89,6 +89,26 @@ scale_from_dataset <- function(df, item='ITEM', dv='DV') {
     scale
 }
 
+# Get an overview of a scale
+scale_overview <- function(scale) {
+    n <- length(scale$items)
+    df <- data.frame(Item=rep(as.numeric(NA), n), Levels=rep("", n), Type=rep("", n), Categories=rep("", n), stringsAsFactors=FALSE)
+    i <- 1
+    for (item in scale$items) {
+        print(list(item$number, levels_as_string(item$levels), item$type, paste(item$categories, collapse=NULL)))
+        if (length(item$categories) > 0) {
+            categories <- paste(item$categories, collapse=NULL)
+        } else {
+            categories <- ""
+        }
+        df[i, ] <- list(item$number, levels_as_string(item$levels), item$type, categories)
+        i <- i + 1
+    }
+    df
+}
+
+
+
 #' Get an item from a scale
 #' 
 #' \code{get_item} returns the item with the specified number (id)
@@ -125,6 +145,8 @@ add_item <- function(scale, item, overwrite=FALSE) {
         warning(paste0("Item ", item$number, " is already present in the scale and will not be added."))
     } else if (length(item$levels) < 2) {
         warning(paste0("Item ", item$number, " has only 1 level and will not be added to the scale."))
+    } else if (length(item$levels) != 2 && item$type == "binary") {
+        warning(paste0("Item ", item$number, " is of type binary, but does not have exactly 2 levels. Will not be added to scale."))
     } else {
         scale$items <- c(scale$items, list(item))
     }
@@ -191,8 +213,8 @@ ordcat_level_arrays <- function(scale) {
     for (item in scale$items) {
         if (item$type == "ordcat") {
             levels[[i]] <- item$levels
+            i = i + 1
         }
-        i = i + 1
     }
     unique(levels)
 }
@@ -240,4 +262,16 @@ all_items <- function(scale) {
         a <- c(a, item$number)
     }
     a
+}
+
+# Get list of all unique items of binary type
+unique_binary_items <- function(scale) {
+    items <- list()
+    for (item in scale$items) {
+        if (item$type == "binary") {
+            item$number = 1
+            items <- c(items, list(item))
+        }
+    }
+    unique(items)
 }

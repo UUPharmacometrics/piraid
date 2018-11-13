@@ -58,6 +58,8 @@ str_irt_model <- function(model) {
     }
     cg <- add_empty_line(cg)
     cg <- add_code(cg, data_models_code(model))
+    cg <- add_code(cg, response_probability_prediction_code())
+    cg <- add_empty_line(cg)
     cg <- add_code(cg, simulation_code(model))
     cg <- add_empty_line(cg)
     cg <- add_code(cg, estimation_task(model))
@@ -108,9 +110,7 @@ data_models_code <- function(model) {
     cg <- code_generator()
     bin_items <- unique_binary_items(model$scale)
     if (length(bin_items) > 0) {
-        for (item in bin_items) {
-            cg <- add_code(cg, binary_data_model_code(item))
-        }
+        cg <- add_code(cg, binary_data_model_code())    # Only one type of binary allowed (0, 1)
     }
     ordcat_levels <- ordcat_level_arrays(model$scale)
     if (length(ordcat_levels) > 0) {
@@ -158,6 +158,22 @@ irt_item_assignment_code <- function(scale, item, next_theta) {
     list(code=cg, next_theta=next_theta)
 }
 
+binary_data_model_code <- function() {
+    cg <- code_generator()
+    cg <- banner_comment(cg, "binary data model")
+    cg <- add_line(cg, "IF(MODEL.EQ.BIN) THEN")
+    cg <- increase_indent(cg)
+    cg <- add_line(cg, "P1=GUE+(1-GUE)*EXP(DIS*PSI-DIF))/(1+EXP(DIS*(PSI-DIF)))")
+    cg <- add_line(cg, "P0=1-P1")
+    cg <- decrease_indent(cg)
+    cg <- add_line(cg, "ENDIF")
+    cg <- add_line(cg, "IF(MODEL.EQ.BIN.AND.DV.EQ.0) P=P0")
+    cg <- add_line(cg, "IF(MODEL.EQ.BIN.AND.DV.EQ.1) P=P1")
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, "IPRED = P1*1")
+    cg <- add_empty_line(cg)
+    cg
+}
 
 ordered_categorical_data_model_code <- function(scale, levels) {
     dummy_item <- irt_item(0, levels, "ordcat")
@@ -193,18 +209,45 @@ ordered_categorical_data_model_code <- function(scale, levels) {
         cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ".AND.DV.EQ.", e, ") P=P", e))
     }
     cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ".AND.DV.GE.", levels[length(levels)], ") P=P", levels[length(levels)]))
-    cg <- add_line(cg, "IF(P.LT.1E-16) P=1E-16")
-    cg <- add_line(cg, "IF(P.GT.(1-1E-16)) P=1-1E-16")
-    cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ") Y=-2*LOG(P)"))
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, paste0("IPRED=", levels_probability_sum(levels)))
     cg
 }
 
+levels_probability_sum <- function(levels) {
+    levels <- levels[levels!=0]
+    term_func <- function(level) {
+        paste0("P", level, "*", level)
+    }
+    terms <- sapply(levels, term_func)
+    paste(terms, collapse=" + ")
+}
+
+response_probability_prediction_code <- function() {
+    cg <- code_generator()
+    cg <- banner_comment(cg, "Response probability prediction and residual")
+    cg <- add_line(cg, "IF(P.LT.1E-16) P=1E-16  ; To protect for P->0")
+    cg <- add_line(cg, "IF(P.GT.(1-1E-16)) P=1-1E-16  ; To protect for P->1")
+    cg <- add_line(cg, "Y=-2*LOG(P)")
+    cg <- add_line(cg, "RES=DV-IPRED")
+    cg
+}
 
 simulation_code <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "simulation code")
     cg <- add_line(cg, "IF(ICALL.EQ.4) THEN")
     cg <- increase_indent(cg)
+    bin_items <- unique_binary_items(model$scale)
+    if (length(bin_items) > 0) {
+        cg <- add_line(cg, "IF(MODEL.EQ.BIN) THEN")
+        cg <- increase_indent(cg)
+        cg <- add_line(cg, "CALL RANDOM (2,R)")
+        cg <- add_line(cg, "SDV=0")
+        cg <- add_line(cg, "IF(P1.GT.R) SDV=1")
+        cg <- decrease_indent(cg)
+        cg <- add_line(cg, "ENDIF")
+    }
     levels <- ordcat_level_arrays(model$scale)
     for (l in levels) {
         cg <- add_code(cg, ordered_categorical_simulation_code(model$scale, l))
@@ -219,19 +262,24 @@ simulation_code <- function(model) {
 estimation_task <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "estimation task")
-    cg <- add_line(cg, "$ESTIMATION METHOD=COND LAPLACE -2LL MAXEVAL=99999")
+    cg <- add_line(cg, "$ESTIMATION METHOD=COND LAPLACE -2LL MAXEVAL=999999 PRINT=1")
     cg <- add_line(cg, "$COVARIANCE")
     max <- 0
+    binary <- ""
     for (item in model$scale$items) {
         if (length(item$levels) > max) {
             max <- length(item$levels)
         }
+        if (item$type == "binary") {
+            binary <- " GUE "   
+        }
     }
     dif_numbers <- seq(1, max - 1)
-    columns <- c("ID", "ITEM", "DV", "PSI", "DIS", paste0("DIF", dif_numbers), paste0("DIFG", dif_numbers))
+    cg <- add_line(cg, "$TABLE ID ITEM DV PSI TIME IPRED RES FILE=psi_estimates NOAPPEND ONEHEADER NOPRINT")
+    columns <- c("ITEM", "DIS", paste0("DIF", dif_numbers), paste0("DIFG", dif_numbers))
     columns_str <- paste(columns, collapse=" ")
-    cg <- add_line(cg, paste0("$TABLE ", columns_str))
-    cg <- add_line(cg, "       FILE=item_parameters_tab1")
+    cg <- add_line(cg, paste0("$TABLE ", columns_str, binary))
+    cg <- add_line(cg, "       FILE=item_parameters_tab1 NOAPPEND ONEHEADER NOPRINT")
     cg
 }
 

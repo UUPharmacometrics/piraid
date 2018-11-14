@@ -339,40 +339,57 @@ theta_placeholder <- function(cg, item) {
     cg 
 }
 
-initial_thetas_from_data <- function(df) {
+initial_thetas_from_data <- function(model, df) {
     wide <- df %>%
         nmIRT:::prepare_dataset() %>%
         wide_item_data(baseline=TRUE)
 
     mirt_model <- mirt::mirt(data=wide, model=1, itemtype="graded")
     coeffs <- coef(mirt_model, IRTpars=TRUE)
-    dataset_scale <- scale_from_dataset(df)
+    #dataset_scale <- scale_from_dataset(df)
     inits <- list()
     
-    for (item in dataset_scale$items) {
+    for (item in model$scale$items) {
+        if (not (item$number %in% colnames(wide))) {
+            inits <- c(inits, list(rep("0 FIX", length(item$levels))))
+            next
+        }
         scale_levels <- item$levels
-        print(item$number)
         dataset_levels_with_na <- unique(wide[[item$number]])
         dataset_levels <- sort(dataset_levels_with_na[!is.na(dataset_levels_with_na)])
         item_coeffs <- as.numeric(coeffs[[item$number]])
-        if (length(scale_levels) == length(dataset_levels)) {
-            # Here the levels must be the same. This should be a previously checked invariant when 
-            # attaching the dataset.
-            inits <- c(inits, list(item_coeffs))
-        } else {
-            if (all(scale_levels[1:length(dataset_levels)] == dataset_levels)) {
-                # Missing level above
-                edge_initials <- rep("0 FIX", length(scale_levels) - length(dataset_levels))
-                inits <- c(inits, list(c(item_coeffs, edge_initials)))
-            } else if (all(tail(scale_levels, length(dataset_levels)) == dataset_levels)) {
-                # Missing level below
-                edge_initials <- rep("1 FIX", length(scale_levels) - length(dataset_levels))
-                inits <- c(inits, list(c(item_coeffs[1], edge_initials, item_coeffs[-1])))
+        current_inits <- item_coeffs[1]
+        cur_coeff_pos <- 2
+        in_beginning <- TRUE
+        in_end <- FALSE
+        # Find out position of final gap (will be after end_gap_pos)
+        end_gap_pos <- length(scale_levels)
+        for (level in rev(scale_levels)) {
+            if (level %in% dataset_levels) {
+                   break
+            }
+            end_gap_pos <- end_gap_pos - 1
+        }
+        for (i in 1:length(scale_levels)) {
+            if (i > end_gap_pos) {
+                in_end <- TRUE
+            }
+            level <- scale_levels[i]
+            if (level %in% dataset_levels) {
+                current_inits <- c(current_inits, item_coeffs[cur_coeff_pos])
+                cur_coeff_pos <- cur_coeff_pos + 1
+                in_beginning <- FALSE
             } else {
-                # Level gaps
-                
+                if (in_beginning) {
+                    current_inits <- c(current_inits, "1 FIX")
+                } else if (in_end) {
+                    current_inits <- c(current_inits, "0 FIX")
+                } else {
+                    current_inits <- c(item_coeffs[cur_coeff_pos])  # Duplicate next initial for a gap
+                }
             }
         }
+        inits <- c(inits, list(current_inits))
     }
     inits
 }

@@ -32,7 +32,8 @@ load_scale <- function(filename) {
         } else {
             categories <- strsplit(item$categories, ",")[[1]]
         }
-        new_irt_item <- irt_item(number=item$number, levels=item_levels(item$levels), type=item$type, categories=categories)
+        new_irt_item <- irt_item(number=item$number, levels=item_levels(item$levels),
+            type=item$type, categories=categories, inits=item$inits$values)
         scale <- add_item(scale, new_irt_item)
     }
     scale
@@ -220,8 +221,8 @@ ordcat_level_arrays <- function(scale) {
 }
 
 
-irt_item <- function(number, levels, type, categories=NULL) {
-    structure(list(number=number, levels=levels, type=type, categories=categories), class="irt_item")
+irt_item <- function(number, levels, type, categories=NULL, inits=NULL) {
+    structure(list(number=number, levels=levels, type=type, categories=categories, inits=inits), class="irt_item")
 }
 
 

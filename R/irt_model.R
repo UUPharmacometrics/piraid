@@ -9,7 +9,8 @@ irt_model <- function(scale, base_scale) {
     if (missing(base_scale)) {
         base_scale <- scale
     }
-    structure(list(scale=scale, base_scale=base_scale), class="irt_model")
+    model <- structure(list(scale=scale, base_scale=base_scale), class="irt_model")
+    initial_estimates(model)
 }
 
 #' Change the scale and/or base scale of an IRT model object
@@ -342,10 +343,10 @@ theta_placeholder <- function(cg, item) {
 initial_thetas_from_data <- function(model, df) {
     wide <- df %>%
         nmIRT:::prepare_dataset() %>%
-        wide_item_data(baseline=TRUE)
+        nmIRT:::wide_item_data(baseline=TRUE)
 
     mirt_model <- mirt::mirt(data=wide, model=1, itemtype="graded")
-    coeffs <- coef(mirt_model, IRTpars=TRUE)
+    coeffs <- mirt::coef(mirt_model, IRTpars=TRUE)
     #dataset_scale <- scale_from_dataset(df)
     inits <- list()
     
@@ -438,4 +439,16 @@ data_check <- function(model_or_data, scale=NULL) {
             }
         }
     }
+}
+
+# Set the initial estimates to a model. Default is to use the built in of the scale
+initial_estimates <- function(model) {
+    init_array <- c()
+    for (item in model$scale$items) {
+        if (!is.null(item$inits)) {
+            init_array <- c(init_array, item$inits)
+        }
+    }
+    model$inits <- init_array
+    model
 }

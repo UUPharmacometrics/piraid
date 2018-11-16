@@ -276,3 +276,38 @@ unique_binary_items <- function(scale) {
     }
     unique(items)
 }
+
+# Get array of labels for parameters of item
+item_labels <- function(item) {
+    if (item$type == "ordcat") {
+        dis_label <- paste0("I", item$number, "DIS")
+        dif_labels <- paste0("I", item$number, "DIF", 1:(length(item$levels - 1)))
+        labels <- c(dis_label, dif_labels)
+    } else {    # Currently binary
+        dis_label <- paste0("I", item$number, "DIS")
+        dif_label <- paste0("I", item$number, "DIF")
+        gue_label <- paste0("I", item$number, "GUE")
+        labels <- c(dis_label, dif_label, gue_label)
+    }
+    labels
+}
+
+# Create initial estimates string for item
+item_inits <- function(item) {
+    if (item$type == "ordcat") {
+        dis_init <- paste0("(0,", item$inits[1], ")")
+        dif1_init <- item$inits[2]
+        if (length(item$inits) > 2) {
+            dif_rest_inits <- paste0("(0,", item$inits[-1:-2], ",50)")
+        } else {
+            dif_rest_inits <- c()
+        }
+        inits <- c(dis_init, dif1_init, dif_rest_inits)
+    } else {    # Binary
+        dis_init <- paste0("(0,", item$inits[1], ")")
+        dif1_init <- item$inits[2]
+        dif2_init <- paste0("(0,", item$inits[3], ")")
+        inits <- c(dis_init, dif1_init, dif2_init)
+    }
+    inits
+}

@@ -10,7 +10,6 @@ irt_model <- function(scale, base_scale) {
         base_scale <- scale
     }
     model <- structure(list(scale=scale, base_scale=base_scale), class="irt_model")
-    initial_estimates(model)
 }
 
 #' Change the scale and/or base scale of an IRT model object
@@ -324,9 +323,18 @@ initial_item_thetas <- function(model) {
         if (is.null(item)) {
             cg <- theta_placeholder(cg, base_item)
         } else {
-            cg <- add_line(cg, paste0("(0,1) ; I", item$number, "DIS"))
-            for (i in seq(1, length(item$levels) - 1)) {
-                cg <- add_line(cg, paste0("(0.1) ; I", item$number, "DIF", i))
+            if (!is.null(item$inits)) {
+                labels <- item_labels(item)
+                inits <- item_inits(item)
+                for (line in paste0(inits, "  ; ", labels)) {
+                    cg <- add_line(cg, line)    # Or have add_line support arrays
+                }
+            } else {
+                # Fallback to simple inits for now: FIXME move fallback to item method "item_inits"
+                cg <- add_line(cg, paste0("(0,1) ; I", item$number, "DIS"))
+                for (i in seq(1, length(item$levels) - 1)) {
+                    cg <- add_line(cg, paste0("(0.1) ; I", item$number, "DIF", i))
+                }                    
             }
         }
     }
@@ -439,16 +447,4 @@ data_check <- function(model_or_data, scale=NULL) {
             }
         }
     }
-}
-
-# Set the initial estimates to a model. Default is to use the built in of the scale
-initial_estimates <- function(model) {
-    init_array <- c()
-    for (item in model$scale$items) {
-        if (!is.null(item$inits)) {
-            init_array <- c(init_array, item$inits)
-        }
-    }
-    model$inits <- init_array
-    model
 }

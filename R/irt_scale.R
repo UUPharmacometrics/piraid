@@ -96,7 +96,6 @@ scale_overview <- function(scale) {
     df <- data.frame(Item=rep(as.numeric(NA), n), Levels=rep("", n), Type=rep("", n), Categories=rep("", n), stringsAsFactors=FALSE)
     i <- 1
     for (item in scale$items) {
-        print(list(item$number, levels_as_string(item$levels), item$type, paste(item$categories, collapse=NULL)))
         if (length(item$categories) > 0) {
             categories <- paste(item$categories, collapse=NULL)
         } else {

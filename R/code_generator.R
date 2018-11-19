@@ -43,3 +43,9 @@ banner_comment <- function(generator, s) {
     string <- paste0(";", start, s, end)
     add_line(generator, string)
 }
+
+# comment out all code in generator
+comment_code <- function(generator) {
+    generator$code <- paste(";", generator$code)
+    generator
+}

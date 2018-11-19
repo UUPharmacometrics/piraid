@@ -275,11 +275,20 @@ estimation_task <- function(model) {
         }
     }
     dif_numbers <- seq(1, max - 1)
-    cg <- add_line(cg, "$TABLE ID ITEM DV PSI TIME IPRED RES FILE=psi_estimates NOAPPEND ONEHEADER NOPRINT")
+    cg <- add_line(cg, "$TABLE ID ITEM DV PSI TIME IPRED RES FILE=psi_tab1 NOAPPEND ONEHEADER NOPRINT")
     columns <- c("ITEM", "DIS", paste0("DIF", dif_numbers), paste0("DIFG", dif_numbers))
     columns_str <- paste(columns, collapse=" ")
     cg <- add_line(cg, paste0("$TABLE ", columns_str, binary))
     cg <- add_line(cg, "       FILE=item_parameters_tab1 NOAPPEND ONEHEADER NOPRINT")
+    cg
+}
+
+simulation_task <- function(model) {
+    cg <- code_generator()
+    cg <- add_line(cg, "$PROBLEM")
+    cg <- add_code(cg, data_and_input_code(model))
+    cg <- add_code(cg, "$SIMULATION (875435432) (3872543 UNIFORM) NOPREDICTION ONLYSIMULATION SUBPROBLEMS=1 TRUE=FINAL")
+    cg <- add_line(cg, "$TABLE ID ITEM DV PSI TIME IPRED RES FILE=simulation_tab1 NOAPPEND ONEHEADER NOPRINT")
     cg
 }
 

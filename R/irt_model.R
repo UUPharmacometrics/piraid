@@ -9,7 +9,7 @@ irt_model <- function(scale, base_scale) {
     if (missing(base_scale)) {
         base_scale <- scale
     }
-    model <- structure(list(scale=scale, base_scale=base_scale), class="irt_model")
+    model <- structure(list(scale=scale, base_scale=base_scale, simulation=FALSE), class="irt_model")
 }
 
 #' Change the scale and/or base scale of an IRT model object
@@ -68,6 +68,9 @@ str_irt_model <- function(model) {
     cg <- add_empty_line(cg)
     cg <- add_code(cg, initial_thetas(model))
     cg <- add_code(cg, initial_item_thetas(model))
+    if (model$simulation) {
+        cg <- add_code(cg, simulation_task(model))
+    }
     get_code(cg)
 }
 
@@ -76,12 +79,23 @@ add_dataset <- function(model, filename) {
     model
 }
 
-data_and_input_code <- function(model) {
+add_simulation <- function(model, subproblems=1) {
+    model$simulation <- TRUE
+    model$subproblems <- subproblems
+    model
+}
+
+data_and_input_code <- function(model, rewind=FALSE) {
     cg <- code_generator()
+    if (rewind) {
+        rewind_code = " REWIND"
+    } else {
+        rewind_code = ""
+    }
     if (!is.null(model$dataset)) {
         df <- read.csv(model$dataset, nrows=0)
         cg <- add_line(cg, paste0("$INPUT ", paste(colnames(df), collapse=' ')))
-        cg <- add_line(cg, paste0("$DATA ", normalizePath(model$dataset)))
+        cg <- add_line(cg, paste0("$DATA ", normalizePath(model$dataset), rewind_code))
     }
     cg
 }
@@ -285,9 +299,13 @@ estimation_task <- function(model) {
 
 simulation_task <- function(model) {
     cg <- code_generator()
+    cg <- add_empty_line(cg)
+    cg <- add_empty_line(cg)
     cg <- add_line(cg, "$PROBLEM")
-    cg <- add_code(cg, data_and_input_code(model))
-    cg <- add_code(cg, "$SIMULATION (875435432) (3872543 UNIFORM) NOPREDICTION ONLYSIMULATION SUBPROBLEMS=1 TRUE=FINAL")
+    cg <- add_empty_line(cg)
+    cg <- add_code(cg, data_and_input_code(model, rewind=TRUE))
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, paste0("$SIMULATION (875435432) (3872543 UNIFORM) NOPREDICTION ONLYSIMULATION SUBPROBLEMS=", model$subproblems, " TRUE=FINAL"))
     cg <- add_line(cg, "$TABLE ID ITEM DV PSI TIME IPRED RES FILE=simulation_tab1 NOAPPEND ONEHEADER NOPRINT")
     cg
 }

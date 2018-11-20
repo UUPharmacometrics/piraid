@@ -177,7 +177,7 @@ binary_data_model_code <- function() {
     cg <- banner_comment(cg, "binary data model")
     cg <- add_line(cg, "IF(MODEL.EQ.BIN) THEN")
     cg <- increase_indent(cg)
-    cg <- add_line(cg, "P1=GUE+(1-GUE)*EXP(DIS*PSI-DIF))/(1+EXP(DIS*(PSI-DIF)))")
+    cg <- add_line(cg, "P1=GUE+(1-GUE)*EXP(DIS*(PSI-DIF))/(1+EXP(DIS*(PSI-DIF)))")
     cg <- add_line(cg, "P0=1-P1")
     cg <- decrease_indent(cg)
     cg <- add_line(cg, "ENDIF")

@@ -42,7 +42,7 @@ save_model <- function(model, filename) {
 str_irt_model <- function(model) {
     next_theta <- 1
     cg <- code_generator()
-    cg <- add_line(cg, "$SIZES LIM6=4000")
+    cg <- add_line(cg, "$SIZES LIM6=4000 LTH=-1000")
     cg <- add_line(cg, "$PROBLEM")
     cg <- add_code(cg, data_and_input_code(model))
     cg <- add_empty_line(cg)

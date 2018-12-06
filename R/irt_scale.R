@@ -32,7 +32,11 @@ load_scale <- function(filename) {
         } else {
             categories <- strsplit(item$categories, ",")[[1]]
         }
-        new_irt_item <- irt_item(number=item$number, levels=item_levels(item$levels),
+        name <- item$name
+        if (is.null(name)) {
+            name <- ""
+        }
+        new_irt_item <- irt_item(number=item$number, name=name, levels=item_levels(item$levels),
             type=item$type, categories=categories, inits=item$inits$values)
         scale <- add_item(scale, new_irt_item)
     }
@@ -84,7 +88,7 @@ scale_from_dataset <- function(df, item='ITEM', dv='DV') {
     for (i in  1:nrow(distinct)) {
         item_no <- distinct[i, 'ITEM']
         levels <- sort(distinct[i, 'DV'][[1]][[1]])
-        new_item <- irt_item(as.numeric(item_no), levels, "ordcat")     # Assuming ordered categorical here
+        new_item <- irt_item(as.numeric(item_no), NULL, levels, "ordcat")     # Assuming ordered categorical here
         scale <- add_item(scale, new_item)
     }
     scale
@@ -220,8 +224,8 @@ ordcat_level_arrays <- function(scale) {
 }
 
 
-irt_item <- function(number, levels, type, categories=NULL, inits=NULL) {
-    structure(list(number=number, levels=levels, type=type, categories=categories, inits=inits), class="irt_item")
+irt_item <- function(number, name, levels, type, categories=NULL, inits=NULL) {
+    structure(list(number=number, name=name, levels=levels, type=type, categories=categories, inits=inits), class="irt_item")
 }
 
 
@@ -309,4 +313,16 @@ item_inits <- function(item) {
         inits <- c(dis_init, dif1_init, dif2_init)
     }
     inits
+}
+
+# Create an array of item labels with item numbers as names of entries
+item_name_list <- function(scale) {
+    numbers <- c()
+    item_names <- c()
+    for (item in scale$items) {
+        item_names <- c(item_names, item$name)
+        numbers <- c(numbers, item$number)
+    }
+    names(item_names) <- numbers
+    item_names  
 }

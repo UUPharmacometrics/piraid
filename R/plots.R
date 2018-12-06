@@ -1,39 +1,3 @@
-items1 <- c("14"="II.14.\n Speech",
-            "15"="II.15.\n Saliva \n and drooling",
-            "16"="II.16.\n Chewing and \n Swallowing",
-            "17"="II.17.\n Eating tasks",
-            "18"="II.18.\n Dressing",
-            "19"="II.19.\n Hygiene",
-            "20"="II.20.\n Handwriting",
-            "21"="II.21.\n Doing Hobbies\n activities",
-            "22"="II.22.\n Turning in bed",
-            "24"="II.24.\n Getting out\n of bed",
-            "25"="II.25.\n Walking and\n balance",
-            "26"="II.26.\n Freezing",
-            "27"="III.27.\n Speech",
-            "28"="III.28.\n Facial Expression",
-            "29"="III.29.\n Rigidity-Neck",
-            "30"="III.30.\n Rigidity-RUE",
-            "31"="III.31.\n Rigidity-LUE",
-            "32"="III.32.\n Rigidity-RLE",
-            "33"="III.33.\n Rigidity-LLE",
-            "34"="III.34.\n Finger tapping \n-Right hand",
-            "35"="III.35.\n Finger tapping\n-Left hand",
-            "36"="III.36.\n Hand movements\n-Right hand",
-            "37"="III.37.\n Hand movements\n-Left hand",
-            "38"="III.38.\n Pronation-supination \n movements\n- Right hand",
-            "39"="III.39.\n Pronation-supination \nmovements\n- Left hand",
-            "40"="III.40.\n Toe tapping\n-Right foot",
-            "41"="III.41.\n Toe tapping\n-Left foot",
-            "42"="III.42.\n Leg agility\n-Right leg",
-            "43"="III.43.\n Leg agility\n-Left leg",
-            "44"="III.44.\n Arising \n from chair",
-            "45"="III.45.\n Gait",
-            "47"="III.47.\n Postural stability",
-            "48"="III.48.\n Posture",
-            "49"="III.49.\n Global spontaneity\n of movement")
-
-
 # The Graded response model for an unknown number of DIF columns
 graded_response_model <- function(data) {
     column_names <- colnames(data)
@@ -52,11 +16,11 @@ graded_response_model <- function(data) {
 
 # TODO:
 # * Implement names of all items
-# * Put names into scale yaml
 # * Return plots instead of print
 # * Use ggforce paginate? or Benjamin's extra thingamajig
+# * Open file with table automatically
 
-icc_plots <- function(df, items_per_page=8) {
+icc_plots <- function(df, scale, items_per_page=8) {
     max_levels <- df %>%
         dplyr::group_by(ITEM) %>%
         dplyr::summarise(max_level=max(DV))
@@ -79,6 +43,8 @@ icc_plots <- function(df, items_per_page=8) {
 
     full_df <- dplyr::full_join(df, score_combinations, by="ITEM")
 
+    item_labels <- item_name_list(scale)
+    
     for (i in seq(1, length(unique_items), by=items_per_page)) {
         if (length(unique_items) - i + 1 < items_per_page) {
             # This is the final iteration
@@ -96,7 +62,7 @@ icc_plots <- function(df, items_per_page=8) {
             geom_smooth(method="gam", method.args=list(family="binomial"), formula=y~s(x, bs="cs")) +
             geom_line(data=partial_psi_grid, aes(PSI, P), size=1, colour="darkred") +
             ggforce::facet_grid_paginate(ITEM~CAT, labeller=
-                labeller(ITEM=as_labeller(items1), ITEM=label_wrap_gen(20), CAT=as_labeller(score_labels))) +
+                labeller(ITEM=as_labeller(item_labels), ITEM=label_wrap_gen(20), CAT=as_labeller(score_labels))) +
             theme_bw(base_size=14, base_family="") +
             labs(y="Y>=score")
         print(plot)

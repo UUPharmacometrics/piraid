@@ -384,7 +384,7 @@ initial_thetas_from_data <- function(model, df) {
     coeffs <- mirt::coef(mirt_model, IRTpars=TRUE)
     #dataset_scale <- scale_from_dataset(df)
     inits <- list()
-    
+
     for (item in model$scale$items) {
         if (not (item$number %in% colnames(wide))) {
             inits <- c(inits, list(rep("0 FIX", length(item$levels))))
@@ -395,37 +395,15 @@ initial_thetas_from_data <- function(model, df) {
         dataset_levels <- sort(dataset_levels_with_na[!is.na(dataset_levels_with_na)])
         item_coeffs <- as.numeric(coeffs[[item$number]])
         current_inits <- item_coeffs[1]
-        cur_coeff_pos <- 2
-        in_beginning <- TRUE
-        in_end <- FALSE
-        # Find out position of final gap (will be after end_gap_pos)
-        end_gap_pos <- length(scale_levels)
-        for (level in rev(scale_levels)) {
-            if (level %in% dataset_levels) {
-                   break
-            }
-            end_gap_pos <- end_gap_pos - 1
+        scale_in_dataset <- scale_levels %in% dataset_levels
+        rl_encoded <- rle(scale_in_dataset)$values
+        if (identical(rl_encoded, c(T))) {
+            inits <- c(inits, list(current_inits))
+        } else if (identical(rl_encoded, c(T, F))) {
+            inits <- c(inits, list(c(current_inits, rep(50, length(scale_levels) - length(dataset_levels)))))
+        } else {
+            
         }
-        for (i in 1:length(scale_levels)) {
-            if (i > end_gap_pos) {
-                in_end <- TRUE
-            }
-            level <- scale_levels[i]
-            if (level %in% dataset_levels) {
-                current_inits <- c(current_inits, item_coeffs[cur_coeff_pos])
-                cur_coeff_pos <- cur_coeff_pos + 1
-                in_beginning <- FALSE
-            } else {
-                if (in_beginning) {
-                    current_inits <- c(current_inits, "1 FIX")
-                } else if (in_end) {
-                    current_inits <- c(current_inits, "0 FIX")
-                } else {
-                    current_inits <- c(item_coeffs[cur_coeff_pos])  # Duplicate next initial for a gap
-                }
-            }
-        }
-        inits <- c(inits, list(current_inits))
     }
     inits
 }

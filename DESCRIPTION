@@ -16,6 +16,8 @@ Imports:
     dplyr,
     stringr,
     tidyr,
+    ggplot2,
+    ggforce,
     mirt
 Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr

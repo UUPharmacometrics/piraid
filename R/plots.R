@@ -30,10 +30,6 @@ icc_plots <- function(df, scale, items_per_page=8) {
     score_labels <- paste0("score:", 1:global_max_level)
     names(score_labels) <- seq(1:global_max_level)
 
-    all_difs <- c("DIF1", "DIF2", "DIF3")
-    dif_symbols <- dplyr::quo_name(rlang::quo("DIF1"))
-    one_dif <- "P"
-
     parameters <- df[!duplicated(df$ITEM),  ] %>% dplyr::select(-PSI)
     psi_grid <- data.frame(PSI=seq(min(df$PSI), max(df$PSI), by=0.1)) %>%
         merge(score_combinations) %>%

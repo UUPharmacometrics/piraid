@@ -286,7 +286,7 @@ items:
           - 2.82E+00
           - 4.99E+01
   - number: 23
-    name "II.23\nTremor"
+    name: "II.23\nTremor"
     levels: '[0,4]'
     type: ordcat
     categories: tremor

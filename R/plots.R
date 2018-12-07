@@ -14,11 +14,6 @@ graded_response_model <- function(data) {
     exp(data$DIS * (data$PSI - w)) / (1 + exp(data$DIS * (data$PSI - w)))
 }
 
-# TODO:
-# * Implement names of all items
-# * Return plots instead of print
-# * Use ggforce paginate? or Benjamin's extra thingamajig
-# * Open file with table automatically
 
 icc_plots <- function(df, scale, items_per_page=8) {
     max_levels <- df %>%
@@ -40,7 +35,9 @@ icc_plots <- function(df, scale, items_per_page=8) {
     full_df <- dplyr::full_join(df, score_combinations, by="ITEM")
 
     item_labels <- item_name_list(scale)
-    
+
+    k <- 1
+    plot_list <- list()
     for (i in seq(1, length(unique_items), by=items_per_page)) {
         if (length(unique_items) - i + 1 < items_per_page) {
             # This is the final iteration
@@ -61,8 +58,10 @@ icc_plots <- function(df, scale, items_per_page=8) {
                 labeller(ITEM=as_labeller(item_labels), ITEM=label_wrap_gen(20), CAT=as_labeller(score_labels))) +
             theme_bw(base_size=14, base_family="") +
             labs(y="Y>=score")
-        print(plot)
+        plot_list[[k]] <- plot
+        k <- k + 1
     }
+    plot_list
 }
 
 

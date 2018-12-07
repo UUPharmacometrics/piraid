@@ -1,5 +1,6 @@
 items:
   - number: 1
+    name: "I.1\nCognitive impairment"
     levels: '[0,4]'
     type: ordcat
     categories: non-motor
@@ -12,6 +13,7 @@ items:
           - 3.64E+00
           - 4.99E+01
   - number: 2
+    name: "I.2\nHallucinations and pyschosis"
     levels: '[0,4]'
     type: ordcat
     categories: non-motor
@@ -24,6 +26,7 @@ items:
           - 2.59E+00
           - 4.99E+01
   - number: 3
+    name: "I.3\nDepressed mood"
     levels: '[0,4]'
     type: ordcat
     categories: non-motor
@@ -36,6 +39,7 @@ items:
           - 3.13E+00
           - 4.76E+00
   - number: 4
+    name: "I.4\nAnxious mood" 
     levels: '[0,4]'
     type: ordcat
     categories: non-motor
@@ -48,6 +52,7 @@ items:
           - 3.70E+00
           - 4.78E+00
   - number: 5
+    name: "I.5\nApathy"
     levels: '[0,4]'
     type: ordcat
     categories: non-motor
@@ -60,6 +65,7 @@ items:
           - 2.70E+00
           - 3.33E+00
   - number: 6
+    name: "I.6\nFeatures of DDS"
     levels: '[0,4]'
     type: ordcat
     categories: non-motor
@@ -72,6 +78,7 @@ items:
           - 4.09E+00
           - 4.99E+01
   - number: 7
+    name: "I.7\nSleep problems"
     levels: '[0,4]'
     type: ordcat
     categories: non-motor
@@ -84,6 +91,7 @@ items:
           - 3.06E+00
           - 4.68E+00
   - number: 8
+    name: "I.8\nDaytime sleepiness"
     levels: '[0,4]'
     type: ordcat
     categories: non-motor
@@ -96,6 +104,7 @@ items:
           - 5.89E+00
           - 2.94E+00
   - number: 9
+    name: "I.9\nPain and other sensations"
     levels: '[0,4]'
     type: ordcat
     categories: non-motor
@@ -108,6 +117,7 @@ items:
           - 1.89E+00
           - 2.99E+00
   - number: 10
+    name: "I.10\nUrinary problems"
     levels: '[0,4]'
     type: ordcat
     categories: non-motor
@@ -120,6 +130,7 @@ items:
           - 2.15E+00
           - 3.00E+00
   - number: 11
+    name: "I.11\nConstipation problems"
     levels: '[0,4]'
     type: ordcat
     categories: non-motor
@@ -132,6 +143,7 @@ items:
           - 2.78E+00
           - 4.99E+01
   - number: 12
+    name: "I.12\nLight headedness on standing"
     levels: '[0,4]'
     type: ordcat
     categories: non-motor
@@ -144,6 +156,7 @@ items:
           - 2.85E+00
           - 4.99E+01
   - number: 13
+    name: "I.13\nFatigue"
     levels: '[0,4]'
     type: ordcat
     categories: non-motor
@@ -273,6 +286,7 @@ items:
           - 2.82E+00
           - 4.99E+01
   - number: 23
+    name "II.23\nTremor"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -571,6 +585,7 @@ items:
           - 2.58E+00
           - 4.99E+01
   - number: 46
+    names: "III.46\nFreezing of gait"
     levels: '[0,4]'
     type: ordcat
     categories: motor
@@ -622,6 +637,7 @@ items:
           - 1.97E+00
           - 4.07E+00
   - number: 50
+    name: "III.50\nPostural tremor \n right hand"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -634,6 +650,7 @@ items:
           - 3.27E+01
           - 4.99E+01
   - number: 51
+    names: "III.51\nPostural Tremoor\nleft hand"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -646,6 +663,7 @@ items:
           - 5.07E+00
           - 4.99E+01
   - number: 52
+    names: "III.52\niKinetic tremor\nright hand"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -658,6 +676,7 @@ items:
           - 1.48E+01
           - 4.99E+01
   - number: 53
+    names: "III.53\nKinetic tremor left hand"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -670,6 +689,7 @@ items:
           - 5.64E+00
           - 2.91E+00
   - number: 54
+    names: "III.54\nRest tremor amplitude RUE"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -682,6 +702,7 @@ items:
           - 2.09E+01
           - 4.99E+01
   - number: 55
+    names: "III.55\nRest tremor amplitude LUE"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -694,6 +715,7 @@ items:
           - 5.35E+00
           - 4.99E+01
   - number: 56
+    names: "III.56\nRest tremor amplitude RLE"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -706,6 +728,7 @@ items:
           - 3.63E+01
           - 4.99E+01
   - number: 57
+    name: "III.57\nRest tremor amplitude LLE"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -718,6 +741,7 @@ items:
           - 1.88E+01
           - 4.99E+01
   - number: 58
+    name: "III.58\nRest tremor amplitude lip/jaw"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -730,6 +754,7 @@ items:
           - 6.76E+00
           - 4.99E+01
   - number: 59
+    name: "III.59\nConstancy of rest"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -742,6 +767,7 @@ items:
           - 2.93E+01
           - 4.99E+01
   - number: 60
+    name: "III.60\nDyskinesias presence"
     levels: '[0,1]'
     type: binary
     categories: tremor
@@ -752,6 +778,7 @@ items:
           - 2.19E+01
           - 0.00E+00
   - number: 61
+    name: "III.61\nDid they interfere with the rating"
     levels: '[0,1]'
     type: binary
     categories: tremor
@@ -762,6 +789,7 @@ items:
           - 4.99E+01
           - 0.00E+00
   - number: 62
+    name: "III.62\nHoen & Yahr stage"
     levels: '[0,5]'
     type: ordcat
     categories: tremor
@@ -775,6 +803,7 @@ items:
           - 1.60E+00
           - 4.99E+01
   - number: 63
+    name: "IV.63\nTime spent with dyskinesias"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -787,6 +816,7 @@ items:
           - 1.72E+00
           - 1.08E+00
   - number: 64
+    name: "IV.64\nFunctional impact of dyskinesias"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -799,6 +829,7 @@ items:
           - 4.99E+01
           - 4.99E+01
   - number: 65
+    name: "IV.65\nTime spent in OFF state"
     levels: '[0,4]'
     type: ordcat
     categories: tremor
@@ -811,6 +842,7 @@ items:
           - 9.00E-01
           - 7.59E-01
   - number: 66
+    name: "IV.66\nFunctional impact of fluctuations"
     levels: '[0,4]'
     type: ordcat
     categories: motor-complications
@@ -823,6 +855,7 @@ items:
           - 1.06E+00
           - 4.99E+01
   - number: 67
+    name: "IV.67\nComplexity of motor fluctuations"
     levels: '[0,4]'
     type: ordcat
     categories: motor-complications
@@ -835,6 +868,7 @@ items:
           - 5.75E-01
           - 1.68E+00
   - number: 68
+    name: "IV.68\nPainful OFF-state dystonia"
     levels: '[0,4]'
     type: ordcat
     categories: motor-complications

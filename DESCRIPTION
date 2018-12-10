@@ -18,6 +18,7 @@ Imports:
     tidyr,
     ggplot2,
     ggforce,
+    scales,
     mirt
 Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr

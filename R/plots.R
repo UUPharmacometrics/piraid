@@ -46,7 +46,7 @@ icc_plots <- function(df, scale, items_per_page=8) {
             # Next chunk of items
             current_items <- unique_items[i:(i + items_per_page - 1)]
         }
-
+        # FIXME: We could do away with this by using nrows and page options to facet_grid_paginate
         partial_df <- dplyr::filter(full_df, ITEM %in% current_items)
         partial_psi_grid <- dplyr::filter(psi_grid, ITEM %in% current_items)
 
@@ -64,7 +64,40 @@ icc_plots <- function(df, scale, items_per_page=8) {
     plot_list
 }
 
+# Input: origdata is a data.frame with DV and ITEM
+mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
+    unique_items <- sort(unique(origdata$ITEM))
+    item_labels <- item_name_list(scale)
+
+    origdata <- dplyr::select(origdata, DV, ITEM)
+    origdata$type <- "observed"
+
+    if (is.null(simdata)) {
+        df <- origdata
+    } else {
+        simdata <- dplyr::select(simdata, DV, ITEM)
+        simdata$type <- "simulated"
+        df <- rbind(origdata, simdata)
+    }
+    k <- 1
+    plot_list <- list()
+    for (i in 1:ceiling(length(unique_items) / (nrow * ncol))) {
+        plot <- ggplot(df, aes(x=DV, fill=type)) +
+            #stat_count(mapping=aes(x=DV, y=..prop.., group=1), width=0.3) +
+            geom_bar(aes(x=DV, y=..prop.., fill=type), width=0.75, position=position_dodge()) +
+            scale_y_continuous(labels=scales::percent) +
+            ggforce::facet_wrap_paginate(~ITEM, nrow=nrow, ncol=ncol, page=i, labeller=
+                labeller(ITEM=as_labeller(item_labels), ITEM=label_wrap_gen(20))) +
+            ylab("Percent of total") +
+            xlab("Response") +
+            theme_bw(base_size=14, base_family="")
+        plot_list[[k]] <- plot
+        k <- k + 1
+    }
+    plot_list
+}
+
 
 #item.parameters <- read.table("/home/rikard/devel/ICC_plot/item_parameters_tab1", skip=1, header=T,sep=",")
-
+#mirror_plots(item.parameters)
 #icc_plots(item.parameters)

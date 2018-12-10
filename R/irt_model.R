@@ -184,7 +184,7 @@ binary_data_model_code <- function() {
     cg <- add_line(cg, "IF(MODEL.EQ.BIN.AND.DV.EQ.0) P=P0")
     cg <- add_line(cg, "IF(MODEL.EQ.BIN.AND.DV.EQ.1) P=P1")
     cg <- add_empty_line(cg)
-    cg <- add_line(cg, "IPRED = P1*1")
+    cg <- add_line(cg, "PPRED = P1*1")
     cg <- add_empty_line(cg)
     cg
 }
@@ -224,7 +224,7 @@ ordered_categorical_data_model_code <- function(scale, levels) {
     }
     cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ".AND.DV.GE.", levels[length(levels)], ") P=P", levels[length(levels)]))
     cg <- add_empty_line(cg)
-    cg <- add_line(cg, paste0("IPRED=", levels_probability_sum(levels)))
+    cg <- add_line(cg, paste0("PPRED=", levels_probability_sum(levels)))
     cg
 }
 
@@ -243,7 +243,7 @@ response_probability_prediction_code <- function() {
     cg <- add_line(cg, "IF(P.LT.1E-16) P=1E-16  ; To protect for P->0")
     cg <- add_line(cg, "IF(P.GT.(1-1E-16)) P=1-1E-16  ; To protect for P->1")
     cg <- add_line(cg, "Y=-2*LOG(P)")
-    cg <- add_line(cg, "RES=DV-IPRED")
+    cg <- add_line(cg, "RES=DV-PPRED")
     cg
 }
 
@@ -289,7 +289,7 @@ estimation_task <- function(model) {
         }
     }
     dif_numbers <- seq(1, max - 1)
-    cg <- add_line(cg, "$TABLE ID ITEM DV PSI TIME IPRED RES FILE=psi_tab1 NOAPPEND ONEHEADER NOPRINT")
+    cg <- add_line(cg, "$TABLE ID ITEM DV PSI TIME PPRED RES FILE=psi_tab1 NOAPPEND ONEHEADER NOPRINT")
     columns <- c("ITEM", "DIS", paste0("DIF", dif_numbers), paste0("DIFG", dif_numbers))
     columns_str <- paste(columns, collapse=" ")
     cg <- add_line(cg, paste0("$TABLE ", columns_str, binary))
@@ -306,7 +306,7 @@ simulation_task <- function(model) {
     cg <- add_code(cg, data_and_input_code(model, rewind=TRUE))
     cg <- add_empty_line(cg)
     cg <- add_line(cg, paste0("$SIMULATION (875435432) (3872543 UNIFORM) NOPREDICTION ONLYSIMULATION SUBPROBLEMS=", model$subproblems, " TRUE=FINAL"))
-    cg <- add_line(cg, "$TABLE ID ITEM DV PSI TIME IPRED RES FILE=simulation_tab1 NOAPPEND ONEHEADER NOPRINT")
+    cg <- add_line(cg, "$TABLE ID ITEM DV PSI TIME PPRED RES FILE=simulation_tab1 NOAPPEND ONEHEADER NOPRINT")
     cg
 }
 

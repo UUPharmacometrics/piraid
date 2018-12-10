@@ -185,6 +185,7 @@ binary_data_model_code <- function() {
     cg <- add_line(cg, "IF(MODEL.EQ.BIN.AND.DV.EQ.1) P=P1")
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "PPRED = P1*1")
+    cg <- add_line(cg, "SDPRED = SQRT(P0*(0-PPRED) + P1*(1-PPRED))")
     cg <- add_empty_line(cg)
     cg
 }
@@ -224,17 +225,26 @@ ordered_categorical_data_model_code <- function(scale, levels) {
     }
     cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ".AND.DV.GE.", levels[length(levels)], ") P=P", levels[length(levels)]))
     cg <- add_empty_line(cg)
-    cg <- add_line(cg, paste0("PPRED=", levels_probability_sum(levels)))
+    cg <- add_line(cg, paste0("PPRED=", item_expected_value(levels)))
+    cg <- add_line(cg, paste0("SDPRED=", item_expected_value(levels)))
     cg
 }
 
-levels_probability_sum <- function(levels) {
+item_probability_sum <- function(levels) {
     levels <- levels[levels!=0]
     term_func <- function(level) {
         paste0("P", level, "*", level)
     }
     terms <- sapply(levels, term_func)
     paste(terms, collapse=" + ")
+}
+
+item_standard_deviation <- function(levels) {
+    term_func <- function(level) {
+        paste0("P", level, "*(", level, "-PPRED)**2")
+    }
+    terms <- sapply(levels, term_func)
+    paste0("SQRT(", paste(terms, collapse=" + "), ")")
 }
 
 response_probability_prediction_code <- function() {

@@ -98,6 +98,50 @@ mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
 }
 
 
+# Item response correlation plot
+correlation_plot <- function(df) {
+    resplot <- psi.estimates %>%
+        dplyr::select(ID, ITEM, TIME, RES) %>%
+        tidyr::spread(ITEM, RES) %>%
+        dplyr::select(-ID, -TIME)
+
+    # create the correlation matrix
+    cormat <- resplot %>%
+        cor(use="pairwise.complete.obs") %>%
+        round(2)
+
+    # Set lower part of cormat to NA
+    cormat[lower.tri(cormat)] <- NA
+
+    # Melt the correlation matrix so as to facilitate the plotting
+    melted_cormat <- tidyr::gather(as.data.frame(cormat), Var2, value)
+    melted_cormat$Var1 <- as.numeric(rownames(cormat))
+    melted_cormat$Var2 <- as.numeric(melted_cormat$Var2)
+    melted_cormat <- na.omit(melted_cormat)
+
+    plot <- ggplot(data=melted_cormat, aes(Var2, Var1, fill=value)) +
+        geom_tile(color="white") +
+        scale_fill_gradient2(low="blue", high="red", mid="white", midpoint=0, limit=c(-1, 1), name="Pearson\nCorrelation") +
+        scale_x_continuous(breaks=seq(0, 68, 2)) +
+        scale_y_continuous(breaks=seq(0, 68, 2)) +
+        labs(title="") +
+        theme_bw() +
+        theme(legend.title=element_text(size=26),
+            legend.text=element_text(size=26),
+            axis.text.x=element_text(vjust=1, size=26, hjust=1, face="bold"),
+            axis.text.y=element_text(size=26, face="bold"),
+            axis.title=element_blank(),
+            panel.grid.major=element_line(size=0.5, linetype=1),
+            panel.grid.minor=element_blank(),
+            legend.position="bottom")
+
+    return(plot)
+}
+
 #item.parameters <- read.table("/home/rikard/devel/ICC_plot/item_parameters_tab1", skip=1, header=T,sep=",")
 #mirror_plots(item.parameters)
 #icc_plots(item.parameters)
+
+# load PSI value & item parameters
+#psi.estimates <- read.table("/home/rikard/projects/irt/corrplot/psi_estimates_tab13", skip=1, header=T)
+#correlation_plot(psi.estimates)

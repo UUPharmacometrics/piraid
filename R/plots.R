@@ -101,8 +101,8 @@ mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
 # Item response correlation plot
 correlation_plot <- function(df) {
     resplot <- psi.estimates %>%
-        dplyr::select(ID, ITEM, TIME, RES) %>%
-        tidyr::spread(ITEM, RES) %>%
+        dplyr::select(ID, ITEM, TIME, PWRES) %>%
+        tidyr::spread(ITEM, PWRES) %>%
         dplyr::select(-ID, -TIME)
 
     # create the correlation matrix

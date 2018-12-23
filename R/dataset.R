@@ -15,7 +15,7 @@ prepare_dataset <- function(df) {
         dplyr::mutate(DV=as.numeric(replace(DV, DV=='.', '0')))
 }
 
-# Convert data to wide form with one column per
+# Convert data to wide form with one column per item
 wide_item_data <- function(df, baseline=FALSE) {
     grouped <- dplyr::group_by(df, ID)
     if (baseline) {

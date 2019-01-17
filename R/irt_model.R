@@ -191,7 +191,7 @@ binary_data_model_code <- function() {
 }
 
 ordered_categorical_data_model_code <- function(scale, levels) {
-    dummy_item <- irt_item(0, levels, "ordcat")
+    dummy_item <- irt_item(0, "", levels, "ordcat")
     cg <- code_generator()
     cg <- banner_comment(cg, paste0("ordered categorical data model with ", length(levels), " levels: ", levels_as_string(levels)))
     cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ") THEN"))
@@ -225,8 +225,8 @@ ordered_categorical_data_model_code <- function(scale, levels) {
     }
     cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ".AND.DV.GE.", levels[length(levels)], ") P=P", levels[length(levels)]))
     cg <- add_empty_line(cg)
-    cg <- add_line(cg, paste0("PPRED=", item_expected_value(levels)))
-    cg <- add_line(cg, paste0("SDPRED=", item_expected_value(levels)))
+    cg <- add_line(cg, paste0("PPRED=", item_probability_sum(levels)))
+    cg <- add_line(cg, paste0("SDPRED=", item_standard_deviation(levels)))
     cg
 }
 
@@ -328,7 +328,7 @@ omegas <- function(model) {
 }
 
 ordered_categorical_simulation_code <- function(scale, levels) {
-    dummy_item <- irt_item(0, levels, "ordcat")
+    dummy_item <- irt_item(0, "", levels, "ordcat")
     cg <- code_generator()
     cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ") THEN"))
     cg <- increase_indent(cg)

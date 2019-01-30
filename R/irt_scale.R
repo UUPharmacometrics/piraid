@@ -298,10 +298,26 @@ item_labels <- function(item) {
     labels
 }
 
+# Give a theta init string from limits
+# init=0 gives 0 FIX
+theta_init <- function(init, lower, upper) {
+    if (init == 0) {
+        return("0 FIX")
+    }
+
+    if (missing(upper) && missing(lower)) {
+        return(paste0(init))
+    } else if (missing(upper)) {
+        return(paste0("(", lower, ", ", init, ")"))
+    } else {
+        return(paste0("(", lower, ", ", init, ", ", upper, ")"))
+    }
+}
+
 # Create initial estimates string for item
 item_inits <- function(item) {
     if (item$type == "ordcat") {
-        dis_init <- paste0("(0,", item$inits[1], ")")
+        dis_init <- theta_init(item$inits[1], 0)
         dif1_init <- item$inits[2]
         if (length(item$inits) > 2) {
             dif_rest_inits <- paste0("(0,", item$inits[-1:-2], ",50)")
@@ -310,10 +326,10 @@ item_inits <- function(item) {
         }
         inits <- c(dis_init, dif1_init, dif_rest_inits)
     } else {    # Binary
-        dis_init <- paste0("(0,", item$inits[1], ")")
-        dif1_init <- item$inits[2]
-        dif2_init <- paste0("(0,", item$inits[3], ")")
-        inits <- c(dis_init, dif1_init, dif2_init)
+        dis_init <- theta_init(item$inits[1], 0)
+        dif_init <- theta_init(item$inits[2])
+        gue_init <- theta_init(item$inits[3], 0)
+        inits <- c(dis_init, dif_init, gue_init)
     }
     inits
 }

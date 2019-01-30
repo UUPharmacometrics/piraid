@@ -157,11 +157,14 @@ add_item <- function(scale, item, overwrite=FALSE) {
     scale
 }
 
-remove_item <- function(scale, number) {
-    for (i in seq(1, length(scale$items))) {
-        if (scale$items[[i]]$number == number) {
-            scale$items[[i]] <- NULL
-            break
+# Remove one or more items from a scale
+remove_items <- function(scale, number) {
+    for (n in number) {
+        for (i in seq(1, length(scale$items))) {
+            if (scale$items[[i]]$number == n) {
+                scale$items[[i]] <- NULL
+                break
+            }
         }
     }
     scale

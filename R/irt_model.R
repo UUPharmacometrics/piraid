@@ -95,7 +95,7 @@ data_and_input_code <- function(model, rewind=FALSE) {
     if (!is.null(model$dataset)) {
         df <- read.csv(model$dataset, nrows=0)
         cg <- add_line(cg, paste0("$INPUT ", paste(colnames(df), collapse=' ')))
-        cg <- add_line(cg, paste0("$DATA ", normalizePath(model$dataset), rewind_code))
+        cg <- add_line(cg, paste0("$DATA ", normalizePath(model$dataset), rewind_code, " IGNORE=@"))
     }
     cg
 }
@@ -179,13 +179,13 @@ binary_data_model_code <- function() {
     cg <- increase_indent(cg)
     cg <- add_line(cg, "P1=GUE+(1-GUE)*EXP(DIS*(PSI-DIF))/(1+EXP(DIS*(PSI-DIF)))")
     cg <- add_line(cg, "P0=1-P1")
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, "PPRED = P1*1")
+    cg <- add_line(cg, "SDPRED = SQRT(P0*(0-PPRED) + P1*(1-PPRED))")
     cg <- decrease_indent(cg)
     cg <- add_line(cg, "ENDIF")
     cg <- add_line(cg, "IF(MODEL.EQ.BIN.AND.DV.EQ.0) P=P0")
     cg <- add_line(cg, "IF(MODEL.EQ.BIN.AND.DV.EQ.1) P=P1")
-    cg <- add_empty_line(cg)
-    cg <- add_line(cg, "PPRED = P1*1")
-    cg <- add_line(cg, "SDPRED = SQRT(P0*(0-PPRED) + P1*(1-PPRED))")
     cg <- add_empty_line(cg)
     cg
 }
@@ -214,6 +214,9 @@ ordered_categorical_data_model_code <- function(scale, levels) {
         }
     }
     cg <- add_line(cg, paste0("P", levels[length(levels)], "=PGE", i + 1))
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, paste0("PPRED=", item_probability_sum(levels)))
+    cg <- add_line(cg, paste0("SDPRED=", item_standard_deviation(levels)))
     cg <- decrease_indent(cg)
     cg <- add_line(cg, "ENDIF")
     cg <- add_empty_line(cg)
@@ -224,9 +227,6 @@ ordered_categorical_data_model_code <- function(scale, levels) {
         cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ".AND.DV.EQ.", e, ") P=P", e))
     }
     cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ".AND.DV.GE.", levels[length(levels)], ") P=P", levels[length(levels)]))
-    cg <- add_empty_line(cg)
-    cg <- add_line(cg, paste0("PPRED=", item_probability_sum(levels)))
-    cg <- add_line(cg, paste0("SDPRED=", item_standard_deviation(levels)))
     cg
 }
 

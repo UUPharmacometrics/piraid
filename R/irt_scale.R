@@ -287,7 +287,7 @@ unique_binary_items <- function(scale) {
 item_labels <- function(item) {
     if (item$type == "ordcat") {
         dis_label <- paste0("I", item$number, "DIS")
-        dif_labels <- paste0("I", item$number, "DIF", 1:(length(item$levels - 1)))
+        dif_labels <- paste0("I", item$number, "DIF", 1:(length(item$levels) - 1))
         labels <- c(dis_label, dif_labels)
     } else {    # Currently binary
         dis_label <- paste0("I", item$number, "DIS")

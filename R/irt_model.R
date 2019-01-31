@@ -47,7 +47,6 @@ str_irt_model <- function(model) {
     cg <- add_code(cg, data_and_input_code(model))
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$PRED")
-    cg <- add_line(cg, "PSI=THETA(1)+ETA(1)")
     cg <- add_code(cg, type_constants(model))
     cg <- add_empty_line(cg)
     cg <- banner_comment(cg, "assignment of item parameters")
@@ -56,6 +55,11 @@ str_irt_model <- function(model) {
         next_theta <- res$next_theta
         cg <- add_code(cg, res$code)
     }
+    cg <- add_empty_line(cg)
+    cg <- banner_comment(cg, "The PSI model")
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, paste0("PSI=THETA(", next_theta, ")+ETA(1)"))
+    next_theta <- next_theta + 1
     cg <- add_empty_line(cg)
     cg <- add_code(cg, data_models_code(model))
     cg <- add_code(cg, response_probability_prediction_code())
@@ -66,8 +70,10 @@ str_irt_model <- function(model) {
     cg <- add_empty_line(cg)
     cg <- add_code(cg, omegas(model))
     cg <- add_empty_line(cg)
-    cg <- add_code(cg, initial_thetas(model))
+    cg <- add_line(cg, "$THETA")
     cg <- add_code(cg, initial_item_thetas(model))
+    cg <- add_empty_line(cg)
+    cg <- add_code(cg, initial_thetas(model))
     if (model$simulation) {
         cg <- add_code(cg, simulation_task(model))
     }
@@ -344,8 +350,7 @@ ordered_categorical_simulation_code <- function(scale, levels) {
 
 initial_thetas <- function(model) {
     cg <- code_generator()
-    cg <- banner_comment(cg, "item parameters")
-    cg <- add_line(cg, "$THETA")
+    cg <- banner_comment(cg, "psi model parameters")
     cg <- add_line(cg, "0.1  ; PSI")
     cg
 }
@@ -355,6 +360,7 @@ initial_item_thetas <- function(model) {
     #df <- read.csv(model$dataset, stringAsFactors=FALSE)
     #initial_thetas_from_dataset(df, model$scale)
     cg <- code_generator()
+    cg <- banner_comment(cg, "item parameters")
     for (base_item in model$base_scale$items) {
         item <- get_item(model$scale, base_item$number) 
         if (is.null(item)) {

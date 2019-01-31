@@ -170,8 +170,9 @@ irt_item_assignment_code <- function(scale, item, next_theta) {
         }
     } else { # type == "binary"
         cg <- add_line(cg, paste0("DIS=THETA(", next_theta, ")"))
-        cg <- add_line(cg, paste0("DIF=THETA(", next_theta, ")"))
-        cg <- add_line(cg, paste0("GUE=THETA(", next_theta, ")"))
+        cg <- add_line(cg, paste0("DIF=THETA(", next_theta + 1, ")"))
+        cg <- add_line(cg, paste0("GUE=THETA(", next_theta + 2, ")"))
+        next_theta <- next_theta + 3
     }
     cg <- decrease_indent(cg)
     cg <- add_line(cg, "ENDIF")
@@ -361,6 +362,7 @@ initial_item_thetas <- function(model) {
     #initial_thetas_from_dataset(df, model$scale)
     cg <- code_generator()
     cg <- banner_comment(cg, "item parameters")
+    i <- 1
     for (base_item in model$base_scale$items) {
         item <- get_item(model$scale, base_item$number) 
         if (is.null(item)) {
@@ -370,7 +372,8 @@ initial_item_thetas <- function(model) {
                 labels <- item_labels(item)
                 inits <- item_inits(item)
                 for (line in paste0(inits, "  ; ", labels)) {
-                    cg <- add_line(cg, line)    # Or have add_line support arrays
+                    cg <- add_line(cg, paste0(line, " ", i))    # Or have add_line support arrays
+                    i <- i + 1
                 }
             } else {
                 # Fallback to simple inits for now: FIXME move fallback to item method "item_inits"

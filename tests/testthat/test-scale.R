@@ -1,4 +1,5 @@
 context("Scale objects")
+myscale <- predefined_scale("MDS-UPDRS")
 
 test_that("Scale constructor", {
     scale <- irt_scale()
@@ -7,7 +8,6 @@ test_that("Scale constructor", {
 
 test_that("List predifined scales", {
     a <- list_predefined_scales()
-    print(a)
     expect_true(length(a) >= 1)
     expect_true("mds-updrs" %in% a)
 })
@@ -34,6 +34,39 @@ test_that("Save scale", {
     mockery::expect_called(mf, 1)
 })
 
+test_that("Select categories", {
+    scale <- predefined_scale("MDS-UPDRS")
+    scale <- select_categories(scale, "motor")
+    item <- get_item(scale, 14)
+    expect_equal(item$number, 14)
+    item <- get_item(scale, 13)
+    expect_null(item)
+    expect_equal(length(scale$items), 35)
+})
+
+test_that("Scale from dataset", {
+    df <- data.frame(ITEM=c(1,2,2), DV=c(1,1,2))
+    suppressWarnings(scale <- scale_from_dataset(df))
+    item <- get_item(scale, 1)
+    expect_null(item)
+    item <- get_item(scale, 2)
+    expect_equal(item$levels, c(1, 2))
+    
+    df <- data.frame(GROB=c(1,1,1,1,4,4), PROD=c(1,3,2,4,6,5))
+    suppressWarnings(scale <- scale_from_dataset(df, item="GROB", dv="PROD"))
+    item <- get_item(scale, 1)
+    expect_equal(item$levels, c(1,2,3,4))
+    item <- get_item(scale, 4)
+    expect_equal(item$levels, c(5, 6))
+    expect_equal(length(scale$items), 2)
+})
+
+test_that("Scale overview", {
+    scale <- predefined_scale("MDS-UPDRS")
+    df <- scale_overview(scale)
+    expect_equal(nrow(df), 68)
+})
+
 test_that("Get item", {
     item <- irt_item(23, "myNAME", c(1, 2), "ordcat")
     scale <- irt_scale()
@@ -56,4 +89,28 @@ test_that("Add item", {
     expect_equal(length(scale$items), 1)
     expect_warning(scale <- add_item(scale, item))
     expect_equal(length(scale$items), 1)
+})
+
+test_that("Remove items", {
+    scale <- predefined_scale("MDS-UPDRS")
+    scale <- remove_items(scale, 1:67)
+    expect_equal(length(scale$items), 1)
+    item <- get_item(scale, 68)
+    expect_equal(item$number, 68)
+})
+
+test_that("Get item index", {
+      i <- get_item_index(myscale, 43)
+      expect_equal(i, 43)
+      item <- irt_item(23, "myNAME", c(1, 2), "ordcat")
+      scale <- irt_scale()
+      scale <- add_item(scale, item)
+      i <- get_item_index(scale, 23)
+      expect_equal(i, 1)
+})
+
+test_that("Consolidate levels", {
+    scale <- consolidate_levels(myscale, 2, c(0,1,2,3))
+    item <- get_item(scale, 2)
+    #expect_equal(item$levels, c(0,1,2,3))
 })

@@ -116,9 +116,9 @@ scale_from_dataset <- function(df, item='ITEM', dv='DV') {
     df <- dplyr::select(df, !!item, !!dv)
     distinct <- dplyr::group_by_(df, item) %>% dplyr::distinct_(dv) %>% dplyr::summarise(DV=list(!!rlang::sym(dv)))
     for (i in  1:nrow(distinct)) {
-        item_no <- distinct[i, 'ITEM']
+        item_no <- distinct[i, item]
         levels <- sort(distinct[i, 'DV'][[1]][[1]])
-        new_item <- irt_item(as.numeric(item_no), NULL, levels, "ordcat")     # Assuming ordered categorical here
+        new_item <- irt_item(as.numeric(item_no), "", levels, "ordcat")     # Assuming ordered categorical here
         scale <- add_item(scale, new_item)
     }
     scale
@@ -201,7 +201,7 @@ add_item <- function(scale, item, overwrite=FALSE) {
 remove_items <- function(scale, numbers) {
     for (n in numbers) {
         for (i in seq(1, length(scale$items))) {
-            if (scale$items[[i]]$numbers == n) {
+            if (scale$items[[i]]$number == n) {
                 scale$items[[i]] <- NULL
                 break
             }

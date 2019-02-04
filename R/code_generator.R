@@ -19,7 +19,8 @@ add_line <- function(generator, line) {
 }
 
 add_empty_line <- function(generator) {
-    add_line(generator, "")
+    generator$code = c(generator$code, "")
+    generator
 }
 
 increase_indent <- function(generator) {

@@ -20,7 +20,7 @@ Imports:
     ggforce,
     scales,
     mirt
-Suggests: knitr, rmarkdown, testthat
+Suggests: knitr, rmarkdown, testthat, mockery
 VignetteBuilder: knitr
 NeedsCompilation: no
 Description: Automatic generation of different types of item response theory (IRT) models.
@@ -29,4 +29,4 @@ URL: https://github.com/UUPharmacometrics/nmIRT
 BugReports: https://github.com/UUPharmacometrics/nmIRT/issues
 License: LGPL-3
 Copyright: 2018 Rikard Nordgren, Sebastian Ueckert and Mats O. Karlsson
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1

@@ -50,11 +50,16 @@ str_irt_model <- function(model) {
     cg <- add_code(cg, type_constants(model))
     cg <- add_empty_line(cg)
     cg <- banner_comment(cg, "assignment of item parameters")
+    first <- TRUE
     for (item in model$scale$items) {
-        res <- irt_item_assignment_code(model$scale, item, next_theta)
+        res <- irt_item_assignment_code(model$scale, item, next_theta, first)
+        if (first) {
+            first <- FALSE
+        }
         next_theta <- res$next_theta
         cg <- add_code(cg, res$code)
     }
+    cg <- irt_item_assignment_fallthrough(cg, model$scale)
     cg <- add_empty_line(cg)
     cg <- banner_comment(cg, "The PSI model")
     cg <- add_empty_line(cg)
@@ -156,9 +161,14 @@ model_type_constant <- function(scale, item) {
 }
 
 
-irt_item_assignment_code <- function(scale, item, next_theta) {
+irt_item_assignment_code <- function(scale, item, next_theta, first) {
     cg <- code_generator()
-    cg <- add_line(cg, paste0("IF(ITEM.EQ.", item$number, ") THEN"))
+    if (first) {
+        ifstring <- "IF"
+    } else {
+        ifstring <- "ELSE IF"
+    }
+    cg <- add_line(cg, paste0(ifstring, "(ITEM.EQ.", item$number, ") THEN"))
     cg <- increase_indent(cg)
     cg <- add_line(cg, paste0("MODEL=", model_type_constant(scale, item)))
     if (item$type == "ordcat") {
@@ -175,8 +185,38 @@ irt_item_assignment_code <- function(scale, item, next_theta) {
         next_theta <- next_theta + 3
     }
     cg <- decrease_indent(cg)
-    cg <- add_line(cg, "ENDIF")
     list(code=cg, next_theta=next_theta)
+}
+
+irt_item_assignment_fallthrough <- function(cg, scale) {
+    cg <- add_line(cg, "ELSE")
+    cg <- increase_indent(cg)
+    cg <- add_line(cg, "; Exit if dataset contains an ITEM that the model cannot handle")
+    cg <- add_line(cg, "EXIT 2")
+    cg <- add_line(cg, "; Unreachable code below. There to silence NM-TRAN warning.")
+    cg <- add_line(cg, "PPRED=0")
+    cg <- add_line(cg, "SDPRED=0")
+    cg <- add_line(cg, "P=0")
+    cg <- add_line(cg, "P0=0")
+    levels <- ordcat_level_arrays(scale)
+    max <- 1
+    for (level_array in levels) {
+        if (length(level_array) - 1 > max) {
+            max <- length(level_array) - 1
+        }
+        if (max(level_array) > max) {
+            max <- max(level_array)
+        }
+    }
+    for (i in 1:max) {
+        cg <- add_line(cg, paste0("P", i, "=0"))
+    }
+    for (i in 1:max) {
+        cg <- add_line(cg, paste0("PGE", i, "=0"))
+    }
+    cg <- decrease_indent(cg)
+    cg <- add_line(cg, "END IF")
+    cg
 }
 
 binary_data_model_code <- function() {

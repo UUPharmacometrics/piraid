@@ -100,14 +100,14 @@ mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
 
 # Item response correlation plot
 correlation_plot <- function(df) {
-    resplot <- psi.estimates %>%
-        dplyr::select(ID, ITEM, TIME, PWRES) %>%
+    resplot <- df %>%
+        dplyr::select("ID", "ITEM", "TIME", "PWRES") %>%
         tidyr::spread(ITEM, PWRES) %>%
-        dplyr::select(-ID, -TIME)
+        dplyr::select(-"ID", -"TIME")
 
     # create the correlation matrix
     cormat <- resplot %>%
-        cor(use="pairwise.complete.obs") %>%
+        stats::cor(use="pairwise.complete.obs") %>%
         round(2)
 
     # Set lower part of cormat to NA
@@ -117,7 +117,7 @@ correlation_plot <- function(df) {
     melted_cormat <- tidyr::gather(as.data.frame(cormat), Var2, value)
     melted_cormat$Var1 <- as.numeric(rownames(cormat))
     melted_cormat$Var2 <- as.numeric(melted_cormat$Var2)
-    melted_cormat <- na.omit(melted_cormat)
+    melted_cormat <- stats::na.omit(melted_cormat)
 
     plot <- ggplot(data=melted_cormat, aes(Var2, Var1, fill=value)) +
         geom_tile(color="white") +

@@ -4,7 +4,7 @@
 \name{nmIRT-package}
 \alias{nmIRT}
 \alias{nmIRT-package}
-\title{My main doc}
+\title{nmIRT: a package for creating and diagnosing IRT models for NONMEM}
 \description{
 Automatic generation of different types of item response theory (IRT) models.
     Diagnostic tools for IRT modelling.

@@ -108,7 +108,7 @@ select_categories <- function(scale, categories) {
 #' @export
 scale_from_dataset <- function(df, item='ITEM', dv='DV') {
     if (is.character(df)) {
-        df <- read.csv(df)
+        df <- utils::read.csv(df)
     }
     scale <- irt_scale()
     df <- filter_observations(df)
@@ -174,10 +174,6 @@ get_item <- function(scale, number) {
 #' @param item An irt_item to add to scale
 #' @return A new scale with the item added
 #' @keywords internal
-#' @examples
-#' scale <- predefined_scale("MDS-UPDRS")
-#' item <- irt_item(99, c(1,2,3), "ordcat")
-#' scale <- add_item(scale, item)
 add_item <- function(scale, item, overwrite=FALSE) {
     if (!is.null(get_item(scale, item$number))) {
         warning(paste0("Item ", item$number, " is already present in the scale and will not be added."))
@@ -250,7 +246,7 @@ consolidate_levels <- function(scale, item_number, levels) {
         index <- get_item_index(scale, item_number)
         scale$items[[index]]$levels <- setdiff(item$levels, levels_to_remove)
     } else {
-        error("Could only consolidate levels at the low or high end of the level range")
+        stop("Could only consolidate levels at the low or high end of the level range")
     }
     scale
 }
@@ -302,9 +298,8 @@ irt_item <- function(number, name, levels, type, categories=NULL, inits=NULL) {
 #' If a string is input it will be parsed to get a list of all levels it describes
 #' Allowed formats are [a,b] for an interval and (1,2,3,4) to explicitly write all possible levels
 #' @examples 
-#' levels <- item_levels("[1,3]")
-#' levels <- item_levels("(0,1,2,3,4)")
-#' means 1, 2 and 3. 
+#' levels <- nmIRT:::item_levels("[1,3]")   # levels will be 1, 2 and 3.
+#' levels <- nmIRT:::item_levels("(0,1,2,3,4)")
 #' @param x Can either be a string or an array of levels
 #' @return A sorted array of levels
 #' @keywords internal

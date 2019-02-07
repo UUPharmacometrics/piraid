@@ -12,6 +12,7 @@ Depends:
     R (>= 2.14.1)
 Imports:
     methods,
+    magrittr,
     yaml,
     dplyr,
     stringr,
@@ -19,6 +20,7 @@ Imports:
     ggplot2,
     ggforce,
     scales,
+    rlang,
     mirt
 Suggests: knitr, rmarkdown, testthat, mockery
 VignetteBuilder: knitr
@@ -27,6 +29,6 @@ Description: Automatic generation of different types of item response theory (IR
     Diagnostic tools for IRT modelling.
 URL: https://github.com/UUPharmacometrics/nmIRT
 BugReports: https://github.com/UUPharmacometrics/nmIRT/issues
-License: GPL (>= 2) 
+License: GPL (>= 2)
 Copyright: 2018 Rikard Nordgren, Sebastian Ueckert and Mats O. Karlsson
 RoxygenNote: 6.1.1

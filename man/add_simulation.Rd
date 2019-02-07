@@ -9,7 +9,7 @@ add_simulation(model, nsim = 1)
 \arguments{
 \item{model}{A model object}
 
-\item{subproblems}{The number of simulations to add}
+\item{nsim}{The number of simulations to add}
 }
 \value{
 A new model object

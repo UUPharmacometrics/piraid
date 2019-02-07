@@ -121,7 +121,7 @@ add_dataset <- function(model, path) {
 #' Add a number of simulations to the model
 #' 
 #' @param model A model object
-#' @param subproblems The number of simulations to add
+#' @param nsim The number of simulations to add
 #' @return A new model object
 #' @export
 add_simulation <- function(model, nsim=1) {
@@ -143,7 +143,7 @@ data_and_input_code <- function(model, rewind=FALSE) {
         rewind_code = ""
     }
     if (!is.null(model$dataset)) {
-        df <- read.csv(model$dataset, nrows=0)
+        df <- utils::read.csv(model$dataset, nrows=0)
         cg <- add_line(cg, paste0("$INPUT ", paste(colnames(df), collapse=' ')))
         cg <- add_line(cg, paste0("$DATA ", normalizePath(model$dataset), rewind_code, " IGNORE=@"))
     }
@@ -562,8 +562,8 @@ theta_placeholder <- function(cg, item) {
 # a dataset using the mirt package
 initial_thetas_from_data <- function(model, df) {
     wide <- df %>%
-        nmIRT:::prepare_dataset() %>%
-        nmIRT:::wide_item_data(baseline=TRUE)
+        prepare_dataset() %>%
+        wide_item_data(baseline=TRUE)
 
     mirt_model <- mirt::mirt(data=wide, model=1, itemtype="graded")
     coeffs <- mirt::coef(mirt_model, IRTpars=TRUE)

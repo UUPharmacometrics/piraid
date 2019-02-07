@@ -36,7 +36,7 @@ wide_item_data <- function(df, baseline=FALSE) {
 # Reads in a dataset, checks for mandatory columns and renames columns to standard names
 read_dataset <- function(filename, id='ID', time='TIME', item='ITEM', dv='DV') {
     if (is.character(filename)) {
-        df <- read.csv(filename, stringsAsFactors=FALSE)
+        df <- utils::read.csv(filename, stringsAsFactors=FALSE)
     } else if (is.data.frame(filename)) {
         df <- filename
     } else {

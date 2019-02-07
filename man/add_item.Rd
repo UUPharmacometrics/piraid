@@ -19,9 +19,4 @@ A new scale with the item added
 Will not add items with less than 2 levels and warn instead.
 Will not add items with the same number as item already in scale
 }
-\examples{
-scale <- predefined_scale("MDS-UPDRS")
-item <- irt_item(99, c(1,2,3), "ordcat")
-scale <- add_item(scale, item)
-}
 \keyword{internal}

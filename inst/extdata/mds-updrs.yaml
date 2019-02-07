@@ -5,7 +5,6 @@ items:
     type: ordcat
     categories: non-motor
     inits:
-        model: ordcat
         values:
           - 5.28E-01
           - 1.93E+00
@@ -18,7 +17,6 @@ items:
     type: ordcat
     categories: non-motor
     inits:
-        model: ordcat
         values:
           - 6.24E-01
           - 4.99E+00
@@ -31,7 +29,6 @@ items:
     type: ordcat
     categories: non-motor
     inits:
-        model: ordcat
         values:
           - 5.20E-01
           - 2.15E+00
@@ -44,7 +41,6 @@ items:
     type: ordcat
     categories: non-motor
     inits:
-        model: ordcat
         values:
           - 4.64E-01
           - 1.66E+00
@@ -57,7 +53,6 @@ items:
     type: ordcat
     categories: non-motor
     inits:
-        model: ordcat
         values:
           - 8.55E-01
           - 1.91E+00
@@ -70,7 +65,6 @@ items:
     type: ordcat
     categories: non-motor
     inits:
-        model: ordcat
         values:
           - 6.28E-01
           - 5.85E+00
@@ -83,7 +77,6 @@ items:
     type: ordcat
     categories: non-motor
     inits:
-        model: ordcat
         values:
           - 4.06E-01
           - -3.86E-01
@@ -96,7 +89,6 @@ items:
     type: ordcat
     categories: non-motor
     inits:
-        model: ordcat
         values:
           - 6.27E-01
           - -3.92E-01
@@ -109,7 +101,6 @@ items:
     type: ordcat
     categories: non-motor
     inits:
-        model: ordcat
         values:
           - 6.31E-01
           - -1.83E-01
@@ -122,7 +113,6 @@ items:
     type: ordcat
     categories: non-motor
     inits:
-        model: ordcat
         values:
           - 6.48E-01
           - 1.23E-02
@@ -135,7 +125,6 @@ items:
     type: ordcat
     categories: non-motor
     inits:
-        model: ordcat
         values:
           - 6.71E-01
           - 8.03E-01
@@ -148,7 +137,6 @@ items:
     type: ordcat
     categories: non-motor
     inits:
-        model: ordcat
         values:
           - 5.87E-01
           - 1.89E+00
@@ -161,7 +149,6 @@ items:
     type: ordcat
     categories: non-motor
     inits:
-        model: ordcat
         values:
           - 7.07E-01
           - -1.24E-01
@@ -174,7 +161,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 9.03E-01
           - 7.30E-01
@@ -187,7 +173,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 9.23E-01
           - 7.39E-01
@@ -200,7 +185,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 8.66E-01
           - 2.11E+00
@@ -213,7 +197,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.06E+00
           - 6.93E-01
@@ -226,7 +209,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.62E+00
           - 2.63E-01
@@ -239,7 +221,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 9.91E-01
           - 1.04E+00
@@ -252,7 +233,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 5.41E-01
           - -1.11E+00
@@ -265,7 +245,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.15E+00
           - 4.22E-01
@@ -278,7 +257,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.14E+00
           - 9.02E-01
@@ -291,7 +269,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 1.44E-01
           - -1.25E+01
@@ -304,7 +281,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.49E+00
           - 2.94E-01
@@ -317,7 +293,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.17E+00
           - 4.18E-01
@@ -330,7 +305,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.52E+00
           - 2.39E+00
@@ -343,7 +317,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 8.60E-01
           - -3.40E-03
@@ -356,7 +329,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.21E+00
           - -1.82E+00
@@ -369,7 +341,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.07E+00
           - -3.07E-02
@@ -382,7 +353,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 4.45E-01
           - -2.39E+00
@@ -395,7 +365,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.22E+00
           - -3.83E-01
@@ -408,7 +377,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 6.65E-01
           - 2.13E-01
@@ -421,7 +389,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.18E+00
           - 5.21E-01
@@ -434,7 +401,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 4.37E-01
           - -2.33E+00
@@ -447,7 +413,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.39E+00
           - -5.65E-01
@@ -460,7 +425,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 4.36E-01
           - -1.23E+00
@@ -473,7 +437,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.45E+00
           - -2.73E-01
@@ -486,7 +449,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 2.78E-01
           - -1.92E+00
@@ -499,7 +461,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.28E+00
           - -1.55E-01
@@ -512,7 +473,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 4.63E-01
           - -1.24E+00
@@ -525,7 +485,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.16E+00
           - -4.64E-01
@@ -538,7 +497,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 5.85E-01
           - 5.47E-01
@@ -551,7 +509,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.25E+00
           - 3.41E-01
@@ -564,7 +521,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.18E+00
           - 1.77E+00
@@ -577,7 +533,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 8.88E-01
           - -5.53E-01
@@ -590,7 +545,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.66E+00
           - 3.54E+00
@@ -603,7 +557,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 8.64E-01
           - 2.98E+00
@@ -616,7 +569,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 9.38E-01
           - -3.78E-01
@@ -629,7 +581,6 @@ items:
     type: ordcat
     categories: motor
     inits:
-        model: ordcat
         values:
           - 1.43E+00
           - -1.65E+00
@@ -642,7 +593,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 5.28E-02
           - 1.22E+01
@@ -655,7 +605,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 4.17E-01
           - 2.01E+00
@@ -668,7 +617,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 2.14E-01
           - 3.44E+00
@@ -681,7 +629,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 6.18E-01
           - 1.13E+00
@@ -694,7 +641,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 6.91E-02
           - 5.13E+00
@@ -707,7 +653,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 3.47E-01
           - 2.05E+00
@@ -720,7 +665,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 5.38E-02
           - 3.62E+01
@@ -733,7 +677,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 1.47E-01
           - 1.45E+01
@@ -746,7 +689,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 4.00E-01
           - 6.69E+00
@@ -759,9 +701,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
-        values:
-          - 2.79E-02
           - -2.99E+01
           - 3.79E+01
           - 2.93E+01
@@ -772,7 +711,6 @@ items:
     type: binary
     categories: tremor
     inits:
-        model: PL-3
         values:
           - 2.42E-01
           - 2.19E+01
@@ -783,7 +721,6 @@ items:
     type: binary
     categories: tremor
     inits:
-        model: PL-3
         values:
           - 3.10E-02
           - 4.99E+01
@@ -794,7 +731,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 1.57E+00
           - -4.24E+00
@@ -808,7 +744,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 6.42E-01
           - 6.43E+00
@@ -821,7 +756,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 6.67E-01
           - 8.04E+00
@@ -834,7 +768,6 @@ items:
     type: ordcat
     categories: tremor
     inits:
-        model: ordcat
         values:
           - 7.80E-01
           - 3.43E+00
@@ -847,7 +780,6 @@ items:
     type: ordcat
     categories: motor-complications
     inits:
-        model: ordcat
         values:
           - 9.04E-01
           - 3.83E+00
@@ -860,7 +792,6 @@ items:
     type: ordcat
     categories: motor-complications
     inits:
-        model: ordcat
         values:
           - 7.87E-01
           - 3.85E+00
@@ -873,7 +804,6 @@ items:
     type: ordcat
     categories: motor-complications
     inits:
-        model: ordcat
         values:
           - 4.79E-01
           - 6.20E+00

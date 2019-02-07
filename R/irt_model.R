@@ -285,7 +285,7 @@ irt_item_assignment_fallthrough <- function(cg, scale) {
 
 #' Generate NONMEM code for binary data items
 #' 
-#' @returns A code generator
+#' @return A code generator
 binary_data_model_code <- function() {
     cg <- code_generator()
     cg <- banner_comment(cg, "binary data model")
@@ -365,7 +365,7 @@ item_probability_sum <- function(levels) {
 #' Generate a NONMEM code string with an stdev calculation
 #' 
 #' @param levels A vector of levels
-#' @returns A NONMEM code string with sum P1*(1-PPRED)**2 etc
+#' @return A NONMEM code string with sum P1*(1-PPRED)**2 etc
 item_standard_deviation <- function(levels) {
     term_func <- function(level) {
         paste0("P", level, "*(", level, "-PPRED)**2")
@@ -376,7 +376,7 @@ item_standard_deviation <- function(levels) {
 
 #' Generate NONMEM code for response probability and residual
 #' 
-#' @returns A code generator object
+#' @return A code generator object
 response_probability_prediction_code <- function() {
     cg <- code_generator()
     cg <- banner_comment(cg, "Response probability prediction and residual")
@@ -548,7 +548,7 @@ initial_item_thetas <- function(model) {
 #' 
 #' @param cg A code generator object to add lines to
 #' @param item An irt item object to add placeholders for
-#' @returns A new code generator object
+#' @return A new code generator object
 theta_placeholder <- function(cg, item) {
     for (dummy in item$levels) {
         cg <- add_line(cg, "0 FIX; THETA PLACEHOLDER")

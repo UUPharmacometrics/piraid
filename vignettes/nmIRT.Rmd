@@ -20,13 +20,17 @@ nmIRT as an R package for generation and diagnostics of IRT NONMEM models.
 
 ## Scales
 
-A scale object is a representation in R of a certain scale. It is a collection of items that each has an item number, a type (currently only ordered categorical is supported) and a set of levels. A scale object can be created in multiple ways. 
+A scale object is a representation in R of a certain scale. It is a collection of items that each has an item number, a type (currently ordered categorical and binmary are supported) and a set of levels. A scale object can be created in multiple ways.
 
 ### Using a built in scale
 
 ```{r, fig.show='hold'}
 library(nmIRT)
 scale <- predefined_scale("MDS-UPDRS")
+```
+To find out which scales are available
+```{r, fig.show='hold'}
+list_predefined_scales()
 ```
 
 ### Getting an overview of a scale

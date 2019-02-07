@@ -2,7 +2,6 @@
 #'
 #' \code{irt_scale} returns a new empty scale object
 #' @keywords internal
-#' @export
 irt_scale <- function() {
     structure(list(items=list()), class="irt_scale")
 }

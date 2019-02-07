@@ -1,0 +1,12 @@
+---
+title: "Scale definition files"
+author: "Rikard Nordgren"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+    %\VignetteIndexEntry{scale_definition_files}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+Text as

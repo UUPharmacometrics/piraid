@@ -34,13 +34,22 @@ list_predefined_scales()
 ```
 
 ### Getting an overview of a scale
+A table of all items of a scale can be generated
 ```{r}
 scale_overview(scale)
 ```
 
+There is also the option of getting just the item numbers available or all that are of binary type
+```{r, fig.show='hold'}
+all_items(scale)
+binary_items(scale)
+```
+
+
 ### Generating a scale from a data.frame
 ```{r, fig.show='hold'}
 df <- data.frame(ID=c(1,1,1,2,2,2), ITEM=c(1,2,3,1,2,3), DV=c(0,2,4,1,2,1))
+
 scale <- scale_from_dataset(df)
 ```
 
@@ -51,13 +60,23 @@ scale <- scale_from_dataset(df, item='ITEM', dv='DV')
 
 Note that if the dataset has an MDV column it will be used to filter out missing DVs.
 
-
-
-
 ### Generating a scale from a dataset file
 ```{r, eval=FALSE, fig.show='hold'}
 scale <- scale_from_dataset("mydata.csv")
 ```
+
+### Load scale from a scale definition file
+More information on how to work with scale definition files can be found in [a separate vignette](scale_defintion_files.html)
+
+```{r, eval=FALSE, fig.show='hold'}
+scale <- load_scale("myscale.yaml")
+```
+
+### Save a scale to a scale definition file
+```{r, eval=FALSE, fig.show='hold'}
+scale <- save_scale(scale, "myscale.yaml")
+```
+
 
 ### Check a dataset against a scale
 ```{r, eval=FALSE}
@@ -66,33 +85,65 @@ data_check(dataset, scale)
 This function will check if there are items or levels missing from the dataset that are present in the scale or vice versa.
 
 
+## Modifying a scale
+
+### Create subscales using categories
+Items of a scale can belong to zero or more categories. These categories simplifies the creation of subscales. The following example will create a subscale of the items belonging to the "motor" category.
+
+```{r, fig.show='hold', eval=FALSE}
+subscale <- select_categories(scale, c("motor"))
+```
+
+### Remove items from a scale
+```{r, fig.show='hold', eval=FALSE}
+new_scale <- remove_items(scale, 1:14)
+```
+
+### Consolidate levels
+A basic mechanism for consolidating items of a scale is available. This will merge items together. If we for example have a very few observations for level 4 in item number 14 and we would like to consolidate level 4 into level 3. The third arguments is a vector of levels that we wish to merge together. Levels must be at one end of the available levels.
+
+```{r, fig.show='hold', eval=FALSE}
+new_scale <- consolidate_levels(scale, 14, c(3, 4))
+```
 
 ## Creating a model object from a scale
 ```{r, fig.show='hold'}
 model <- irt_model(scale)
 ```
 
-## Using a base scale for a model
+### Using a base scale for a model
 A model can have one scale and one base_scale. By default they are the same, but in some cases it is of benefit to use the base scale. A base scale is the scale from which the ordinary scale was derived. Let us say that you are using a predefined scale, but are modifing it in some way, for example by removing items. Then the base scale would still be the full scale allowing the model generation procedure to put placeholders for the missing items.
 ```{r}
 base_scale <- predefined_scale("MDS-UPDRS")
 scale <- remove_items(base_scale, 14) # This will remove item number 14
 model <- irt_model(scale, base_scale)
 ```
+The scale and base scales of a model can be replaced at any point
+```{r, eval=FALSE}
+model <- set_scale(model, new_scale, new_basescale)
+```
 
-## Attach a dataset to a model
+
+### Attach a dataset to a model
 ```{r, eval=FALSE}
 model <- add_dataset(model, "my.dta")
 ```
 
-## Generate the NONMEM code from a model object
+### Generate the NONMEM code from a model object
 ```{r, fig.show='hold'}
 scale <- scale_from_dataset(df)
 model <- irt_model(scale)
 print_model(model)
 ```
 
-## Write the NONMEM code to a file
+### Write the NONMEM code to a file
 ```{r, eval=FALSE}
 save_model(model, "run1.mod")
+```
+
+## Make changes to a model
+
+### Add a simulation task
+```{r, eval=FALSE}
+model <- add_simulation(model, nsim=50)
 ```

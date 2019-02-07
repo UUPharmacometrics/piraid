@@ -123,6 +123,7 @@ add_dataset <- function(model, path) {
 #' @param model A model object
 #' @param subproblems The number of simulations to add
 #' @return A new model object
+#' @export
 add_simulation <- function(model, nsim=1) {
     model$simulation <- TRUE
     model$subproblems <- nsim

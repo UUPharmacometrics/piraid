@@ -701,6 +701,7 @@ items:
     type: ordcat
     categories: tremor
     inits:
+        values:
           - -2.99E+01
           - 3.79E+01
           - 2.93E+01

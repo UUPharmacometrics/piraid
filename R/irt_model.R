@@ -129,6 +129,11 @@ add_simulation <- function(model, nsim=1) {
     model
 }
 
+#' Create the $DATA and $INPUT to NONMEM model code
+#' 
+#' @param model A irt_model object
+#' @param rewind If the dataset should be rewound or not
+#' @return A code generator object
 data_and_input_code <- function(model, rewind=FALSE) {
     cg <- code_generator()
     if (rewind) {
@@ -144,7 +149,10 @@ data_and_input_code <- function(model, rewind=FALSE) {
     cg
 }
 
-
+#' Generate the NONMEM code for definitions of type constants
+#' 
+#' @param model An irt_model object
+#' @return A code generator object
 type_constants <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "constants to select model type")
@@ -163,7 +171,10 @@ type_constants <- function(model) {
     cg
 }
 
-
+#' Generate NONMEM code for all different item model types
+#' 
+#' @param model An irt_model object
+#' @return A code generator object
 data_models_code <- function(model) {
     cg <- code_generator()
     bin_items <- binary_items(model$scale)
@@ -180,7 +191,11 @@ data_models_code <- function(model) {
     cg
 }
 
-# Return code symbol for type constant given scale and item
+#' Get code symbol for type constant given scale and item
+#' 
+#' @param scale An irt_scale object
+#' @param item An irt_item object
+#' @return The code symbol for item (i.e. BIN, OC1 etc)
 model_type_constant <- function(scale, item) {
     if (item$type == "binary") {
         return("BIN")
@@ -193,7 +208,13 @@ model_type_constant <- function(scale, item) {
     }
 }
 
-
+#' Generate NONMEM code for assignment of item model parameters
+#' 
+#' @param scale An irt_scale object
+#' @param item An irt_item object
+#' @param next_theta The number of the next THETA to be created
+#' @param first Is this the first item?
+#' @return A code generator object
 irt_item_assignment_code <- function(scale, item, next_theta, first) {
     cg <- code_generator()
     if (first) {
@@ -221,6 +242,16 @@ irt_item_assignment_code <- function(scale, item, next_theta, first) {
     list(code=cg, next_theta=next_theta)
 }
 
+#' Create fallthrough NONMEM code for unknown items
+#' 
+#' If the dataset contains items that the model wasn't created
+#' for this code takes care of bailing out. It also contains
+#' some dummy assignments that are only there to silence some
+#' NM-TRAN warnings.
+#' 
+#' @param cg A code generator object to build upon
+#' @param scale An irt_scale object
+#' @return A code generator object
 irt_item_assignment_fallthrough <- function(cg, scale) {
     cg <- add_line(cg, "ELSE")
     cg <- increase_indent(cg)
@@ -252,6 +283,9 @@ irt_item_assignment_fallthrough <- function(cg, scale) {
     cg
 }
 
+#' Generate NONMEM code for binary data items
+#' 
+#' @returns A code generator
 binary_data_model_code <- function() {
     cg <- code_generator()
     cg <- banner_comment(cg, "binary data model")
@@ -270,6 +304,11 @@ binary_data_model_code <- function() {
     cg
 }
 
+#' Generate NONMEM code for an ordered categorical item model
+#'
+#' @param scale A scale object
+#' @param levels A vector of the response levels
+#' @return A code generator object
 ordered_categorical_data_model_code <- function(scale, levels) {
     dummy_item <- irt_item(0, "", levels, "ordcat")
     cg <- code_generator()
@@ -310,6 +349,10 @@ ordered_categorical_data_model_code <- function(scale, levels) {
     cg
 }
 
+#' Generate a NONMEM code string with a sum of probabilities
+#' 
+#' @param levels A vector of levels
+#' @return A string with NONMEM code for 
 item_probability_sum <- function(levels) {
     levels <- levels[levels!=0]
     term_func <- function(level) {
@@ -319,6 +362,10 @@ item_probability_sum <- function(levels) {
     paste(terms, collapse=" + ")
 }
 
+#' Generate a NONMEM code string with an stdev calculation
+#' 
+#' @param levels A vector of levels
+#' @returns A NONMEM code string with sum P1*(1-PPRED)**2 etc
 item_standard_deviation <- function(levels) {
     term_func <- function(level) {
         paste0("P", level, "*(", level, "-PPRED)**2")
@@ -327,6 +374,9 @@ item_standard_deviation <- function(levels) {
     paste0("SQRT(", paste(terms, collapse=" + "), ")")
 }
 
+#' Generate NONMEM code for response probability and residual
+#' 
+#' @returns A code generator object
 response_probability_prediction_code <- function() {
     cg <- code_generator()
     cg <- banner_comment(cg, "Response probability prediction and residual")
@@ -337,6 +387,10 @@ response_probability_prediction_code <- function() {
     cg
 }
 
+#' Generate NONMEM code for model simulation
+#' 
+#' @param model An irt_model object
+#' @return A code generator object
 simulation_code <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "simulation code")
@@ -363,6 +417,10 @@ simulation_code <- function(model) {
     cg
 }
 
+#' Generate NONMEM code for estimation and table output
+#' 
+#' @param model An irt_model object
+#' @return A code generator object
 estimation_task <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "estimation task")
@@ -387,6 +445,10 @@ estimation_task <- function(model) {
     cg
 }
 
+#' Generate NONMEM code for a model simulation task
+#' 
+#' @param model An irt_model object
+#' @return A code generator object
 simulation_task <- function(model) {
     cg <- code_generator()
     cg <- add_empty_line(cg)
@@ -400,6 +462,10 @@ simulation_task <- function(model) {
     cg
 }
 
+#' Generate NONMEM code for the random effect
+#' 
+#' @param model An irt_model object
+#' @return A code generator object
 omegas <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "random effects")
@@ -407,6 +473,11 @@ omegas <- function(model) {
     cg
 }
 
+#' Generate NONMEM code for simulation of and ordered categorical item
+#' 
+#' @param scale A scale object
+#' @param levels A vector of levels for the item
+#' @return A code generator object
 ordered_categorical_simulation_code <- function(scale, levels) {
     dummy_item <- irt_item(0, "", levels, "ordcat")
     cg <- code_generator()
@@ -422,6 +493,10 @@ ordered_categorical_simulation_code <- function(scale, levels) {
     cg
 }
 
+#' Generate NONMEM code for the thetas of the PSI model
+#' 
+#' @param model An irt_model object
+#' @return A code generator object
 initial_thetas <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "psi model parameters")
@@ -429,6 +504,11 @@ initial_thetas <- function(model) {
     cg
 }
 
+#' Generate NONMEM code for initial estimates of thetas
+#' 
+#' Will use the initial estimates of the scale
+#' @param model An irt_model object
+#' @return A code generator object
 initial_item_thetas <- function(model) {
     #stopifnot('dataset' %in% names(model))
     #df <- read.csv(model$dataset, stringAsFactors=FALSE)
@@ -460,6 +540,15 @@ initial_item_thetas <- function(model) {
     cg
 }
 
+#' Generate NONMEM code for unused THETAS
+#' 
+#' Theta placeholders will be used for items that are in the base_scale
+#' but not in the scale of a model. This is to keep theta numbering the same
+#' for subscales and for full scales
+#' 
+#' @param cg A code generator object to add lines to
+#' @param item An irt item object to add placeholders for
+#' @returns A new code generator object
 theta_placeholder <- function(cg, item) {
     for (dummy in item$levels) {
         cg <- add_line(cg, "0 FIX; THETA PLACEHOLDER")
@@ -467,6 +556,9 @@ theta_placeholder <- function(cg, item) {
     cg 
 }
 
+# This function is not used and probably broken!
+# The purpose was the calculate decent inital estimates given
+# a dataset using the mirt package
 initial_thetas_from_data <- function(model, df) {
     wide <- df %>%
         nmIRT:::prepare_dataset() %>%
@@ -501,6 +593,18 @@ initial_thetas_from_data <- function(model, df) {
 }
 
 # Supports filename or data.frame as data
+#' Check dataset for missing items or levels
+#' 
+#' The check will check for the following:
+#' 1. Items  present in the dataset but not in the scale
+#' 2. Items present in the scale but not in the dataset
+#' 3. Levels present in the dataset but not in the scale
+#' 4. Levels present in the scale but not in the dataset
+#' The results of the check will be printed to the console
+#' 
+#' @param model_or_data Either a data.frame or a model object from which to take the dataset
+#' @param scale If model_or_data was a data.frame a scale must be supplied otherwise the scale from the model object will be taken
+#' @export
 data_check <- function(model_or_data, scale=NULL) {
     if (class(model_or_data) == "irt_model") {
         dataset <- model_or_data$dataset

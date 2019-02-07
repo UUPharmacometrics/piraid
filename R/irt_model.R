@@ -5,6 +5,7 @@
 #' @param scale The scale
 #' @param base_scale A base scale on which the scale is based
 #' @return A model object
+#' @export
 irt_model <- function(scale, base_scale) {
     if (missing(base_scale)) {
         base_scale <- scale
@@ -19,6 +20,7 @@ irt_model <- function(scale, base_scale) {
 #' @param scale The scale
 #' @param base_scale A base scale on which the scale is based
 #' @return The updated model object
+#' @export
 set_scale <- function(model, scale, base_scale) {
     model$scale <- scale
     if (missing(base_scale)) {
@@ -28,17 +30,33 @@ set_scale <- function(model, scale, base_scale) {
     model
 }
 
-
+#' Print NONMEM code
+#' 
+#' Output the NONMEM code of a model object to the console
+#' 
+#' @param model A model object
+#' @export
 print_model <- function(model) {
     cat(str_irt_model(model))
 }
 
-save_model <- function(model, filename) {
-    fp <- file(filename)
+#' Save NONMEM code
+#' 
+#' Saves the NONMEM code of a model object to a file
+#' 
+#' @param model A model object
+#' @param path Path to the created model file
+#' @export
+save_model <- function(model, path) {
+    fp <- file(path)
     writeLines(str_irt_model(model), fp)
     close(fp)
 }
 
+#' Create NONMEM model as a string
+#' 
+#' @param model A model object
+#' @return A string with the NONMEM code
 str_irt_model <- function(model) {
     next_theta <- 1
     cg <- code_generator()
@@ -85,14 +103,29 @@ str_irt_model <- function(model) {
     get_code(cg)
 }
 
-add_dataset <- function(model, filename) {
-    model$dataset <- filename
+#' Add dataset
+#' 
+#' Add a dataset to a model object
+#' 
+#' @param model A model object
+#' @param path Path to a dataset file
+#' @return A new model object
+#' @export
+add_dataset <- function(model, path) {
+    model$dataset <- path
     model
 }
 
-add_simulation <- function(model, subproblems=1) {
+#' Add simulation
+#' 
+#' Add a number of simulations to the model
+#' 
+#' @param model A model object
+#' @param subproblems The number of simulations to add
+#' @return A new model object
+add_simulation <- function(model, nsim=1) {
     model$simulation <- TRUE
-    model$subproblems <- subproblems
+    model$subproblems <- nsim
     model
 }
 

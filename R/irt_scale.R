@@ -231,15 +231,17 @@ get_item_index <- function(scale, number) {
 #' 
 #' @param scale An irt_scale object
 #' @param item_number The number of an item
-#' @param levels The levels to keep for this item
+#' @param levels The levels to be merged together
 #' @return A new irt_scale object
 #' @export
 consolidate_levels <- function(scale, item_number, levels) {
     stopifnot(length(levels) >= 2)
     item <- get_item(scale, item_number)
     run <- rle(item$levels %in% levels)$values      # Check that consolidated levels are at an edge of the available levels and consecutive
-    low <- all(run == c(TRUE, FALSE))
-    high <- all(run == c(FALSE, TRUE))
+    if (length(run) == 2) {
+        low <- all(run == c(TRUE, FALSE))
+        high <- all(run == c(FALSE, TRUE))
+    }
     if (length(run) == 2 && (low || high)) {
         if (low) {
             levels_to_remove <- sort(levels)[-length(levels)]
@@ -305,6 +307,7 @@ irt_item <- function(number, name, levels, type, categories=NULL, inits=NULL) {
 #' levels <- item_levels("(0,1,2,3,4)")
 #' means 1, 2 and 3. 
 #' @param x Can either be a string or an array of levels
+#' @return A sorted array of levels
 #' @keywords internal
 item_levels <- function(x) {
     if (is.numeric(x)) {
@@ -321,7 +324,7 @@ item_levels <- function(x) {
             }
         }
     }
-    levels
+    sort(levels)
 }
 
 #' Take a vector of levels and produce a description string usable for presentation or output to scale file
@@ -355,16 +358,16 @@ all_items <- function(scale) {
 #' Get a list of all items of binary type from a scale
 #' 
 #' @param scale An irt_scale object
-#' @return A list of all binary items
+#' @return A vector of item numbers for all binary items
 #' @export
 binary_items <- function(scale) {
-    items <- list()
+    a <- c()
     for (item in scale$items) {
         if (item$type == "binary") {
-            items <- c(items, list(item))
+            a <- c(a, item$number)
         }
     }
-    items
+    a
 }
 
 #' Get vector of labels for parameters of item

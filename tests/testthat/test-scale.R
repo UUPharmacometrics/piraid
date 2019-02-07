@@ -110,7 +110,81 @@ test_that("Get item index", {
 })
 
 test_that("Consolidate levels", {
-    scale <- consolidate_levels(myscale, 2, c(0,1,2,3))
+    scale <- consolidate_levels(myscale, 2, c(0, 1, 2, 3))
     item <- get_item(scale, 2)
-    #expect_equal(item$levels, c(0,1,2,3))
+    expect_equal(item$levels, c(3, 4))
+    scale <- consolidate_levels(myscale, 3, c(3, 4))
+    item <- get_item(scale, 3)
+    expect_equal(item$levels, c(0, 1, 2, 3))
+    expect_error(consolidate_levels(myscale, 3, c(0)))
+    expect_error(consolidate_levels(myscale, 3, c(1, 2)))
+})
+
+test_that("Ordcat levels", {
+    levels <- ordcat_levels(myscale)
+    expect_equal(levels, c(5, 6))
+})
+
+test_that("Ordcat level arrays", {
+    arrs <- ordcat_level_arrays(myscale)
+    expect_equal(arrs, list(c(0, 1, 2, 3, 4), c(0, 1, 2, 3, 4, 5)))
+})
+
+test_that("irt_item constructor", {
+    item <- irt_item(1, "name", c(1, 2, 3), "ordcat", c("cat1", "cat5"), inits=c(8, 9, 10))
+    expect_equal(item$levels, c(1, 2, 3))
+})
+
+test_that("Item levels", {
+    a <- item_levels('[2,3]')
+    expect_equal(a, c(2, 3))
+    a <- item_levels('(1, 2, 4)')
+    expect_equal(a, c(1, 2, 4))
+    a <- item_levels('(3, 1)')
+    expect_equal(a, c(1, 3))
+})
+
+test_that("Levels as string", {
+    a <- levels_as_string(c(1,2,3))
+    expect_equal(a, "[1,3]")
+    a <- levels_as_string(c(3,5))
+    expect_equal(a, "(3,5)")
+})
+
+test_that("All items", {
+    a <- all_items(myscale)
+    expect_equal(a, 1:68)
+})
+
+test_that("Binary items", {
+    a <- binary_items(myscale)
+    expect_equal(a, c(60, 61))
+})
+
+test_that("Item labels", {
+    a <- item_labels(myscale$items[[5]])
+    expect_equal(a, c("I5DIS", "I5DIF1", "I5DIF2", "I5DIF3", "I5DIF4"))
+    a <- item_labels(myscale$items[[60]])
+    expect_equal(a, c("I60DIS", "I60DIF", "I60GUE"))
+})
+
+test_that("Theta init", {
+    a <- theta_init(0.5, -1 ,2)
+    expect_equal(a, "(-1, 0.5, 2)")
+    a <- theta_init(0, -1 ,2)
+    expect_equal(a, "0 FIX")
+    a <- theta_init(1, 0.2)
+    expect_equal(a, "(0.2, 1)")
+})
+
+test_that("Item inits", {
+    a <- item_inits(myscale$items[[7]])
+    expect_equal(length(a), 5)
+    expect_equal(a[1], "(0, 0.406)")
+})
+
+test_that("Item name list", {
+    a <- item_name_list(myscale)
+    expect_equal(names(a)[1], "1")
+    expect(is.character(a))
 })

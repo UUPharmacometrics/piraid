@@ -9,4 +9,42 @@ vignette: >
     %\VignetteEncoding{UTF-8}
 ---
 
-Text as
+A scale definition file is a yaml type file, which contains information of the items of a scale.
+The item definitions is an array under the "items" key:
+
+```{yaml}
+items:
+    - %first item
+    - %second item
+```
+
+Each item can contain the following keys/values:
+
+* number - An integer with the number of the item
+* name - A human readable string with the name of the item. This is used for plots
+* levels - A string describing the levels in one of two forms:
+    * `[a,b]` is a range meaning all values from a to b including a and b
+    * `(a, b, c, ...)` a list of values taken as they are
+* type - Can be either `ordcat` for ordered categorical (i.e. graded response) or `binary`
+* categories - A comma separated list of names of categories
+* inits - A sub structure describing the default initial parameter estimates
+    * values - A yaml array of initial values
+
+Example of one item:
+
+```{yaml}
+items:
+  - number: 1
+    name: "I.1\nCognitive impairment"
+    levels: '[0,4]'
+    type: ordcat
+    categories: non-motor
+    inits:
+        model: ordcat
+        values:
+          - 5.28E-01
+          - 1.93E+00
+          - 4.12E+00
+          - 3.64E+00
+          - 4.99E+01
+```

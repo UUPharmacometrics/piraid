@@ -534,7 +534,7 @@ initial_item_thetas <- function(model) {
                 cg <- add_line(cg, paste0("(0,1) ; I", item$number, "DIS"))
                 for (i in seq(1, length(item$levels) - 1)) {
                     cg <- add_line(cg, paste0("(0.1) ; I", item$number, "DIF", i))
-                }                    
+                }
             }
         }
     }

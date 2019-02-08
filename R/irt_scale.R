@@ -423,7 +423,7 @@ item_inits <- function(item) {
         inits <- c(dis_init, dif1_init, dif_rest_inits)
     } else {    # Binary
         dis_init <- theta_init(item$inits[1], 0)
-        dif_init <- theta_init(item$inits[2])
+        dif_init <- theta_init(item$inits[2], -50, 50)
         gue_init <- theta_init(item$inits[3], 0)
         inits <- c(dis_init, dif_init, gue_init)
     }

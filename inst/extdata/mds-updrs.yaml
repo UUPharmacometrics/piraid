@@ -598,7 +598,7 @@ items:
           - 1.22E+01
           - 3.71E+01
           - 3.27E+01
-          - 4.99E+01
+          - 4.9505E+01
   - number: 51
     names: "III.51\nPostural Tremoor\nleft hand"
     levels: '[0,4]'
@@ -646,7 +646,7 @@ items:
           - 5.13E+00
           - 9.04E+00
           - 2.09E+01
-          - 4.99E+01
+          - 4.9505E+01
   - number: 55
     names: "III.55\nRest tremor amplitude LUE"
     levels: '[0,4]'
@@ -702,10 +702,11 @@ items:
     categories: tremor
     inits:
         values:
-          - -2.99E+01
+          - 0.0279
+          - -29.9
           - 3.79E+01
           - 2.93E+01
-          - 4.99E+01
+          - 4.9505E+01
   - number: 60
     name: "III.60\nDyskinesias presence"
     levels: '[0,1]'
@@ -724,7 +725,7 @@ items:
     inits:
         values:
           - 3.10E-02
-          - 4.99E+01
+          - 4.9501E+01
           - 0.00E+00
   - number: 62
     name: "III.62\nHoen & Yahr stage"

@@ -38,7 +38,7 @@ predefined_scale <- function(scale_name) {
 #'
 #' \code{load_scale} loads a scale file from disk and returns a scale object
 #'
-#' @param filename Path to the file to read
+#' @param path Path to the file to read
 #' @return A scale object
 #' @export
 load_scale <- function(path) {
@@ -285,6 +285,7 @@ ordcat_level_arrays <- function(scale) {
 #' @param number Item number
 #' @param name A descriptive name of the item
 #' @param levels A vector of levels for this item
+#' @param type The item type (binary or ordcat)
 #' @param categories An optional character vector of names of categories
 #' @param inits Option vector of initial values for the item parameters
 #' @keywords interal
@@ -385,13 +386,13 @@ item_labels <- function(item) {
 
 #' Give a theta init string from limits
 #'
-#'  init=0 gives 0 FIX
+#' init=0 gives 0 FIX
 #'  
-#'  @param init The initial estimate
-#'  @param lower The lower bound (not mandatory)
-#'  @param upper The upper bound (not mandatory)
-#'  @return A theta init string for NONMEM
-#'  @keywords internal
+#' @param init The initial estimate
+#' @param lower The lower bound (not mandatory)
+#' @param upper The upper bound (not mandatory)
+#' @return A theta init string for NONMEM
+#' @keywords internal
 theta_init <- function(init, lower, upper) {
     if (init == 0) {
         return("0 FIX")

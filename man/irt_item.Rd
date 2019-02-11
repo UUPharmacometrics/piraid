@@ -13,6 +13,8 @@ irt_item(number, name, levels, type, categories = NULL, inits = NULL)
 
 \item{levels}{A vector of levels for this item}
 
+\item{type}{The item type (binary or ordcat)}
+
 \item{categories}{An optional character vector of names of categories}
 
 \item{inits}{Option vector of initial values for the item parameters}

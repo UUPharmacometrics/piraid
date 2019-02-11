@@ -7,7 +7,9 @@
 set_scale(model, scale, base_scale)
 }
 \arguments{
-\item{scale}{The scale}
+\item{model}{An irt_model orbject}
+
+\item{scale}{The scale object}
 
 \item{base_scale}{A base scale on which the scale is based}
 }

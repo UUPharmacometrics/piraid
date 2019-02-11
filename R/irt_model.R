@@ -17,7 +17,8 @@ irt_model <- function(scale, base_scale) {
 #' 
 #' \code{set_scale} returns a newly created model object
 #'
-#' @param scale The scale
+#' @param model An irt_model orbject
+#' @param scale The scale object
 #' @param base_scale A base scale on which the scale is based
 #' @return The updated model object
 #' @export
@@ -571,7 +572,7 @@ initial_thetas_from_data <- function(model, df) {
     inits <- list()
 
     for (item in model$scale$items) {
-        if (not (item$number %in% colnames(wide))) {
+        if (!(item$number %in% colnames(wide))) {
             inits <- c(inits, list(rep("0 FIX", length(item$levels))))
             next
         }

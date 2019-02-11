@@ -7,7 +7,7 @@
 load_scale(path)
 }
 \arguments{
-\item{filename}{Path to the file to read}
+\item{path}{Path to the file to read}
 }
 \value{
 A scale object

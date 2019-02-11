@@ -6,12 +6,17 @@
 \usage{
 theta_init(init, lower, upper)
 }
+\arguments{
+\item{init}{The initial estimate}
+
+\item{lower}{The lower bound (not mandatory)}
+
+\item{upper}{The upper bound (not mandatory)}
+}
+\value{
+A theta init string for NONMEM
+}
 \description{
 init=0 gives 0 FIX
- 
- @param init The initial estimate
- @param lower The lower bound (not mandatory)
- @param upper The upper bound (not mandatory)
- @return A theta init string for NONMEM
- @keywords internal
 }
+\keyword{internal}

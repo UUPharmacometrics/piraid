@@ -2,7 +2,7 @@
 #' 
 #' @param data A dataset the columns DIS, PSI, DIFi and CAT (level) will be used
 #' @return Vector of response values
-#' @keyword internal
+#' @keywords internal
 graded_response_model <- function(data) {
     column_names <- colnames(data)
     #which DIF columns exist in the dataset
@@ -84,7 +84,7 @@ icc_plots <- function(df, scale, items_per_page=8) {
 #' @param simdata The simulated data. Will plot only original data if this is missing
 #' @param nrow The number of rows per page to use for the matrix of plots
 #' @param ncol The number of columns per page to use for the matrix of plots
-#' @result A list of plots. One page per item.
+#' @return A list of plots. One page per item.
 #' @export
 mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
     unique_items <- sort(unique(origdata$ITEM))

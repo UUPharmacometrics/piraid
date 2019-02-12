@@ -154,7 +154,7 @@ It is possible to consolidate levels in the upper end of the level range by fixi
 model <- consolidate_levels_in_model(model, 23, c(3, 4))
 ```
 
-This will set the probability of level 4 to 0 by fixing DIF4 to a high value.
+This will set the probability of level 4 to 0 by fixing DIF4 to a high value. The item number can be a list of items to consolidate the same levels for.
 
 ## Diagnostic plots
 

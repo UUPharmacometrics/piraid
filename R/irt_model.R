@@ -668,24 +668,26 @@ data_check <- function(model_or_data, scale=NULL) {
 #' changing the initial estimates.
 #' 
 #' @param model An irt_model object
-#' @param item_number The number of the item
+#' @param item_numbers A vector of item numbers to do the same consolidation for
 #' @param levels A vector of levels to consolidate, i.e. merging into the lowest level of this vector.
 #' @return A new irt_model object
 #' @export
-consolidate_levels_in_model <- function(model, item_number, levels) {
+consolidate_levels_in_model <- function(model, item_numbers, levels) {
     stopifnot(length(levels) >= 2)
-    item <- get_item(model$scale, item_number)
-    run <- rle(item$levels %in% levels)$values      # Check that consolidated levels are at an edge of the available levels and consecutive
-    if (length(run) == 2) {
-        high <- all(run == c(FALSE, TRUE))
-        if (high) {
-            levels_to_consolidate <- sort(levels)[-1]
-            model$consolidation[[item_number]] <- levels_to_consolidate 
+    for (item_number in item_numbers) {
+        item <- get_item(model$scale, item_number)
+        run <- rle(item$levels %in% levels)$values      # Check that consolidated levels are at an edge of the available levels and consecutive
+        if (length(run) == 2) {
+            high <- all(run == c(FALSE, TRUE))
+            if (high) {
+                levels_to_consolidate <- sort(levels)[-1]
+                model$consolidation[[item_number]] <- levels_to_consolidate 
+            } else {
+                stop("Can only consolidate using initial estimates in the upper end of the level range")   
+            }
         } else {
-            stop("Can only consolidate using initial estimates in the upper end of the level range")   
+            stop("Could only consolidate levels at the low or high end of the level range")
         }
-    } else {
-        stop("Could only consolidate levels at the low or high end of the level range")
     }
     model
 }

@@ -421,9 +421,7 @@ item_inits <- function(item, consolidated=NULL) {
             dif_rest_inits <- paste0("(0,", item$inits[-1:-2], ",50)")
             if (!is.null(consolidated)) {
                 n <- length(consolidated)
-                print(dif_rest_inits)
                 dif_rest_inits[(length(dif_rest_inits) - (n - 1)):length(dif_rest_inits)] <- "50 FIX"
-                print(dif_rest_inits)
             }
         } else {
             dif_rest_inits <- c()

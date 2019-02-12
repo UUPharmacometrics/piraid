@@ -1,4 +1,8 @@
-# The Graded response model for an unknown number of DIF columns
+#' Graded response model for an unknown number of DIF columns
+#' 
+#' @param data A dataset the columns DIS, PSI, DIFi and CAT (level) will be used
+#' @return Vector of response values
+#' @keyword internal
 graded_response_model <- function(data) {
     column_names <- colnames(data)
     #which DIF columns exist in the dataset
@@ -14,7 +18,16 @@ graded_response_model <- function(data) {
     exp(data$DIS * (data$PSI - w)) / (1 + exp(data$DIS * (data$PSI - w)))
 }
 
-
+#' Plot item characteristic curves
+#' 
+#' @section Warning:
+#' Binary items are not handled well.
+#' 
+#' @param df A data.frame from the item_parameters_tab of a model run. ITEM, DV, DIS, DIFn are needed
+#' @param scale The corresponding scale object
+#' @param items_per_page Default to 8
+#' @return A list of pages
+#' @export
 icc_plots <- function(df, scale, items_per_page=8) {
     max_levels <- df %>%
         dplyr::group_by(UQ(sym("ITEM"))) %>%
@@ -64,7 +77,15 @@ icc_plots <- function(df, scale, items_per_page=8) {
     plot_list
 }
 
-# Input: origdata is a data.frame with DV and ITEM
+#' Mirror plots for comparison of original data and simulated data
+#'
+#' @param origdata The original dataset
+#' @param scale A scale object
+#' @param simdata The simulated data. Will plot only original data if this is missing
+#' @param nrow The number of rows per page to use for the matrix of plots
+#' @param ncol The number of columns per page to use for the matrix of plots
+#' @result A list of plots. One page per item.
+#' @export
 mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
     unique_items <- sort(unique(origdata$ITEM))
     item_labels <- item_name_list(scale)
@@ -98,7 +119,11 @@ mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
 }
 
 
-# Item response correlation plot
+#' Item response correlation plot
+#'
+#' @param df A data.frame from the item_parameters_tab of a model run. ID, ITEM, TIME and PWRES will be used.
+#' @return A plot object
+#' @export
 correlation_plot <- function(df) {
     resplot <- df %>%
         dplyr::select("ID", "ITEM", "TIME", "PWRES") %>%

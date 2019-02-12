@@ -147,3 +147,39 @@ save_model(model, "run1.mod")
 ```{r, eval=FALSE}
 model <- add_simulation(model, nsim=50)
 ```
+
+## Diagnostic plots
+
+The diagnostic plots can be created after an IRT model has been run. They will take as input data frames containing output from NONMEM.
+
+### Item characteristic curves
+
+To generate a set of item characteristic curves
+
+```{r, eval=FALSE}
+scale <- predefined_scale("MDS-UPDRS")
+df <- read.table("item_parameters_tab1", skip=1, header=T, sep=",")
+plots <- icc_plots(df, scale, items_per_page=6)
+print(plots)
+```
+
+### Mirror plot
+
+The mirror plot gives an overview of the frequencies of levels in the dataset and compares it to frequencies in simulations.
+
+```{r, eval=FALSE}
+scale <- predefined_scale("MDS-UPDRS")
+df <- read.table("item_parameters_tab1", skip=1, header=T, sep=",")
+plots <- mirror_plots(origdata, scale, simdata=df, nrow=4, ncol=5)
+print(plots)
+```
+
+### Correlation plot
+
+The correlation plots give a heatmap of correlations between residuals.
+
+```{r, eval=FALSE}
+psi.estimates <- read.table("psi_estimates_tab1", skip=1, header=T)
+plot <- correlation_plot(psi.estimates)
+print(plot)
+```

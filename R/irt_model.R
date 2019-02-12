@@ -10,7 +10,7 @@ irt_model <- function(scale, base_scale) {
     if (missing(base_scale)) {
         base_scale <- scale
     }
-    model <- structure(list(scale=scale, base_scale=base_scale, simulation=FALSE), class="irt_model")
+    model <- structure(list(scale=scale, base_scale=base_scale, simulation=FALSE, consolidation=list()), class="irt_model")
 }
 
 #' Change the scale and/or base scale of an IRT model object
@@ -526,6 +526,12 @@ initial_item_thetas <- function(model) {
             if (!is.null(item$inits)) {
                 labels <- item_labels(item)
                 inits <- item_inits(item)
+                if (length(model$consolidation) >= item$number) {   # Does item exist in consolidation list
+                    consolidated <- model$consolidation[[item$number]]
+                    if (!is.null(consolidated)) {
+                        inits <- item_inits(item, consolidated=consolidated)
+                    }
+                }
                 for (line in paste0(inits, "  ; ", labels)) {
                     cg <- add_line(cg, paste0(line, " ", i))    # Or have add_line support arrays
                     i <- i + 1
@@ -650,4 +656,36 @@ data_check <- function(model_or_data, scale=NULL) {
             }
         }
     }
+}
+
+#' Consolidation of levels in a model without changing the scale
+#' 
+#' When consolidating levels in the higher end of the levels it is possible to 
+#' do it without altering the scale or the model. It is done by setting the inital
+#' estimate of the DIF thetas to a high fixed number. This will make the probability
+#' of the level to become zero. The benefit of doing this is that the same model can
+#' be used for different datasets and different consolidations can be done simply by
+#' changing the initial estimates.
+#' 
+#' @param model An irt_model object
+#' @param item_number The number of the item
+#' @param levels A vector of levels to consolidate, i.e. merging into the lowest level of this vector.
+#' @return A new irt_model object
+#' @export
+consolidate_levels_in_model <- function(model, item_number, levels) {
+    stopifnot(length(levels) >= 2)
+    item <- get_item(model$scale, item_number)
+    run <- rle(item$levels %in% levels)$values      # Check that consolidated levels are at an edge of the available levels and consecutive
+    if (length(run) == 2) {
+        high <- all(run == c(FALSE, TRUE))
+        if (high) {
+            levels_to_consolidate <- sort(levels)[-1]
+            model$consolidation[[item_number]] <- levels_to_consolidate 
+        } else {
+            stop("Can only consolidate using initial estimates in the upper end of the level range")   
+        }
+    } else {
+        stop("Could only consolidate levels at the low or high end of the level range")
+    }
+    model
 }

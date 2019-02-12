@@ -17,5 +17,6 @@ consolidate_levels(scale, item_number, levels)
 A new irt_scale object
 }
 \description{
-Consolidate, i.e. merge levels together, of a certain item in a scale object.
+Consolidate, i.e. merge levels together, of a certain item in a scale object. Consolidated items will be removed
+from the scale.
 }

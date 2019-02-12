@@ -4,7 +4,7 @@
 \alias{item_inits}
 \title{Create initial estimates string for item}
 \usage{
-item_inits(item)
+item_inits(item, consolidated = NULL)
 }
 \arguments{
 \item{item}{An item object}

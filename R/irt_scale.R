@@ -222,7 +222,8 @@ get_item_index <- function(scale, number) {
 
 #' Consolidate item levels
 #'
-#' Consolidate, i.e. merge levels together, of a certain item in a scale object.
+#' Consolidate, i.e. merge levels together, of a certain item in a scale object. Consolidated items will be removed
+#' from the scale.
 #' 
 #' @param scale An irt_scale object
 #' @param item_number The number of an item
@@ -412,12 +413,18 @@ theta_init <- function(init, lower, upper) {
 #' @param item An item object
 #' @return A vector of initial estimates definitions for NONMEM
 #' @keywords internal
-item_inits <- function(item) {
+item_inits <- function(item, consolidated=NULL) {
     if (item$type == "ordcat") {
         dis_init <- theta_init(item$inits[1], 0)
         dif1_init <- item$inits[2]
         if (length(item$inits) > 2) {
             dif_rest_inits <- paste0("(0,", item$inits[-1:-2], ",50)")
+            if (!is.null(consolidated)) {
+                n <- length(consolidated)
+                print(dif_rest_inits)
+                dif_rest_inits[(length(dif_rest_inits) - (n - 1)):length(dif_rest_inits)] <- "50 FIX"
+                print(dif_rest_inits)
+            }
         } else {
             dif_rest_inits <- c()
         }

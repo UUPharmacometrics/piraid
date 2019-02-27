@@ -4,12 +4,12 @@
 \alias{consolidate_levels}
 \title{Consolidate item levels}
 \usage{
-consolidate_levels(scale, item_number, levels)
+consolidate_levels(scale, item_numbers, levels)
 }
 \arguments{
 \item{scale}{An irt_scale object}
 
-\item{item_number}{The number of an item}
+\item{item_numbers}{A vector of item numbers to apply the same consolidation to}
 
 \item{levels}{The levels to be merged together}
 }
@@ -17,6 +17,6 @@ consolidate_levels(scale, item_number, levels)
 A new irt_scale object
 }
 \description{
-Consolidate, i.e. merge levels together, of a certain item in a scale object. Consolidated items will be removed
+Consolidate, i.e. merge levels together, of a certain items in a scale object. Consolidated items will be removed
 from the scale.
 }

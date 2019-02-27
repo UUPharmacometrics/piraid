@@ -222,33 +222,36 @@ get_item_index <- function(scale, number) {
 
 #' Consolidate item levels
 #'
-#' Consolidate, i.e. merge levels together, of a certain item in a scale object. Consolidated items will be removed
+#' Consolidate, i.e. merge levels together, of a certain items in a scale object. Consolidated items will be removed
 #' from the scale.
 #' 
 #' @param scale An irt_scale object
-#' @param item_number The number of an item
+#' @param item_numbers A vector of item numbers to apply the same consolidation to
 #' @param levels The levels to be merged together
 #' @return A new irt_scale object
 #' @export
-consolidate_levels <- function(scale, item_number, levels) {
+consolidate_levels <- function(scale, item_numbers, levels) {
     stopifnot(length(levels) >= 2)
-    item <- get_item(scale, item_number)
-    run <- rle(item$levels %in% levels)$values      # Check that consolidated levels are at an edge of the available levels and consecutive
-    if (length(run) == 2) {
-        low <- all(run == c(TRUE, FALSE))
-        high <- all(run == c(FALSE, TRUE))
-    }
-    if (length(run) == 2 && (low || high)) {
-        if (low) {
-            levels_to_remove <- sort(levels)[-length(levels)]
-        } else {
-            levels_to_remove <- sort(levels)[-1]
+    for (item_number in item_numbers) {
+        item <- get_item(scale, item_number)
+        run <- rle(item$levels %in% levels)$values      # Check that consolidated levels are at an edge of the available levels and consecutive
+        if (length(run) == 2) {
+            low <- all(run == c(TRUE, FALSE))
+            high <- all(run == c(FALSE, TRUE))
         }
-        index <- get_item_index(scale, item_number)
-        scale$items[[index]]$levels <- setdiff(item$levels, levels_to_remove)
-    } else {
-        stop("Could only consolidate levels at the low or high end of the level range")
+        if (length(run) == 2 && (low || high)) {
+            if (low) {
+                levels_to_remove <- sort(levels)[-length(levels)]
+            } else {
+                levels_to_remove <- sort(levels)[-1]
+            }
+            index <- get_item_index(scale, item_number)
+            scale$items[[index]]$levels <- setdiff(item$levels, levels_to_remove)
+        } else {
+            stop("Could only consolidate levels at the low or high end of the level range")
+        }
     }
+
     scale
 }
 

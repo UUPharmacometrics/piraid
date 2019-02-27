@@ -4,12 +4,12 @@
 \alias{consolidate_levels_in_model}
 \title{Consolidation of levels in a model without changing the scale}
 \usage{
-consolidate_levels_in_model(model, item_number, levels)
+consolidate_levels_in_model(model, item_numbers, levels)
 }
 \arguments{
 \item{model}{An irt_model object}
 
-\item{item_number}{The number of the item}
+\item{item_numbers}{A vector of item numbers to do the same consolidation for}
 
 \item{levels}{A vector of levels to consolidate, i.e. merging into the lowest level of this vector.}
 }

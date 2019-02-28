@@ -467,7 +467,10 @@ simulation_task <- function(model) {
     cg <- add_line(cg, "$MSFI msf4")
     cg <- add_empty_line(cg)
     cg <- add_line(cg, paste0("$SIMULATION (875435432) (3872543 UNIFORM) NOPREDICTION ONLYSIMULATION SUBPROBLEMS=", model$subproblems, " TRUE=FINAL"))
-    cg <- add_line(cg, "$TABLE ID ITEM DV PSI TIME PPRED PWRES FILE=simulation_tab1 NOAPPEND ONEHEADER NOPRINT")
+    df <- utils::read.csv(model$dataset, nrows=0)
+    columns <- paste(colnames(df), collapse=' ')
+    cg <- add_line(cg, paste0("$TABLE ", columns, " FILE=simulation_tab1 NOAPPEND ONEHEADER NOPRINT"))
+    cg <- add_line(cg, "$TABLE ID ITEM DV PSI TIME PPRED PWRES FILE=mirror_plot_tab1 NOAPPEND ONEHEADER NOPRINT")
     cg
 }
 

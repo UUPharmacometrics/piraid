@@ -130,7 +130,7 @@ model <- add_dataset(model, "my.dta")
 ```
 
 ### Generate the NONMEM code from a model object
-```{r, fig.show='hold'}
+```{r, fig.show='hold', eval=FALSE}
 scale <- scale_from_dataset(df)
 model <- irt_model(scale)
 print_model(model)

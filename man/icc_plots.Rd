@@ -17,7 +17,7 @@ icc_plots(df, scale, items_per_page = 8)
 A list of pages
 }
 \description{
-Plot item characteristic curves
+MDV and EVID will be used to filter out non-observations before plotting
 }
 \section{Warning}{
 

@@ -21,5 +21,5 @@ mirror_plots(origdata, scale, simdata = NULL, nrow = 4, ncol = 5)
 A list of plots. One page per item.
 }
 \description{
-Mirror plots for comparison of original data and simulated data
+MDV and EVID will be used to filter out non-observations before plotting
 }

@@ -20,6 +20,8 @@ graded_response_model <- function(data) {
 
 #' Plot item characteristic curves
 #' 
+#' MDV and EVID will be used to filter out non-observations before plotting
+#' 
 #' @section Warning:
 #' Binary items are not handled well.
 #' 
@@ -29,6 +31,7 @@ graded_response_model <- function(data) {
 #' @return A list of pages
 #' @export
 icc_plots <- function(df, scale, items_per_page=8) {
+    df <- filter_observations(df)
     max_levels <- df %>%
         dplyr::group_by(UQ(sym("ITEM"))) %>%
         dplyr::summarise(max_level=max(UQ(sym("DV"))))
@@ -79,6 +82,8 @@ icc_plots <- function(df, scale, items_per_page=8) {
 
 #' Mirror plots for comparison of original data and simulated data
 #'
+#' MDV and EVID will be used to filter out non-observations before plotting
+#'
 #' @param origdata The original dataset
 #' @param scale A scale object
 #' @param simdata The simulated data. Will plot only original data if this is missing
@@ -90,12 +95,14 @@ mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
     unique_items <- sort(unique(origdata$ITEM))
     item_labels <- item_name_list(scale)
 
+    origdata <- filter_observations(origdata)
     origdata <- dplyr::select(origdata, "DV", "ITEM")
     origdata$type <- "observed"
 
     if (is.null(simdata)) {
         df <- origdata
     } else {
+        simdata <- filter_observations(simdata)
         simdata <- dplyr::select(simdata, "DV", "ITEM")
         simdata$type <- "simulated"
         df <- rbind(origdata, simdata)

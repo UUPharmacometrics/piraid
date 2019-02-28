@@ -49,16 +49,32 @@ print_model <- function(model) {
 #' @param path Path to the created model file
 #' @export
 save_model <- function(model, path) {
+    str <- str_irt_model(model)
     fp <- file(path)
-    writeLines(str_irt_model(model), fp)
+    writeLines(str, fp)
     close(fp)
 }
+
+#' Check if all mandatory components has been added to a model
+#'
+#' Currently the scale and the dataset are mandatory.
+#' Will give error if model is not complete
+#'
+#' @param model irt_model object
+#' @keywords internal
+model_complete <- function(model) {
+    if (!("dataset" %in% names(model))) {
+        stop("A dataset needs to be added to the model. Please use add_dataset before printing the model")
+    }
+}
+
 
 #' Create NONMEM model as a string
 #' 
 #' @param model A model object
 #' @return A string with the NONMEM code
 str_irt_model <- function(model) {
+    model_complete(model)
     next_theta <- 1
     cg <- code_generator()
     cg <- add_line(cg, "$SIZES LIM6=4000 LTH=-1000")

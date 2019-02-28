@@ -426,7 +426,12 @@ simulation_code <- function(model) {
 estimation_task <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "estimation task")
-    cg <- add_line(cg, "$ESTIMATION METHOD=COND LAPLACE -2LL MAXEVAL=999999 PRINT=1")
+    if (model$simulation) {
+        msfo <- " MSFO=msf4"
+    } else {
+        msfo <- ""
+    }
+    cg <- add_line(cg, paste0("$ESTIMATION METHOD=COND LAPLACE -2LL MAXEVAL=999999 PRINT=1", msfo))
     cg <- add_line(cg, "$COVARIANCE")
     max <- 0
     binary <- ""
@@ -455,9 +460,11 @@ simulation_task <- function(model) {
     cg <- code_generator()
     cg <- add_empty_line(cg)
     cg <- add_empty_line(cg)
-    cg <- add_line(cg, "$PROBLEM")
+    cg <- add_line(cg, "$PROBLEM Simulation")
     cg <- add_empty_line(cg)
     cg <- add_code(cg, data_and_input_code(model, rewind=TRUE))
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, "$MSFI msf4")
     cg <- add_empty_line(cg)
     cg <- add_line(cg, paste0("$SIMULATION (875435432) (3872543 UNIFORM) NOPREDICTION ONLYSIMULATION SUBPROBLEMS=", model$subproblems, " TRUE=FINAL"))
     cg <- add_line(cg, "$TABLE ID ITEM DV PSI TIME PPRED PWRES FILE=simulation_tab1 NOAPPEND ONEHEADER NOPRINT")

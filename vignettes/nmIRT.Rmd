@@ -177,8 +177,9 @@ The mirror plot gives an overview of the frequencies of levels in the dataset an
 
 ```{r, eval=FALSE}
 scale <- predefined_scale("MDS-UPDRS")
-df <- read.table("item_parameters_tab1", skip=1, header=T, sep=",")
-plots <- mirror_plots(origdata, scale, simdata=df, nrow=4, ncol=5)
+origdata <- read.table("mydata.dta")
+simdata <- read.table("simulation_tab1", skip=1, header=T, sep=",")
+plots <- mirror_plots(origdata, scale, simdata, nrow=4, ncol=5)
 print(plots)
 ```
 
@@ -187,7 +188,7 @@ print(plots)
 The correlation plots give a heatmap of correlations between residuals.
 
 ```{r, eval=FALSE}
-psi.estimates <- read.table("psi_estimates_tab1", skip=1, header=T)
+psi.estimates <- read.table("psi_tab1", skip=1, header=T)
 plot <- correlation_plot(psi.estimates)
 print(plot)
 ```

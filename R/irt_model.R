@@ -114,6 +114,8 @@ str_irt_model <- function(model) {
 #' @export
 add_dataset <- function(model, path) {
     model$dataset <- path
+    df <- utils::read.csv(model$dataset, nrows=0)
+    model$data_columns <- colnames(df)
     model
 }
 
@@ -144,8 +146,7 @@ data_and_input_code <- function(model, rewind=FALSE) {
         rewind_code = ""
     }
     if (!is.null(model$dataset)) {
-        df <- utils::read.csv(model$dataset, nrows=0)
-        cg <- add_line(cg, paste0("$INPUT ", paste(colnames(df), collapse=' ')))
+        cg <- add_line(cg, paste0("$INPUT ", paste(model$data_columns, collapse=' ')))
         cg <- add_line(cg, paste0("$DATA ", normalizePath(model$dataset), rewind_code, " IGNORE=@"))
     }
     cg
@@ -444,10 +445,10 @@ estimation_task <- function(model) {
         }
     }
     dif_numbers <- seq(1, max - 1)
-    cg <- add_line(cg, "$TABLE ID ITEM DV PSI TIME PPRED PWRES FILE=psi_tab1 NOAPPEND ONEHEADER NOPRINT")
-    columns <- c("ID", "TIME", "DV", "ITEM", "DIS", paste0("DIF", dif_numbers), paste0("DIFG", dif_numbers))
+    cg <- add_line(cg, paste0("$TABLE ID TIME DV", mdv_string(model), "ITEM PSI PPRED PWRES FILE=psi_tab1 NOAPPEND ONEHEADER NOPRINT"))
+    columns <- c("DIS", paste0("DIF", dif_numbers), paste0("DIFG", dif_numbers))
     columns_str <- paste(columns, collapse=" ")
-    cg <- add_line(cg, paste0("$TABLE ", columns_str, binary))
+    cg <- add_line(cg, paste0("$TABLE ID TIME DV", mdv_string(model), "ITEM ", columns_str, binary))
     cg <- add_line(cg, "       FILE=item_parameters_tab1 NOAPPEND ONEHEADER NOPRINT")
     cg
 }
@@ -467,10 +468,9 @@ simulation_task <- function(model) {
     cg <- add_line(cg, "$MSFI msf4")
     cg <- add_empty_line(cg)
     cg <- add_line(cg, paste0("$SIMULATION (875435432) (3872543 UNIFORM) NOPREDICTION ONLYSIMULATION SUBPROBLEMS=", model$subproblems, " TRUE=FINAL"))
-    df <- utils::read.csv(model$dataset, nrows=0)
-    columns <- paste(colnames(df), collapse=' ')
+    columns <- paste(model$data_columns, collapse=' ')
     cg <- add_line(cg, paste0("$TABLE ", columns, " FILE=simulation_tab1 FORMAT=,1PE11.4 NOAPPEND ONEHEADER NOPRINT"))
-    cg <- add_line(cg, "$TABLE ID ITEM DV PSI MDV FILE=mirror_plot_tab1 NOAPPEND ONEHEADER NOPRINT")
+    cg <- add_line(cg, paste0("$TABLE ID ITEM DV PSI", mdv_string(model), "FILE=mirror_plot_tab1 NOAPPEND ONEHEADER NOPRINT"))
     cg
 }
 
@@ -700,4 +700,18 @@ consolidate_levels_in_model <- function(model, item_numbers, levels) {
         }
     }
     model
+}
+
+
+#' Get a MDV string for $TABLE if dataset has MDV column
+#' 
+#' @param model irt_model object
+#' @return An empty string or " MDV "
+#' @keywords internal
+mdv_string <- function(model) {
+    if ("MDV" %in% model$data_columns) {
+        " MDV "
+    } else {
+        ""
+    }
 }

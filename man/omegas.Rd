@@ -4,10 +4,12 @@
 \alias{omegas}
 \title{Generate NONMEM code for the random effect}
 \usage{
-omegas(model)
+omegas(model, numomegas)
 }
 \arguments{
 \item{model}{An irt_model object}
+
+\item{numomegas}{The number of omegas needed}
 }
 \value{
 A code generator object

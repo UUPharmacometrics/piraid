@@ -2,16 +2,18 @@
 % Please edit documentation in R/irt_model.R
 \name{initial_thetas}
 \alias{initial_thetas}
-\title{Generate NONMEM code for the thetas of the PSI model}
+\title{Generate NONMEM code for the thetas of the latent variable model}
 \usage{
-initial_thetas(model)
+initial_thetas(model, numthetas)
 }
 \arguments{
 \item{model}{An irt_model object}
+
+\item{numthetas}{The number of latent variable model thetas}
 }
 \value{
 A code generator object
 }
 \description{
-Generate NONMEM code for the thetas of the PSI model
+Generate NONMEM code for the thetas of the latent variable model
 }

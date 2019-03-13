@@ -18,6 +18,13 @@ add_line <- function(generator, line) {
     generator
 }
 
+add_lines <- function(generator, lines) {
+    for (line in lines) {
+        generator <- add_line(generator, line)
+    }
+    generator
+}
+
 add_empty_line <- function(generator) {
     generator$code = c(generator$code, "")
     generator

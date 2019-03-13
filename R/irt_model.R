@@ -10,11 +10,12 @@ irt_model <- function(scale, base_scale) {
     if (missing(base_scale)) {
         base_scale <- scale
     }
-    model <- structure(list(scale=scale, base_scale=base_scale, simulation=FALSE, consolidation=list()), class="irt_model")
+    model <- structure(list(scale=scale, base_scale=base_scale, simulation=FALSE, consolidation=list(), run_number=1,
+        lv_models=list()), class="irt_model")
 }
 
 #' Change the scale and/or base scale of an IRT model object
-#' 
+#'
 #' \code{set_scale} returns a newly created model object
 #'
 #' @param model An irt_model orbject
@@ -87,7 +88,7 @@ str_irt_model <- function(model) {
     cg <- banner_comment(cg, "assignment of item parameters")
     first <- TRUE
     for (item in model$scale$items) {
-        res <- irt_item_assignment_code(model$scale, item, next_theta, first)
+        res <- irt_item_assignment_code(model, item, next_theta, first)
         if (first) {
             first <- FALSE
         }
@@ -96,10 +97,12 @@ str_irt_model <- function(model) {
     }
     cg <- irt_item_assignment_fallthrough(cg, model$scale)
     cg <- add_empty_line(cg)
-    cg <- banner_comment(cg, "The PSI model")
+    cg <- banner_comment(cg, "The latent variable model")
     cg <- add_empty_line(cg)
-    cg <- add_line(cg, paste0("PSI=THETA(", next_theta, ")+ETA(1)"))
-    next_theta <- next_theta + 1
+    a <- latent_variable_code(model, next_theta)
+    numthetas <- a$next_theta - next_theta
+    numetas <- a$next_eta - 1
+    cg <- add_code(cg, a$cg)
     cg <- add_empty_line(cg)
     cg <- add_code(cg, data_models_code(model))
     cg <- add_code(cg, response_probability_prediction_code())
@@ -108,12 +111,12 @@ str_irt_model <- function(model) {
     cg <- add_empty_line(cg)
     cg <- add_code(cg, estimation_task(model))
     cg <- add_empty_line(cg)
-    cg <- add_code(cg, omegas(model))
+    cg <- add_code(cg, omegas(model, numetas))
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$THETA")
     cg <- add_code(cg, initial_item_thetas(model))
     cg <- add_empty_line(cg)
-    cg <- add_code(cg, initial_thetas(model))
+    cg <- add_code(cg, initial_thetas(model, numthetas))
     if (model$simulation) {
         cg <- add_code(cg, simulation_task(model))
     }
@@ -149,6 +152,17 @@ add_simulation <- function(model, nsim=1) {
     model
 }
 
+#' Set the run number
+#' 
+#' The run number will be added to the names of the table files
+#' 
+#' @param model An irt_model object
+#' @param run_number An integer
+#' @export
+set_run_number <- function(model, run_number) {
+    model$run_number <- run_number
+}
+
 #' Create the $DATA and $INPUT to NONMEM model code
 #' 
 #' @param model A irt_model object
@@ -177,6 +191,7 @@ type_constants <- function(model) {
     cg <- banner_comment(cg, "constants to select model type")
     levels <- ordcat_level_arrays(model$scale)
     cg <- add_line(cg, "MODEL=0")
+    cg <- add_line(cg, "PSI_MODEL=0")
     for (i in 1:length(levels)) {
         cg <- add_line(cg, paste0("OC", i, "=", i, '    ; ordered categorical ', levels_as_string(levels[[i]])))
     }
@@ -229,12 +244,13 @@ model_type_constant <- function(scale, item) {
 
 #' Generate NONMEM code for assignment of item model parameters
 #' 
-#' @param scale An irt_scale object
+#' @param model An irt_model object
 #' @param item An irt_item object
 #' @param next_theta The number of the next THETA to be created
 #' @param first Is this the first item?
 #' @return A code generator object
-irt_item_assignment_code <- function(scale, item, next_theta, first) {
+irt_item_assignment_code <- function(model, item, next_theta, first) {
+    scale <- model$scale
     cg <- code_generator()
     if (first) {
         ifstring <- "IF"
@@ -243,6 +259,10 @@ irt_item_assignment_code <- function(scale, item, next_theta, first) {
     }
     cg <- add_line(cg, paste0(ifstring, "(ITEM.EQ.", item$number, ") THEN"))
     cg <- increase_indent(cg)
+    lv_index <- get_item_lv_index(model, item$number)
+    if (lv_index != 0) {
+        cg <- add_line(cg, paste0("PSI_MODEL=", lv_index))
+    }
     cg <- add_line(cg, paste0("MODEL=", model_type_constant(scale, item)))
     if (item$type == "ordcat") {
         cg <- add_line(cg, paste0("DIS=THETA(", next_theta, ")"))
@@ -461,11 +481,11 @@ estimation_task <- function(model) {
         }
     }
     dif_numbers <- seq(1, max - 1)
-    cg <- add_line(cg, paste0("$TABLE ID TIME DV", mdv_string(model), "ITEM PSI PPRED PWRES FILE=psi_tab1 NOAPPEND ONEHEADER NOPRINT"))
+    cg <- add_line(cg, paste0("$TABLE ID TIME DV", mdv_string(model), "ITEM PSI PPRED PWRES FILE=psi_tab", model$run_number, " NOAPPEND ONEHEADER NOPRINT"))
     columns <- c("DIS", paste0("DIF", dif_numbers), paste0("DIFG", dif_numbers))
     columns_str <- paste(columns, collapse=" ")
     cg <- add_line(cg, paste0("$TABLE ID TIME DV", mdv_string(model), "ITEM ", columns_str, binary))
-    cg <- add_line(cg, "       FILE=item_parameters_tab1 NOAPPEND ONEHEADER NOPRINT")
+    cg <- add_line(cg, paste0("       FILE=item_parameters_tab", model$run_number, " NOAPPEND ONEHEADER NOPRINT"))
     cg
 }
 
@@ -485,19 +505,22 @@ simulation_task <- function(model) {
     cg <- add_empty_line(cg)
     cg <- add_line(cg, paste0("$SIMULATION (875435432) (3872543 UNIFORM) NOPREDICTION ONLYSIMULATION SUBPROBLEMS=", model$subproblems, " TRUE=FINAL"))
     columns <- paste(model$data_columns, collapse=' ')
-    cg <- add_line(cg, paste0("$TABLE ", columns, " FILE=simulation_tab1 FORMAT=,1PE11.4 NOAPPEND ONEHEADER NOPRINT"))
-    cg <- add_line(cg, paste0("$TABLE ID ITEM DV PSI", mdv_string(model), "FILE=mirror_plot_tab1 NOAPPEND ONEHEADER NOPRINT"))
+    cg <- add_line(cg, paste0("$TABLE ", columns, " FILE=simulation_tab", model$run_number, " FORMAT=,1PE11.4 NOAPPEND ONEHEADER NOPRINT"))
+    cg <- add_line(cg, paste0("$TABLE ID ITEM DV PSI", mdv_string(model), "FILE=mirror_plot_tab", model$run_number, " NOAPPEND ONEHEADER NOPRINT"))
     cg
 }
 
 #' Generate NONMEM code for the random effect
 #' 
 #' @param model An irt_model object
+#' @param numomegas The number of omegas needed
 #' @return A code generator object
-omegas <- function(model) {
+omegas <- function(model, numomegas) {
     cg <- code_generator()
     cg <- banner_comment(cg, "random effects")
-    cg <- add_line(cg, "$OMEGA 0.1")
+    for (i in seq(1:numomegas)) {
+        cg <- add_line(cg, "$OMEGA 0.1")
+    }
     cg
 }
 
@@ -521,14 +544,17 @@ ordered_categorical_simulation_code <- function(scale, levels) {
     cg
 }
 
-#' Generate NONMEM code for the thetas of the PSI model
+#' Generate NONMEM code for the thetas of the latent variable model
 #' 
 #' @param model An irt_model object
+#' @param numthetas The number of latent variable model thetas
 #' @return A code generator object
-initial_thetas <- function(model) {
+initial_thetas <- function(model, numthetas) {
     cg <- code_generator()
-    cg <- banner_comment(cg, "psi model parameters")
-    cg <- add_line(cg, "0.1  ; PSI")
+    cg <- banner_comment(cg, "latent variable model parameters")
+    for (i in seq(1, numthetas)) {
+        cg <- add_line(cg, "0.1")
+    }
     cg
 }
 

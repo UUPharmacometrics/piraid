@@ -4,10 +4,10 @@
 \alias{irt_item_assignment_code}
 \title{Generate NONMEM code for assignment of item model parameters}
 \usage{
-irt_item_assignment_code(scale, item, next_theta, first)
+irt_item_assignment_code(model, item, next_theta, first)
 }
 \arguments{
-\item{scale}{An irt_scale object}
+\item{model}{An irt_model object}
 
 \item{item}{An irt_item object}
 

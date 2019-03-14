@@ -10,8 +10,10 @@ irt_model <- function(scale, base_scale) {
     if (missing(base_scale)) {
         base_scale <- scale
     }
+    item_parameters <- data.frame(matrix(ncol = 3, nrow = 0))
+    colnames(item_parameters) <- c("item", "parameter", "fix", "init") 
     model <- structure(list(scale=scale, base_scale=base_scale, simulation=FALSE, consolidation=list(), run_number=1,
-        lv_models=list()), class="irt_model")
+        lv_models=list(), item_parameters=item_parameters), class="irt_model")
 }
 
 #' Change the scale and/or base scale of an IRT model object
@@ -576,7 +578,7 @@ initial_item_thetas <- function(model) {
             cg <- theta_placeholder(cg, base_item)
         } else {
             if (!is.null(item$inits)) {
-                labels <- item_labels(item)
+                labels <- item_labels(model$scale, item$number)
                 inits <- item_inits(item)
                 if (length(model$consolidation) >= item$number) {   # Does item exist in consolidation list
                     consolidated <- model$consolidation[[item$number]]

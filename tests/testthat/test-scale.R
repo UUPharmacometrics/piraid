@@ -162,9 +162,9 @@ test_that("Binary items", {
 })
 
 test_that("Item labels", {
-    a <- item_labels(myscale$items[[5]])
+    a <- item_labels(myscale, 5)
     expect_equal(a, c("I5DIS", "I5DIF1", "I5DIF2", "I5DIF3", "I5DIF4"))
-    a <- item_labels(myscale$items[[60]])
+    a <- item_labels(myscale, 60)
     expect_equal(a, c("I60DIS", "I60DIF", "I60GUE"))
 })
 

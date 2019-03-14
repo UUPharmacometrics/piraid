@@ -369,23 +369,31 @@ binary_items <- function(scale) {
     a
 }
 
+#' Get vector of parameter names of an item
+#' 
+#' @param scale An irt_scale object
+#' @param item_number An item number
+#' @result A character vector of parameter names
+#' @export
+item_parameter_names <- function(scale, item_number) {
+    item <- get_item(scale, item_number)
+    if (item$type == "ordcat") {
+        dif_names <- paste0("DIF", 1:(length(item$levels) - 1))
+        c("DIS", dif_names)
+    } else {    # Currently binary
+        c("DIS", "DIF", "GUE")
+    }
+}
+
 #' Get vector of labels for parameters of item
 #' 
-#' @param item An irt_item object
+#' @param scale An irt_scale object
+#' @param item An item number
 #' @return A label vector
 #' @keywords interal
-item_labels <- function(item) {
-    if (item$type == "ordcat") {
-        dis_label <- paste0("I", item$number, "DIS")
-        dif_labels <- paste0("I", item$number, "DIF", 1:(length(item$levels) - 1))
-        labels <- c(dis_label, dif_labels)
-    } else {    # Currently binary
-        dis_label <- paste0("I", item$number, "DIS")
-        dif_label <- paste0("I", item$number, "DIF")
-        gue_label <- paste0("I", item$number, "GUE")
-        labels <- c(dis_label, dif_label, gue_label)
-    }
-    labels
+item_labels <- function(scale, item_number) {
+    names <- item_parameter_names(scale, item_number)
+    paste0("I", item_number, names)
 }
 
 #' Give a theta init string from limits

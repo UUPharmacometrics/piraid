@@ -10,7 +10,7 @@ Authors@R: c(person("Rikard", "Nordgren", role=c("aut", "cre", "cph"), email="ri
              person("Mats O.", "Karlsson", role=c("aut", "cph")))
 Maintainer: Rikard Nordgren <rikard.nordgren@farmbio.uu.se>
 Depends:
-    R (>= 2.14.1)
+    R (>= 3.3.0)
 Imports:
     methods,
     magrittr,

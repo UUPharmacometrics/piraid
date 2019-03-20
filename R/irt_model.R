@@ -10,8 +10,7 @@ irt_model <- function(scale, base_scale) {
     if (missing(base_scale)) {
         base_scale <- scale
     }
-    item_parameters <- data.frame(matrix(ncol = 3, nrow = 0))
-    colnames(item_parameters) <- c("item", "parameter", "fix", "init") 
+    item_parameters <- data.frame(item=numeric(0), parameter=character(0), fix=logical(0), init=numeric(0), stringsAsFactors=FALSE)
     model <- structure(list(scale=scale, base_scale=base_scale, simulation=FALSE, consolidation=list(), run_number=1,
         lv_models=list(), item_parameters=item_parameters), class="irt_model")
 }
@@ -566,9 +565,6 @@ initial_thetas <- function(model, numthetas) {
 #' @param model An irt_model object
 #' @return A code generator object
 initial_item_thetas <- function(model) {
-    #stopifnot('dataset' %in% names(model))
-    #df <- read.csv(model$dataset, stringAsFactors=FALSE)
-    #initial_thetas_from_dataset(df, model$scale)
     cg <- code_generator()
     cg <- banner_comment(cg, "item parameters")
     i <- 1
@@ -576,27 +572,13 @@ initial_item_thetas <- function(model) {
         item <- get_item(model$scale, base_item$number) 
         if (is.null(item)) {
             cg <- theta_placeholder(cg, base_item)
+            i <- i + length(base_item$levels)
         } else {
-            if (!is.null(item$inits)) {
-                labels <- item_labels(model$scale, item$number)
-                inits <- item_inits(item)
-                if (length(model$consolidation) >= item$number) {   # Does item exist in consolidation list
-                    consolidated <- model$consolidation[[item$number]]
-                    if (!is.null(consolidated)) {
-                        inits <- item_inits(item, consolidated=consolidated)
-                    }
-                }
-                for (line in paste0(inits, "  ; ", labels)) {
-                    cg <- add_line(cg, paste0(line, " ", i))    # Or have add_line support arrays
-                    i <- i + 1
-                }
-            } else {
-                # Fallback to simple inits for now: FIXME move fallback to item method "item_inits"
-                cg <- add_line(cg, paste0("(0,1) ; I", item$number, "DIS"))
-                for (i in seq(1, length(item$levels) - 1)) {
-                    cg <- add_line(cg, paste0("(0.1) ; I", item$number, "DIF", i))
-                }
+            theta_strings <- item_inits(model, item, i)
+            for (line in theta_strings) {
+                cg <- add_line(cg, line)   
             }
+            i <- i + length(theta_strings)
         }
     }
     cg
@@ -746,6 +728,21 @@ consolidate_levels_in_model <- function(model, item_numbers, levels) {
     model
 }
 
+#' Check if a level for an item was consolidated
+#' 
+#' @param model An irt_model object
+#' @param item An irt_item object
+#' @param level A level
+#' @return TRUE if level was consolidated for item and FALSE otherwise
+consolidated <- function(model, item, level) {
+    if (length(model$consolidation) >= item$number) {   # Does item exist in consolidation list?
+        consolidated <- model$consolidation[[item$number]]
+        if (!is.null(consolidated) && item$number %in% consolidated) {
+            return(TRUE)
+        }
+    }
+    FALSE
+}
 
 #' Get a MDV string for $TABLE if dataset has MDV column
 #' 

@@ -161,28 +161,6 @@ test_that("Binary items", {
     expect_equal(a, c(60, 61))
 })
 
-test_that("Item labels", {
-    a <- item_labels(myscale, 5)
-    expect_equal(a, c("I5DIS", "I5DIF1", "I5DIF2", "I5DIF3", "I5DIF4"))
-    a <- item_labels(myscale, 60)
-    expect_equal(a, c("I60DIS", "I60DIF", "I60GUE"))
-})
-
-test_that("Theta init", {
-    a <- theta_init(0.5, -1 ,2)
-    expect_equal(a, "(-1, 0.5, 2)")
-    a <- theta_init(0, -1 ,2)
-    expect_equal(a, "0 FIX")
-    a <- theta_init(1, 0.2)
-    expect_equal(a, "(0.2, 1)")
-})
-
-test_that("Item inits", {
-    a <- item_inits(myscale$items[[7]])
-    expect_equal(length(a), 5)
-    expect_equal(a[1], "(0, 0.406)")
-})
-
 test_that("Item name list", {
     a <- item_name_list(myscale)
     expect_equal(names(a)[1], "1")

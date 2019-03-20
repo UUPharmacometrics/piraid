@@ -373,7 +373,7 @@ binary_items <- function(scale) {
 #' 
 #' @param scale An irt_scale object
 #' @param item_number An item number
-#' @result A character vector of parameter names
+#' @return A character vector of parameter names
 #' @export
 item_parameter_names <- function(scale, item_number) {
     item <- get_item(scale, item_number)
@@ -385,66 +385,35 @@ item_parameter_names <- function(scale, item_number) {
     }
 }
 
-#' Get vector of labels for parameters of item
+#' Get the index of an item parameter relative to the first parameter of that item
+#' 
+#' DIS would have index 1, DIF1 would have 2 etc
 #' 
 #' @param scale An irt_scale object
-#' @param item An item number
-#' @return A label vector
-#' @keywords interal
-item_labels <- function(scale, item_number) {
+#' @param item_number Number of the item
+#' @param parameter The name of the parameter
+#' @return The index of the parameter  starting from 1 or NA if not found
+item_parameter_index <- function(scale, item_number, parameter) {
     names <- item_parameter_names(scale, item_number)
-    paste0("I", item_number, names)
+    match(parameter, names)
 }
 
-#' Give a theta init string from limits
-#'
-#' init=0 gives 0 FIX
-#'  
-#' @param init The initial estimate
-#' @param lower The lower bound (not mandatory)
-#' @param upper The upper bound (not mandatory)
-#' @return A theta init string for NONMEM
-#' @keywords internal
-theta_init <- function(init, lower, upper) {
-    if (init == 0) {
-        return("0 FIX")
-    }
-
-    if (missing(upper) && missing(lower)) {
-        return(paste0(init))
-    } else if (missing(upper)) {
-        return(paste0("(", lower, ", ", init, ")"))
-    } else {
-        return(paste0("(", lower, ", ", init, ", ", upper, ")"))
-    }
-}
-
-#' Create initial estimates string for item
+#' Get published initial estimate for a parameter of an item
 #' 
-#' @param item An item object
-#' @return A vector of initial estimates definitions for NONMEM
+#' @param scale An irt_scale object
+#' @param item_number The number of an item
+#' @param parameter Name of a parameter
+#' @return The initial estimate or NULL if not available
 #' @keywords internal
-item_inits <- function(item, consolidated=NULL) {
-    if (item$type == "ordcat") {
-        dis_init <- theta_init(item$inits[1], 0)
-        dif1_init <- item$inits[2]
-        if (length(item$inits) > 2) {
-            dif_rest_inits <- paste0("(0,", item$inits[-1:-2], ",50)")
-            if (!is.null(consolidated)) {
-                n <- length(consolidated)
-                dif_rest_inits[(length(dif_rest_inits) - (n - 1)):length(dif_rest_inits)] <- "50 FIX"
-            }
-        } else {
-            dif_rest_inits <- c()
+published_init <- function(scale, item_number, parameter) {
+    item <- get_item(scale, item_number)
+    if ("inits" %in% names(item)) {
+        index <- item_parameter_index(scale, item_number, parameter)
+        if (!is.na(index)) {
+            return(item$inits[index])
         }
-        inits <- c(dis_init, dif1_init, dif_rest_inits)
-    } else {    # Binary
-        dis_init <- theta_init(item$inits[1], 0)
-        dif_init <- theta_init(item$inits[2], -50, 50)
-        gue_init <- theta_init(item$inits[3], 0)
-        inits <- c(dis_init, dif_init, gue_init)
     }
-    inits
+    NULL
 }
 
 #' Create a vector of item labels with item numbers as names of entries

@@ -431,3 +431,18 @@ item_name_list <- function(scale) {
     names(item_names) <- numbers
     item_names  
 }
+
+#' Get a list of all items in one or more categories
+#' 
+#' @param scale An irt_scale object
+#' @param categories A vector of names of categories
+#' @return A vector of item numbers
+#' @export
+items_in_categories <- function(scale, categories) {
+    new_scale <- select_categories(scale, categories)
+    items <- c()
+    for (item in new_scale$items) {
+        items <- c(items, item$number)
+    }
+    items
+}

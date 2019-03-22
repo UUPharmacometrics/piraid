@@ -21,7 +21,7 @@ The initial estimate will be:
 }
 \details{
 \enumerate{
-\item The user defined value from set_item_parameters
+\item The user defined value from initial_estimates_item_parameters
 \item 50 if the parameter was consolidated
 \item Taken from the published model in the scale
 \item A fall back value of:

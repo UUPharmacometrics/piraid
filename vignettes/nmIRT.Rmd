@@ -94,6 +94,12 @@ Items of a scale can belong to zero or more categories. These categories simplif
 subscale <- select_categories(scale, c("motor"))
 ```
 
+It is also possible to simply list all items in a certain combination of categories.
+
+```{r}
+items_in_categories(predefined_scale("MDS-UPDRS"), c("motor", "tremor"))
+```
+
 ### Remove items from a scale
 ```{r, fig.show='hold', eval=FALSE}
 new_scale <- remove_items(scale, 1:14)
@@ -187,9 +193,9 @@ The most straight forward way of setting some initial estimates is to use the fu
 
 For example
 ```{r, eval=FALSE}
-model <- initial_estimates_item_parameters(model, 1:14, c("DIF2", "DIF3", "DIF4"), 0.1)
+model <- initial_estimates_item_parameters(model, 1:13, c("DIF2", "DIF3", "DIF4"), 0.1)
 ```
-will set all the initial estimates for the DIF2, DIF3 and DIF4 parameters for items 1 through 14 to 0.1
+will set all the initial estimates for the DIF2, DIF3 and DIF4 parameters for items 1 through 13 to 0.1
 
 A vector of initial estimates can also be supplied and these will then be broadcast to all each parameter. For example
 ```{r, eval=FALSE}
@@ -203,9 +209,9 @@ It is possible to fix certain item parameters of a model.
 
 For example
 ```{r, eval=FALSE}
-model <- fix_item_parameters(model, c(1:14), item_parameter_names(scale, 1)
+model <- fix_item_parameters(model, items_in_categories(scale, "motor"), item_parameter_names(scale, 1)
 ```
-will fix all parameters for items 1 through 14.
+will fix all parameters in the motor category
 
 
 ## Diagnostic plots

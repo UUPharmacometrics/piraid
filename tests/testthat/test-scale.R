@@ -166,3 +166,10 @@ test_that("Item name list", {
     expect_equal(names(a)[1], "1")
     expect(is.character(a))
 })
+
+test_that("Items in categories", {
+    items <- items_in_categories(myscale, "non-motor")
+    expect_equal(items, 1:13)
+    items <- items_in_categories(myscale, c("motor", "tremor"))
+    expect_equal(items, 14:65)
+})

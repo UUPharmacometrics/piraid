@@ -12,7 +12,7 @@ irt_model <- function(scale, base_scale) {
     }
     item_parameters <- data.frame(item=numeric(0), parameter=character(0), fix=logical(0), init=numeric(0), stringsAsFactors=FALSE)
     model <- structure(list(scale=scale, base_scale=base_scale, simulation=FALSE, consolidation=list(), run_number=1,
-        lv_models=list(), item_parameters=item_parameters), class="irt_model")
+        lv_models=list(), item_parameters=item_parameters, use_path=TRUE), class="irt_model")
 }
 
 #' Change the scale and/or base scale of an IRT model object
@@ -130,10 +130,12 @@ str_irt_model <- function(model) {
 #' 
 #' @param model A model object
 #' @param path Path to a dataset file
+#' @param use_path Should the path be put in $DATA or not? If FALSE only the filename will go into $DATA
 #' @return A new model object
 #' @export
-add_dataset <- function(model, path) {
+add_dataset <- function(model, path, use_path=TRUE) {
     model$dataset <- path
+    model$use_data_path <- use_path
     df <- utils::read.csv(model$dataset, nrows=0)
     model$data_columns <- colnames(df)
     model
@@ -177,8 +179,13 @@ data_and_input_code <- function(model, rewind=FALSE) {
         rewind_code = ""
     }
     if (!is.null(model$dataset)) {
+        if (model$use_path) {
+            data_path <- normalizePath(model$dataset)
+        } else {
+            data_path <- basename(model$dataset)    # Only use filename
+        }
         cg <- add_line(cg, paste0("$INPUT ", paste(model$data_columns, collapse=' ')))
-        cg <- add_line(cg, paste0("$DATA ", normalizePath(model$dataset), rewind_code, " IGNORE=@"))
+        cg <- add_line(cg, paste0("$DATA ", data_path, rewind_code, " IGNORE=@"))
     }
     cg
 }

@@ -135,6 +135,13 @@ model <- set_scale(model, new_scale, new_basescale)
 model <- add_dataset(model, "my.dta")
 ```
 
+It is also possible to not use the full path of the dataset in $DATA
+```{r, eval=FALSE}
+model <- add_dataset(model, "my.dta", use_path=FALSE)
+```
+This is useful when creating and running the model on different machines.
+
+
 ### Generate the NONMEM code from a model object
 ```{r, fig.show='hold', eval=FALSE}
 scale <- scale_from_dataset(df)

@@ -4,12 +4,14 @@
 \alias{add_dataset}
 \title{Add dataset}
 \usage{
-add_dataset(model, path)
+add_dataset(model, path, use_path = TRUE)
 }
 \arguments{
 \item{model}{A model object}
 
 \item{path}{Path to a dataset file}
+
+\item{use_path}{Should the path be put in $DATA or not? If FALSE only the filename will go into $DATA}
 }
 \value{
 A new model object

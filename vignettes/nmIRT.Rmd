@@ -39,10 +39,10 @@ A table of all items of a scale can be generated
 scale_overview(scale)
 ```
 
-There is also the option of getting just the item numbers available or all that are of binary type
+There is also the option of getting just the item numbers available or all that are of a certain type
 ```{r, fig.show='hold'}
 all_items(scale)
-binary_items(scale)
+items_by_type(scale, "binary")
 ```
 
 

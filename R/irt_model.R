@@ -212,7 +212,7 @@ type_constants <- function(model) {
 #' @return A code generator object
 data_models_code <- function(model) {
     cg <- code_generator()
-    bin_items <- binary_items(model$scale)
+    bin_items <- items_by_type(model$scale, "binary")
     if (length(bin_items) > 0) {
         cg <- add_code(cg, binary_data_model_code())    # Only one type of binary allowed (0, 1)
     }
@@ -436,7 +436,7 @@ simulation_code <- function(model) {
     cg <- banner_comment(cg, "simulation code")
     cg <- add_line(cg, "IF(ICALL.EQ.4) THEN")
     cg <- increase_indent(cg)
-    bin_items <- binary_items(model$scale)
+    bin_items <- items_by_type(model$scale, "binary")
     if (length(bin_items) > 0) {
         cg <- add_line(cg, "IF(MODEL.EQ.BIN) THEN")
         cg <- increase_indent(cg)

@@ -354,19 +354,19 @@ all_items <- function(scale) {
     a
 }
 
-#' Get a list of all items of binary type from a scale
+#' Get a vector of all items of certain type
 #' 
 #' @param scale An irt_scale object
-#' @return A vector of item numbers for all binary items
+#' @param types A vector of types (currently "binary" and "ordcat")
 #' @export
-binary_items <- function(scale) {
-    a <- c()
+items_by_type <- function(scale, types) {
+    items <- c()
     for (item in scale$items) {
-        if (item$type == "binary") {
-            a <- c(a, item$number)
+        if (item$type %in% types) {
+            items <- c(items, item$number)   
         }
     }
-    a
+    items
 }
 
 #' Get vector of parameter names of an item

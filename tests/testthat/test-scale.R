@@ -156,8 +156,8 @@ test_that("All items", {
     expect_equal(a, 1:68)
 })
 
-test_that("Binary items", {
-    a <- binary_items(myscale)
+test_that("Items by type", {
+    a <- items_by_type(myscale, "binary")
     expect_equal(a, c(60, 61))
 })
 

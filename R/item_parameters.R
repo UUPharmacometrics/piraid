@@ -2,7 +2,7 @@
 #' 
 #' The initial estimate will be:
 #' 
-#' 1. The user defined value from set_item_parameters
+#' 1. The user defined value from initial_estimates_item_parameters
 #' 2. 50 if the parameter was consolidated
 #' 3. Taken from the published model in the scale
 #' 4. A fall back value of:

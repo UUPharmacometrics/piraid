@@ -4,12 +4,14 @@
 \alias{add_simulation}
 \title{Add simulation}
 \usage{
-add_simulation(model, nsim = 1)
+add_simulation(model, nsim = 1, options)
 }
 \arguments{
 \item{model}{A model object}
 
 \item{nsim}{The number of simulations to add}
+
+\item{options}{Extra options to add to $SIM as one string}
 }
 \value{
 A new model object

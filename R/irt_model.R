@@ -12,7 +12,7 @@ irt_model <- function(scale, base_scale) {
     }
     item_parameters <- data.frame(item=numeric(0), parameter=character(0), fix=logical(0), init=numeric(0), stringsAsFactors=FALSE)
     model <- structure(list(scale=scale, base_scale=base_scale, simulation=FALSE, consolidation=list(), run_number=1,
-        lv_models=list(), item_parameters=item_parameters, use_path=TRUE), class="irt_model")
+        lv_models=list(), item_parameters=item_parameters, use_path=TRUE, simulation_options="", estimation_options=""), class="irt_model")
 }
 
 #' Change the scale and/or base scale of an IRT model object
@@ -147,12 +147,24 @@ add_dataset <- function(model, path, use_path=TRUE) {
 #' 
 #' @param model A model object
 #' @param nsim The number of simulations to add
+#' @param options Extra options to add to $SIM as one string
 #' @return A new model object
 #' @export
-add_simulation <- function(model, nsim=1) {
+add_simulation <- function(model, nsim=1, options) {
     model$simulation <- TRUE
     model$subproblems <- nsim
+    model$simulation_options <- options
     model
+}
+
+#' Add extra options to $ESTIMATION
+#' 
+#' @param model A model object
+#' @param options Extra options to add to $EST as one string
+#' @return A new model object
+#' @export
+add_estimation_options <- function(model, options) {
+    model$estimation_options <- options
 }
 
 #' Set the run number
@@ -476,7 +488,7 @@ estimation_task <- function(model) {
     } else {
         msfo <- ""
     }
-    cg <- add_line(cg, paste0("$ESTIMATION METHOD=COND LAPLACE -2LL MAXEVAL=999999 PRINT=1", msfo))
+    cg <- add_line(cg, paste0("$ESTIMATION METHOD=COND LAPLACE -2LL MAXEVAL=999999 PRINT=1", msfo, " ", model$estimaton_options))
     cg <- add_line(cg, "$COVARIANCE")
     max <- 0
     binary <- ""
@@ -511,7 +523,7 @@ simulation_task <- function(model) {
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$MSFI msf4")
     cg <- add_empty_line(cg)
-    cg <- add_line(cg, paste0("$SIMULATION (875435432) (3872543 UNIFORM) NOPREDICTION ONLYSIMULATION SUBPROBLEMS=", model$subproblems, " TRUE=FINAL"))
+    cg <- add_line(cg, paste0("$SIMULATION (875435432) (3872543 UNIFORM) NOPREDICTION ONLYSIMULATION SUBPROBLEMS=", model$subproblems, " TRUE=FINAL ", model$simulation_options))
     columns <- paste(model$data_columns, collapse=' ')
     cg <- add_line(cg, paste0("$TABLE ", columns, " FILE=simulation_tab", model$run_number, " FORMAT=,1PE11.4 NOAPPEND ONEHEADER NOPRINT"))
     cg <- add_line(cg, paste0("$TABLE ID ITEM DV PSI", mdv_string(model), "FILE=mirror_plot_tab", model$run_number, " NOAPPEND ONEHEADER NOPRINT"))

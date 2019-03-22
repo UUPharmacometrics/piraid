@@ -2,6 +2,7 @@
 
 export(add_custom_lv_model)
 export(add_dataset)
+export(add_estimation_options)
 export(add_lv_model)
 export(add_simulation)
 export(all_items)

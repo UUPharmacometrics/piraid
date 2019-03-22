@@ -6,17 +6,17 @@ model <- irt_model(scale)
 
 test_that("Theta init", {
     a <- theta_init(0.5, -1 ,2)
-    expect_equal(a, "(-1, 0.5, 2)")
+    expect_equal(a, "(-1,0.5,2)")
     a <- theta_init(0, -1 ,2)
     expect_equal(a, "0")
     a <- theta_init(1, 0.2)
-    expect_equal(a, "(0.2, 1)")
+    expect_equal(a, "(0.2,1)")
 })
 
 test_that("Item inits", {
     a <- item_inits(model, get_item(model$scale, 17), 1)
     expect_equal(length(a), 5)
-    expect_equal(a[1], "(0, 1.06) ; I17DIS 1")
+    expect_equal(a[1], "(0,1.06) ; I17DIS 1")
 })
 
 test_that("theta_string_label_part", {

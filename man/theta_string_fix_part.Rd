@@ -17,12 +17,5 @@ theta_string_fix_part(model, item, parameter)
 A string containing "FIX" or an empty string
 }
 \description{
-FIX should be returned if:
-}
-\details{
-\itemize{
-\item init = 0
-\item The level corresponding to param was consolidated (in the upper end of the levels)
-\item fix was set using the fix_item_parameters function
-}
+Generate the fix part of the $THETA record for an item
 }

@@ -41,6 +41,33 @@ initial_estimate <- function(model, item, parameter) {
     }
 }
 
+#' Check if an item parameter is fixed
+#' 
+#' True should be returned if:
+#' 
+#' * init = 0
+#' * The level corresponding to param was consolidated (in the upper end of the levels)
+#' * fix was set using the fix_item_parameters function
+#' 
+#' @param model An irt_model object
+#' @param item An irt_item object
+#' @param parameter The item parameter name
+#' @return A string containing "FIX" or an empty string
+#' @md
+is_item_parameter_fixed <- function(model, item, parameter) {
+    init <- initial_estimate(model, item, parameter)
+    if (init == 0) {
+        return(TRUE)
+    } else if (consolidated(model, item, item_parameter_index(model$scale, item$number, parameter))) {
+        return(TRUE)
+    }
+    par_row <- dplyr::filter(model$item_parameters, item==!!item$number, parameter==!!parameter)
+    if (nrow(par_row) != 0 && !is.na(par_row$fix) && par_row$fix) {
+        return(TRUE)
+    }
+    FALSE
+}
+
 #' Give a theta init string from limits
 #'
 #' init=0 gives 0
@@ -123,29 +150,18 @@ theta_string_init_part <- function(model, item, parameter) {
 
 #' Generate the fix part of the $THETA record for an item
 #' 
-#' FIX should be returned if:
-#' 
-#' * init = 0
-#' * The level corresponding to param was consolidated (in the upper end of the levels)
-#' * fix was set using the fix_item_parameters function
-#' 
 #' @param model An irt_model object
 #' @param item An irt_item object
 #' @param parameter The item parameter name
 #' @return A string containing "FIX" or an empty string
 #' @md
 theta_string_fix_part <- function(model, item, parameter) {
-    init <- initial_estimate(model, item, parameter)
-    if (init == 0) {
-        return(" FIX")
-    } else if (consolidated(model, item, item_parameter_index(model$scale, item$number, parameter))) {
-        return(" FIX")
+    fix <- is_item_parameter_fixed(model, item, parameter)
+    if (fix) {
+        " FIX"
+    } else {
+        ""
     }
-    par_row <- dplyr::filter(model$item_parameters, item==!!item$number, parameter==!!parameter)
-    if (nrow(par_row) != 0 && !is.na(par_row$fix) && par_row$fix) {
-        return(" FIX")
-    }
-    ""
 }
 
 #' Generate the label comment part of the $THETA record for an item
@@ -231,4 +247,26 @@ initial_estimates_item_parameters <- function(model, items, parameters, inits) {
     new_df$init <- inits    # Broadcast hence order of parameters and item columns
     new_df <- dplyr::select(new_df, "item", "parameter", "fix", "init")
     insert_into_parameter_table(model, new_df, "init")
+}
+
+#' Generate a data frame to give an overview of initial estimates for a model
+#' 
+#' @param model An irt_model object
+#' @return A data frame with columns item, parameter, fix and init for all items and parameters
+#' @export
+initial_estimates_overview <- function(model) {
+    # First generate table over keys (item, parameters)
+    table <- data.frame(item=numeric(0), parameter=character(0))
+    for (item in model$scale$items) {
+        parameters <- item_parameter_names(model$scale, item$number)
+        item_table <- expand.grid(item=item$number, parameter=parameters, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
+        table <- rbind(table, item_table)
+    }
+
+    # Add fix and init columns
+    table <- table %>%
+        dplyr::group_by(UQ(sym("item")), UQ(sym("parameter"))) %>%
+        dplyr::mutate(fix=is_item_parameter_fixed(model, get_item(model$scale, UQ(sym("item"))), UQ(sym("parameter"))), init=initial_estimate(model, get_item(model$scale, UQ(sym("item"))), UQ(sym("parameter")))) %>%
+        dplyr::ungroup()
+    as.data.frame(table)
 }

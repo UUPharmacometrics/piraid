@@ -213,6 +213,12 @@ model <- fix_item_parameters(model, items_in_categories(scale, "motor"), item_pa
 ```
 will fix all parameters in the motor category
 
+### Getting an overview of initial estimates
+
+```{r}
+inits <- initial_estimates_overview(model)
+head(inits, n=12)
+```
 
 ## Diagnostic plots
 

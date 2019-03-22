@@ -48,3 +48,13 @@ test_that("initial_estimates_item_parameters", {
     mod3 <- initial_estimates_item_parameters(model, c(1, 2), c("DIF1", "DIF2"), c(0.1, 0.2))
     expect_equal(mod3$item_parameters, data.frame(item=c(1, 1, 2, 2), parameter=c("DIF1", "DIF2", "DIF1", "DIF2"), fix=as.logical(c(NA, NA, NA, NA)), init=c(0.1, 0.2, 0.1, 0.2), stringsAsFactors=F))
 })
+
+test_that("initial_estimates_overview", {
+    df <- initial_estimates_overview(model)
+    expect_equal(df$item[1], 1)
+    expect_equal(df$item[6], 2)
+    expect_equal(df$parameter[1], "DIS")
+    expect_equal(df$parameter[3], "DIF2")
+    expect_equal(df$fix[1], FALSE)
+    expect_equal(df$init[9], 2.59)
+})

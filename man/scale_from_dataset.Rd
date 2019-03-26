@@ -4,7 +4,8 @@
 \alias{scale_from_dataset}
 \title{Infer a scale from a dataset}
 \usage{
-scale_from_dataset(df, item = "ITEM", dv = "DV")
+scale_from_dataset(df, item = "ITEM", dv = "DV", name = NULL,
+  type = NULL)
 }
 \arguments{
 \item{df}{Can either be a data.frame or a path to a csv file}
@@ -12,11 +13,15 @@ scale_from_dataset(df, item = "ITEM", dv = "DV")
 \item{item}{Name of the item columns. Default is \code{ITEM}}
 
 \item{dv}{Name of the dv column. Default is \code{DV}}
+
+\item{name}{Name of an optional name column. Each item can be given a name (mainly for plotting) through this column. Only the first row of a new item will be used for the name.}
+
+\item{type}{Name of an optional type column. Each item can be given a type (either ordcat or binary) through this column. Only the first row of a new item will be used as type.}
 }
 \value{
 An irt_scale object
 }
 \description{
 \code{scale_from_dataset} determines the scale from a dataset using the ITEM, DV and MDV columns.
-All items will be assumed to be of type ordered categorical
+If the type option wasn't used all items will be assumed to be of type ordered categorical.
 }

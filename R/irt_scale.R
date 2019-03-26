@@ -99,25 +99,39 @@ select_categories <- function(scale, categories) {
 #' Infer a scale from a dataset
 #' 
 #' \code{scale_from_dataset} determines the scale from a dataset using the ITEM, DV and MDV columns.
-#' All items will be assumed to be of type ordered categorical
+#' If the type option wasn't used all items will be assumed to be of type ordered categorical.
 #' 
 #' @param df Can either be a data.frame or a path to a csv file
 #' @param item Name of the item columns. Default is \code{ITEM}
 #' @param dv Name of the dv column. Default is \code{DV}
+#' @param name Name of an optional name column. Each item can be given a name (mainly for plotting) through this column. Only the first row of a new item will be used for the name.
+#' @param type Name of an optional type column. Each item can be given a type (either ordcat or binary) through this column. Only the first row of a new item will be used as type.
 #' @return An irt_scale object
 #' @export
-scale_from_dataset <- function(df, item='ITEM', dv='DV') {
+scale_from_dataset <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
     if (is.character(df)) {
         df <- utils::read.csv(df)
     }
     scale <- irt_scale()
+    input_df <- df
     df <- filter_observations(df)
     df <- dplyr::select(df, !!item, !!dv)
     distinct <- dplyr::group_by_(df, item) %>% dplyr::distinct_(dv) %>% dplyr::summarise(DV=list(!!rlang::sym(dv)))
     for (i in  1:nrow(distinct)) {
-        item_no <- distinct[i, item]
+        item_no <- as.numeric(distinct[i, item])
         levels <- sort(distinct[i, 'DV'][[1]][[1]])
-        new_item <- irt_item(as.numeric(item_no), "", levels, "ordcat")     # Assuming ordered categorical here
+        item_name <- ""
+        item_type <- "ordcat"
+        if (!is.null(name) || !is.null(type)) {
+            first_row <- input_df %>% dplyr::filter(!!rlang::sym(item) == !!item_no) %>% utils::head(n=1)
+            if (!is.null(name)) {
+                item_name <- first_row[[name]]
+            }
+            if (!is.null(type)) {
+                item_type <- first_row[[type]]
+            }
+        }
+        new_item <- irt_item(as.numeric(item_no), item_name, levels, item_type)     # Assuming ordered categorical here
         scale <- add_item(scale, new_item)
     }
     scale
@@ -294,6 +308,7 @@ ordcat_level_arrays <- function(scale) {
 #' @param inits Option vector of initial values for the item parameters
 #' @keywords interal
 irt_item <- function(number, name, levels, type, categories=NULL, inits=NULL) {
+    stopifnot(type == "ordcat" || type == "binary")
     structure(list(number=number, name=name, levels=levels, type=type, categories=categories, inits=inits), class="irt_item")
 }
 

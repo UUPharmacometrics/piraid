@@ -48,7 +48,7 @@ test_that("Scale from dataset", {
     df <- data.frame(ITEM=c(1,2,2), DV=c(1,1,2))
     suppressWarnings(scale <- scale_from_dataset(df))
     item <- get_item(scale, 1)
-    expect_null(item)
+    expect_null(item)   # One level makes no item
     item <- get_item(scale, 2)
     expect_equal(item$levels, c(1, 2))
     
@@ -59,6 +59,20 @@ test_that("Scale from dataset", {
     item <- get_item(scale, 4)
     expect_equal(item$levels, c(5, 6))
     expect_equal(length(scale$items), 2)
+    
+    df <- data.frame(ITEM=c(1, 1, 5, 5), DV=c(0, 1, 0, 1), name=c("myname1", "", "myname2", ""), stringsAsFactors=FALSE)
+    scale <- scale_from_dataset(df, name="name")
+    item <- get_item(scale, 1)
+    expect_equal(item$name, "myname1")
+    item <- get_item(scale, 5)
+    expect_equal(item$name, "myname2")
+
+    df <- data.frame(ITEM=c(1, 1, 5, 5), DV=c(0, 1, 0, 1), type=c("ordcat", "", "binary", ""), stringsAsFactors=FALSE)
+    scale <- scale_from_dataset(df, type="type")
+    item <- get_item(scale, 1)
+    expect_equal(item$type, "ordcat")
+    item <- get_item(scale, 5)
+    expect_equal(item$type, "binary")
 })
 
 test_that("Scale overview", {

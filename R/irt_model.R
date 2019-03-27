@@ -775,3 +775,18 @@ mdv_string <- function(model) {
         ""
     }
 }
+
+#' Get the count of each item and level
+#' 
+#' @param model_or_data An irt_model object or a data.frame
+#' @return data.frame with ITEM, DV and count columns
+#' @export
+item_level_count <- function(model_or_data) {
+    if (class(model_or_data) == "irt_model") {
+        df <- read_dataset(model_or_data$dataset) %>% prepare_dataset()
+    } else {
+        df <- model_or_data
+    }
+    
+    dplyr::count(df, UQ(sym("ITEM")), UQ(sym("DV"))) %>% as.data.frame()
+}

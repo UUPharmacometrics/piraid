@@ -171,6 +171,12 @@ model <- consolidate_levels_in_model(model, 23, c(3, 4))
 
 This will set the probability of level 4 to 0 by fixing DIF4 to a high value. The item number can be a list of items to consolidate the same levels for.
 
+A convenience function to get the count for each item and level is available:
+```{r, eval=FALSE}
+item_level_count(model_or_dataframe)
+```
+
+
 ### Set the run number
 ```{r, eval=FALSE}
 model <- set_run_number(model, 28)

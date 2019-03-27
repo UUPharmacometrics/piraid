@@ -619,42 +619,6 @@ theta_placeholder <- function(cg, item) {
     cg 
 }
 
-# This function is not used and probably broken!
-# The purpose was the calculate decent inital estimates given
-# a dataset using the mirt package
-initial_thetas_from_data <- function(model, df) {
-    wide <- df %>%
-        prepare_dataset() %>%
-        wide_item_data(baseline=TRUE)
-
-    mirt_model <- mirt::mirt(data=wide, model=1, itemtype="graded")
-    coeffs <- mirt::coef(mirt_model, IRTpars=TRUE)
-    #dataset_scale <- scale_from_dataset(df)
-    inits <- list()
-
-    for (item in model$scale$items) {
-        if (!(item$number %in% colnames(wide))) {
-            inits <- c(inits, list(rep("0 FIX", length(item$levels))))
-            next
-        }
-        scale_levels <- item$levels
-        dataset_levels_with_na <- unique(wide[[item$number]])
-        dataset_levels <- sort(dataset_levels_with_na[!is.na(dataset_levels_with_na)])
-        item_coeffs <- as.numeric(coeffs[[item$number]])
-        current_inits <- item_coeffs[1]
-        scale_in_dataset <- scale_levels %in% dataset_levels
-        rl_encoded <- rle(scale_in_dataset)$values
-        if (identical(rl_encoded, c(T))) {
-            inits <- c(inits, list(current_inits))
-        } else if (identical(rl_encoded, c(T, F))) {
-            inits <- c(inits, list(c(current_inits, rep(50, length(scale_levels) - length(dataset_levels)))))
-        } else {
-            
-        }
-    }
-    inits
-}
-
 # Supports filename or data.frame as data
 #' Check dataset for missing items or levels
 #' 

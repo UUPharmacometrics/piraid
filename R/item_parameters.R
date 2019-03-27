@@ -273,3 +273,35 @@ initial_estimates_overview <- function(model) {
         dplyr::ungroup()
     as.data.frame(table)
 }
+
+#' Calculate initial estimates given the data
+#' 
+#' Use the mirt package to calculate initial estimates for the item parameters
+#' Can only handle models where there are no missing levels except for at the high end of the range.
+#'
+#' @param model An irt_model object
+#' @return A new irt_model
+#' @export
+initial_estimates_from_data <- function(model) {
+    df <- read_dataset(model$dataset) %>% prepare_dataset()
+    wide <- df %>% wide_item_data(baseline=TRUE)
+
+    types <- c()
+    for (item in as.numeric(colnames(wide))) {
+        if (get_item(model$scale, item)$type == "ordcat") {
+            types <- c(types, "graded")
+        } else {
+            types <- c(types, "3PL")    # For binary always use 3PL
+        }
+    }
+    mirt_model <- mirt::mirt(data=wide, model=1, itemtype=types)
+    coeffs <- mirt::coef(mirt_model, IRTpars=TRUE)
+    for (item in colnames(wide)) {
+        inits <- as.numeric(coeffs[[item]])
+        parameters <- item_parameter_names(model$scale, as.numeric(item))
+        parameters <- parameters[1:length(inits)]
+        model <- initial_estimates_item_parameters(model, as.numeric(item), parameters, inits)
+    }
+
+    return(model)
+}

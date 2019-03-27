@@ -246,6 +246,14 @@ inits <- initial_estimates_overview(model)
 head(inits, n=12)
 ```
 
+### Estimate initial estimates given the data
+The mirt package can be used to estimate the initial estimates given the dataset.
+
+```{r, eval=FALSE}
+model <- initial_estimates_from_data(model)
+```
+
+
 ## Diagnostic plots
 
 The diagnostic plots can be created after an IRT model has been run. They will take as input data frames containing output from NONMEM.

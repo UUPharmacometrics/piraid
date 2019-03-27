@@ -21,7 +21,7 @@ initial_estimate <- function(model, item, parameter) {
     }
     if (length(model$consolidation) >= item$number) {   # Does item exist in consolidation list
         consolidated <- model$consolidation[[item$number]]
-        if (!is.null(consolidated) && item$number %in% consolidated) {
+        if (!is.null(consolidated) && (item_parameter_index(model$scale, item$number, parameter) - 1) %in% consolidated) {
             return(50)
         }
     }
@@ -56,9 +56,10 @@ initial_estimate <- function(model, item, parameter) {
 #' @md
 is_item_parameter_fixed <- function(model, item, parameter) {
     init <- initial_estimate(model, item, parameter)
+
     if (init == 0) {
         return(TRUE)
-    } else if (consolidated(model, item, item_parameter_index(model$scale, item$number, parameter))) {
+    } else if (consolidated(model, item, item_parameter_index(model$scale, item$number, parameter) - 1)) {
         return(TRUE)
     }
     par_row <- dplyr::filter(model$item_parameters, item==!!item$number, parameter==!!parameter)
@@ -130,7 +131,9 @@ item_inits <- function(model, item, start_theta) {
 #' @return A string containing the initial estimate and limits
 theta_string_init_part <- function(model, item, parameter) {
     init <- initial_estimate(model, item, parameter)
-    if (parameter == "DIS") {
+    if (is_item_parameter_fixed(model, item, parameter)) {
+        init
+    } else if (parameter == "DIS") {
         theta_init(init, lower=0)
     } else if (item$type == "binary" && parameter == "DIF") {
         theta_init(init, lower=-50, upper=50)

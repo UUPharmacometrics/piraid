@@ -724,24 +724,62 @@ data_check <- function(model_or_data, scale=NULL) {
 #' 
 #' @param model An irt_model object
 #' @param item_numbers A vector of item numbers to do the same consolidation for
-#' @param levels A vector of levels to consolidate, i.e. merging into the lowest level of this vector.
+#' @param levels A vector of levels to consolidate, i.e. merging into the nearest lower level.
 #' @return A new irt_model object
 #' @export
 consolidate_levels_in_model <- function(model, item_numbers, levels) {
-    stopifnot(length(levels) >= 2)
+    stopifnot(length(levels) >= 1)
     for (item_number in item_numbers) {
         item <- get_item(model$scale, item_number)
         run <- rle(item$levels %in% levels)$values      # Check that consolidated levels are at an edge of the available levels and consecutive
         if (length(run) == 2) {
             high <- all(run == c(FALSE, TRUE))
             if (high) {
-                levels_to_consolidate <- sort(levels)[-1]
+                levels_to_consolidate <- sort(levels)
                 model$consolidation[[item_number]] <- levels_to_consolidate 
             } else {
                 stop("Can only consolidate using initial estimates in the upper end of the level range")   
             }
         } else {
             stop("Could only consolidate levels at the low or high end of the level range")
+        }
+    }
+    model
+}
+
+#' Automatically consolidate all items given a certain minimum count
+#'
+#' If a the occurences of a level for an item is not above count it will
+#' be consolidated into the nearest level. Consolidation can only be done
+#' from the higher levels and down using this function. Levels that are
+#' present in the scale but missing in the dataset also gets consolidated.
+#'
+#' @param model An irt_model object
+#' @param count The maximum count for consolidation
+#' @return A new irt_model object
+#' @export 
+automatic_consolidation <- function(model, count) {
+    df <- item_level_count(model)
+    df <- dplyr::mutate(df, thresh=UQ(sym("n")) <= !!count)
+    df
+    
+    for (item in model$scale$items) {
+        item_data <- dplyr::filter(df, UQ(sym("ITEM")) == item$number)
+        levels_in_data <- item_data[['DV']]
+        levels_in_scale <- item$levels
+        levels_below_thresh <- dplyr::filter(item_data, UQ(sym("thresh")))[['DV']]
+        levels_missing_in_data <- setdiff(levels_in_scale, levels_in_data)
+        candidates_for_consolidation <- sort(c(levels_below_thresh, levels_missing_in_data))
+        levels_to_consolidate <- c()
+        for (level in rev(sort(levels_in_scale))) {
+            if (level %in% candidates_for_consolidation) {
+                levels_to_consolidate <- c(level, levels_to_consolidate)   
+            } else {
+                break
+            }
+        }
+        if (length(levels_to_consolidate > 0) && length(levels_to_consolidate) < length(levels_in_scale)) {
+            model <- consolidate_levels_in_model(model, item_numbers=item$number, levels=levels_to_consolidate)
         }
     }
     model
@@ -756,7 +794,7 @@ consolidate_levels_in_model <- function(model, item_numbers, levels) {
 consolidated <- function(model, item, level) {
     if (length(model$consolidation) >= item$number) {   # Does item exist in consolidation list?
         consolidated <- model$consolidation[[item$number]]
-        if (!is.null(consolidated) && item$number %in% consolidated) {
+        if (!is.null(consolidated) && level %in% consolidated) {
             return(TRUE)
         }
     }

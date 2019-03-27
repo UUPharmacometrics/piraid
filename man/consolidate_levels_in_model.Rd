@@ -11,7 +11,7 @@ consolidate_levels_in_model(model, item_numbers, levels)
 
 \item{item_numbers}{A vector of item numbers to do the same consolidation for}
 
-\item{levels}{A vector of levels to consolidate, i.e. merging into the lowest level of this vector.}
+\item{levels}{A vector of levels to consolidate, i.e. merging into the nearest lower level.}
 }
 \value{
 A new irt_model object

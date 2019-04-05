@@ -47,7 +47,12 @@ get_code <- function(generator) {
 
 banner_comment <- function(generator, s) {
     start <- strrep("-", 25)
-    end <- strrep("-", 80 - 25 - nchar(s))
+    trailing_dashes <- 80 - 25 - nchar(s)
+    if (trailing_dashes > 0) {
+        end <- strrep("-", 80 - 25 - nchar(s))
+    } else {
+        end <- ""
+    }
     string <- paste0(";", start, s, end)
     add_line(generator, string)
 }

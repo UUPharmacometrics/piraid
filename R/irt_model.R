@@ -165,6 +165,7 @@ add_simulation <- function(model, nsim=1, options) {
 #' @export
 add_estimation_options <- function(model, options) {
     model$estimation_options <- options
+    model
 }
 
 #' Set the run number
@@ -176,6 +177,7 @@ add_estimation_options <- function(model, options) {
 #' @export
 set_run_number <- function(model, run_number) {
     model$run_number <- run_number
+    model
 }
 
 #' Create the $DATA and $INPUT to NONMEM model code

@@ -36,7 +36,7 @@ initial_estimate <- function(model, item, parameter) {
     } else if (parameter == "DIF") {
         0.1
     } else {
-        index <- stringr::str_extract(parameter, '\\d+')
+        index <- as.numeric(stringr::str_extract(parameter, '\\d+'))
         -3 + (6 * index) / length(item$levels)
     }
 }

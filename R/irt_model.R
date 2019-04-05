@@ -12,7 +12,7 @@ irt_model <- function(scale, base_scale) {
     }
     item_parameters <- data.frame(item=numeric(0), parameter=character(0), fix=logical(0), init=numeric(0), stringsAsFactors=FALSE)
     model <- structure(list(scale=scale, base_scale=base_scale, simulation=FALSE, consolidation=list(), run_number=1,
-        lv_models=list(), item_parameters=item_parameters, use_path=TRUE, simulation_options="", estimation_options=""), class="irt_model")
+        lv_models=list(), item_parameters=item_parameters, use_data_path=TRUE, simulation_options="", estimation_options=""), class="irt_model")
 }
 
 #' Change the scale and/or base scale of an IRT model object
@@ -191,7 +191,7 @@ data_and_input_code <- function(model, rewind=FALSE) {
         rewind_code = ""
     }
     if (!is.null(model$dataset)) {
-        if (model$use_path) {
+        if (model$use_data_path) {
             data_path <- normalizePath(model$dataset)
         } else {
             data_path <- basename(model$dataset)    # Only use filename

@@ -150,7 +150,7 @@ add_dataset <- function(model, path, use_path=TRUE) {
 #' @param options Extra options to add to $SIM as one string
 #' @return A new model object
 #' @export
-add_simulation <- function(model, nsim=1, options) {
+add_simulation <- function(model, nsim=1, options="") {
     model$simulation <- TRUE
     model$subproblems <- nsim
     model$simulation_options <- options

@@ -110,7 +110,8 @@ select_categories <- function(scale, categories) {
 #' @export
 scale_from_dataset <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
     if (is.character(df)) {
-        df <- utils::read.csv(df)
+        df <- read_dataset(df, item=item, dv=dv)
+        df <- prepare_dataset(df)
     }
     scale <- irt_scale()
     input_df <- df

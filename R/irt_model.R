@@ -3,33 +3,24 @@
 #' \code{irt_model} returns a newly created model object
 #'
 #' @param scale The scale
-#' @param base_scale A base scale on which the scale is based
 #' @return A model object
 #' @export
-irt_model <- function(scale, base_scale) {
-    if (missing(base_scale)) {
-        base_scale <- scale
-    }
+irt_model <- function(scale) {
     item_parameters <- data.frame(item=numeric(0), parameter=character(0), fix=logical(0), init=numeric(0), stringsAsFactors=FALSE)
-    model <- structure(list(scale=scale, base_scale=base_scale, simulation=FALSE, consolidation=list(), run_number=1,
+    model <- structure(list(scale=scale, simulation=FALSE, consolidation=list(), run_number=1,
         lv_models=list(), item_parameters=item_parameters, use_data_path=TRUE, simulation_options="", estimation_options=""), class="irt_model")
 }
 
-#' Change the scale and/or base scale of an IRT model object
+#' Change the scale of an IRT model object
 #'
 #' \code{set_scale} returns a newly created model object
 #'
 #' @param model An irt_model orbject
 #' @param scale The scale object
-#' @param base_scale A base scale on which the scale is based
 #' @return The updated model object
 #' @export
-set_scale <- function(model, scale, base_scale) {
+set_scale <- function(model, scale) {
     model$scale <- scale
-    if (missing(base_scale)) {
-        base_scale <- scale
-    }
-    model$base_scale <- base_scale
     model
 }
 
@@ -199,7 +190,14 @@ data_and_input_code <- function(model, rewind=FALSE) {
             data_path <- basename(model$dataset)    # Only use filename
         }
         cg <- add_line(cg, paste0("$INPUT ", paste(model$data_columns, collapse=' ')))
-        cg <- add_line(cg, paste0("$DATA ", data_path, rewind_code, " IGNORE=@"))
+        ignored_items <- get_ignored_items(model)
+        if (length(ignored_items) > 0) {
+            ignores <- paste0("IGNORE(ITEM.EQN.", ignored_items, ")", collapse=" ")
+            ignores <- paste0(" ", ignores)
+        } else {
+            ignores <- ""
+        }
+        cg <- add_line(cg, paste0("$DATA ", data_path, rewind_code, " IGNORE=@", ignores))
     }
     cg
 }
@@ -589,36 +587,14 @@ initial_item_thetas <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "item parameters")
     i <- 1
-    for (base_item in model$base_scale$items) {
-        item <- get_item(model$scale, base_item$number) 
-        if (is.null(item)) {
-            cg <- theta_placeholder(cg, base_item)
-            i <- i + length(base_item$levels)
-        } else {
-            theta_strings <- item_inits(model, item, i)
-            for (line in theta_strings) {
-                cg <- add_line(cg, line)   
-            }
-            i <- i + length(theta_strings)
+    for (item in model$scale$items) {
+        theta_strings <- item_inits(model, item, i)
+        for (line in theta_strings) {
+            cg <- add_line(cg, line)   
         }
+        i <- i + length(theta_strings)
     }
     cg
-}
-
-#' Generate NONMEM code for unused THETAS
-#' 
-#' Theta placeholders will be used for items that are in the base_scale
-#' but not in the scale of a model. This is to keep theta numbering the same
-#' for subscales and for full scales
-#' 
-#' @param cg A code generator object to add lines to
-#' @param item An irt item object to add placeholders for
-#' @return A new code generator object
-theta_placeholder <- function(cg, item) {
-    for (dummy in item$levels) {
-        cg <- add_line(cg, "0 FIX; THETA PLACEHOLDER")
-    }
-    cg 
 }
 
 # Supports filename or data.frame as data

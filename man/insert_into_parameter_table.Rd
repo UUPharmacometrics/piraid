@@ -11,12 +11,12 @@ insert_into_parameter_table(model, new_df, column)
 
 \item{new_df}{Data to be inserted}
 
-\item{column}{Name of the column to be inserted (fix or init)}
+\item{column}{Name of the column to be inserted (fix, init or ignore)}
 }
 \value{
 A new irt_model object
 }
 \description{
 A helper function to insert new data into the parameter. The columns are:
-item, parameter, fix and init
+item, parameter, fix, init and ignore.
 }

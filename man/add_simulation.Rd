@@ -4,7 +4,7 @@
 \alias{add_simulation}
 \title{Add simulation}
 \usage{
-add_simulation(model, nsim = 1, options)
+add_simulation(model, nsim = 1, options = "")
 }
 \arguments{
 \item{model}{A model object}

@@ -305,8 +305,8 @@ initial_estimates_overview <- function(model) {
 
     # Add fix and init columns
     table <- table %>%
-        dplyr::group_by(UQ(sym("item")), UQ(sym("parameter"))) %>%
-        dplyr::mutate(fix=is_item_parameter_fixed(model, get_item(model$scale, UQ(sym("item"))), UQ(sym("parameter"))), init=initial_estimate(model, get_item(model$scale, UQ(sym("item"))), UQ(sym("parameter")))) %>%
+        dplyr::group_by(.data$item, .data$parameter) %>%
+        dplyr::mutate(fix=is_item_parameter_fixed(model, get_item(model$scale, .data$item), .data$parameter), init=initial_estimate(model, get_item(model$scale, .data$item), .data$parameter)) %>%
         dplyr::ungroup()
     as.data.frame(table)
 }

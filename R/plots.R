@@ -33,8 +33,8 @@ graded_response_model <- function(data) {
 icc_plots <- function(df, scale, items_per_page=8) {
     df <- filter_observations(df)
     max_levels <- df %>%
-        dplyr::group_by(UQ(sym("ITEM"))) %>%
-        dplyr::summarise(max_level=max(UQ(sym("DV"))))
+        dplyr::group_by(.data$ITEM) %>%
+        dplyr::summarise(max_level=max(.data$DV))
     global_max_level <- max(max_levels$max_level)
     unique_items <- sort(unique(df$ITEM))
     score_combinations <- expand.grid(CAT=1:global_max_level, ITEM=unique_items)
@@ -63,17 +63,17 @@ icc_plots <- function(df, scale, items_per_page=8) {
             current_items <- unique_items[i:(i + items_per_page - 1)]
         }
         # FIXME: We could do away with this by using nrows and page options to facet_grid_paginate
-        partial_df <- dplyr::filter(full_df, UQ(sym("ITEM")) %in% current_items)
-        partial_psi_grid <- dplyr::filter(psi_grid, UQ(sym("ITEM")) %in% current_items)
+        partial_df <- dplyr::filter(full_df, .data$ITEM %in% current_items)
+        partial_psi_grid <- dplyr::filter(psi_grid, .data$ITEM %in% current_items)
 
-        plot <- ggplot(partial_df, aes(UQ(sym("PSI")), as.numeric(UQ(sym("DV"))>=UQ(sym("CAT"))))) +
+        plot <- ggplot(partial_df, aes(.data$PSI, as.numeric(.data$DV >= .data$CAT))) +
             geom_point() +
             geom_smooth(method="gam", method.args=list(family="binomial"), formula=y~s(x, bs="cs")) +
-            geom_line(data=partial_psi_grid, aes(UQ(sym("PSI")), UQ(sym("P"))), size=1, colour="darkred") +
-            ggforce::facet_grid_paginate(ITEM~UQ(sym("CAT")), labeller=
+            geom_line(data=partial_psi_grid, aes(.data$PSI, .data$P), size=1, colour="darkred") +
+            ggforce::facet_grid_paginate(ITEM~.data$CAT, labeller=
                 labeller(ITEM=as_labeller(item_labels), ITEM=label_wrap_gen(20), CAT=as_labeller(score_labels))) +
             theme_bw(base_size=14, base_family="") +
-            labs(y="Y>=score")
+            labs(x="PSI", y="Y>=score")
         plot_list[[k]] <- plot
         k <- k + 1
     }
@@ -110,14 +110,15 @@ mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
     k <- 1
     plot_list <- list()
     for (i in 1:ceiling(length(unique_items) / (nrow * ncol))) {
-        plot <- ggplot(df, aes(x=UQ(sym("DV")), fill=UQ(sym("type")))) +
+        plot <- ggplot(df, aes(x=.data$DV, fill=.data$type)) +
             #stat_count(mapping=aes(x=DV, y=..prop.., group=1), width=0.3) +
-            geom_bar(aes(x=UQ(sym("DV")), y=UQ(sym("..prop..")), fill=UQ(sym("type"))), width=0.75, position=position_dodge()) +
+            geom_bar(aes(x=.data$DV, y=UQ(sym("..prop..")), fill=.data$type), width=0.75, position=position_dodge()) +
             scale_y_continuous(labels=scales::percent) +
             ggforce::facet_wrap_paginate(~ITEM, nrow=nrow, ncol=ncol, page=i, labeller=
                 labeller(ITEM=as_labeller(item_labels), ITEM=label_wrap_gen(20))) +
             ylab("Percent of total") +
             xlab("Response") +
+            labs(fill="Type") + 
             theme_bw(base_size=14, base_family="")
         plot_list[[k]] <- plot
         k <- k + 1
@@ -134,7 +135,7 @@ mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
 correlation_plot <- function(df) {
     resplot <- df %>%
         dplyr::select("ID", "ITEM", "TIME", "PWRES") %>%
-        tidyr::spread(UQ(sym("ITEM")), UQ(sym("PWRES"))) %>%
+        tidyr::spread(.data$ITEM, .data$PWRES) %>%
         dplyr::select(-"ID", -"TIME")
 
     # create the correlation matrix
@@ -146,12 +147,12 @@ correlation_plot <- function(df) {
     cormat[lower.tri(cormat)] <- NA
 
     # Melt the correlation matrix so as to facilitate the plotting
-    melted_cormat <- tidyr::gather(as.data.frame(cormat), UQ(sym("Var2")), UQ(sym("value")))
+    melted_cormat <- tidyr::gather(as.data.frame(cormat), .data$Var2, .data$value)
     melted_cormat$Var1 <- as.numeric(rownames(cormat))
     melted_cormat$Var2 <- as.numeric(melted_cormat$Var2)
     melted_cormat <- stats::na.omit(melted_cormat)
 
-    plot <- ggplot(data=melted_cormat, aes(UQ(sym("Var2")), UQ(sym("Var1")), fill=UQ(sym("value")))) +
+    plot <- ggplot(data=melted_cormat, aes(.data$Var2, .data$Var1, fill=.data$value)) +
         geom_tile(color="white") +
         scale_fill_gradient2(low="blue", high="red", mid="white", midpoint=0, limit=c(-1, 1), name="Pearson\nCorrelation") +
         scale_x_continuous(breaks=seq(0, 68, 2)) +
@@ -171,7 +172,8 @@ correlation_plot <- function(df) {
 }
 
 #item.parameters <- read.table("/home/rikard/devel/ICC_plot/item_parameters_tab1", skip=1, header=T,sep=",")
-#mirror_plots(item.parameters)
+#scale <- predefined_scale("MDS-UPDRS")
+#mirror_plots(item.parameters, scale)
 #icc_plots(item.parameters)
 
 # load PSI value & item parameters

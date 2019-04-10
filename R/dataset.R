@@ -1,10 +1,10 @@
 # Filter out non-observations from a dataset
 filter_observations <- function(df) {
     if ('MDV' %in% colnames(df)) {
-        df <- dplyr::filter(df, UQ(sym("MDV")) == 0)
+        df <- dplyr::filter(df, .data$MDV == 0)
     }
     if ('EVID' %in% colnames(df)) {
-        df <- dplyr::filter(df, UQ(sym("EVID")) == 0)
+        df <- dplyr::filter(df, .data$EVID == 0)
     }
     df
 }
@@ -12,22 +12,22 @@ filter_observations <- function(df) {
 prepare_dataset <- function(df) {
     df %>%
         filter_observations() %>%
-        dplyr::mutate("DV"=as.numeric(replace(UQ(sym("DV")), UQ(sym("DV"))=='.', '0')))
+        dplyr::mutate("DV"=as.numeric(replace(.data$DV, .data$DV == '.', '0')))
 }
 
 # Convert data to wide form with one column per item
 wide_item_data <- function(df, baseline=FALSE) {
-    grouped <- dplyr::group_by(df, UQ(sym("ID")))
+    grouped <- dplyr::group_by(df, .data$ID)
     if (baseline) {
-        filtered <- dplyr::filter(grouped, UQ(sym("TIME")) == min(UQ(sym("TIME"))))
+        filtered <- dplyr::filter(grouped, .data$TIME == min(.data$TIME))
     } else {
         filtered <- grouped
     }
     filtered %>%
-        dplyr::group_by(UQ(sym("ID")), UQ(sym("TIME"))) %>%
+        dplyr::group_by(.data$ID, .data$TIME) %>%
     dplyr::select("ID", "ITEM", "DV", "TIME") %>%
-    dplyr::distinct(UQ(sym("ITEM")), .keep_all=TRUE) %>%
-    tidyr::spread(UQ(sym("ITEM")), UQ(sym("DV"))) %>%
+    dplyr::distinct(.data$ITEM, .keep_all=TRUE) %>%
+    tidyr::spread(.data$ITEM, .data$DV) %>%
     dplyr::ungroup() %>%
     dplyr::select(-"ID", -"TIME")
 }

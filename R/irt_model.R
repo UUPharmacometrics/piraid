@@ -702,14 +702,14 @@ consolidate_levels_in_model <- function(model, item_numbers, levels) {
 #' @export 
 automatic_consolidation <- function(model, count) {
     df <- item_level_count(model)
-    df <- dplyr::mutate(df, thresh=UQ(sym("n")) <= !!count)
+    df <- dplyr::mutate(df, thresh=.data$n <= !!count)
     df
     
     for (item in model$scale$items) {
-        item_data <- dplyr::filter(df, UQ(sym("ITEM")) == item$number)
+        item_data <- dplyr::filter(df, .data$ITEM == item$number)
         levels_in_data <- item_data[['DV']]
         levels_in_scale <- item$levels
-        levels_below_thresh <- dplyr::filter(item_data, UQ(sym("thresh")))[['DV']]
+        levels_below_thresh <- dplyr::filter(item_data, .data$thresh)[['DV']]
         levels_missing_in_data <- setdiff(levels_in_scale, levels_in_data)
         candidates_for_consolidation <- sort(c(levels_below_thresh, levels_missing_in_data))
         levels_to_consolidate <- c()
@@ -768,5 +768,5 @@ item_level_count <- function(model_or_data) {
         df <- model_or_data
     }
     
-    dplyr::count(df, UQ(sym("ITEM")), UQ(sym("DV"))) %>% as.data.frame()
+    dplyr::count(df, .data$ITEM, .data$DV) %>% as.data.frame()
 }

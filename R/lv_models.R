@@ -123,14 +123,20 @@ latent_variable_code <- function(model, next_theta) {
         index <- index + 1
     }
     if (!all_items_have_lv_model(model)) {  # Do we need the default lv_model?
-        cg <- add_line(cg, "ELSE")
-        cg <- increase_indent(cg)
+        if (index != 1) {
+            cg <- add_line(cg, "ELSE")
+            cg <- increase_indent(cg)
+        }
         cg <- add_line(cg, paste0("PSI=THETA(", next_theta, ")+ETA(", next_eta, ")"))
-        cg <- decrease_indent(cg)
+        if (index != 1) {
+            cg <- decrease_indent(cg)
+        }
         next_theta <- next_theta + 1
         next_eta <- next_eta + 1
     }
-    cg <- add_line(cg, "END IF")
+    if (index != 1) {
+        cg <- add_line(cg, "END IF")
+    }
     list(cg=cg, next_theta=next_theta, next_eta=next_eta)
 }
 

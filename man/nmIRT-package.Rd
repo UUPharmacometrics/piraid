@@ -22,9 +22,13 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Leticia Arrington [copyright holder]
   \item Sebastian Ueckert [copyright holder]
   \item Mats O. Karlsson [copyright holder]
+}
+
+Other contributors:
+\itemize{
+  \item Leticia Arrington [contributor]
 }
 
 }

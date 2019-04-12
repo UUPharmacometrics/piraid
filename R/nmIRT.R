@@ -2,5 +2,6 @@
 #' @import methods
 #' @import ggplot2
 #' @import rlang
-#' @importFrom magrittr "%>%" 
+#' @importFrom magrittr "%>%"
+#' @importFrom rlang .data 
 "_PACKAGE"

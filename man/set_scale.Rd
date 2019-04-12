@@ -2,16 +2,14 @@
 % Please edit documentation in R/irt_model.R
 \name{set_scale}
 \alias{set_scale}
-\title{Change the scale and/or base scale of an IRT model object}
+\title{Change the scale of an IRT model object}
 \usage{
-set_scale(model, scale, base_scale)
+set_scale(model, scale)
 }
 \arguments{
 \item{model}{An irt_model orbject}
 
 \item{scale}{The scale object}
-
-\item{base_scale}{A base scale on which the scale is based}
 }
 \value{
 The updated model object

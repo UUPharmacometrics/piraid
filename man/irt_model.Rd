@@ -4,12 +4,10 @@
 \alias{irt_model}
 \title{Create an IRT model object}
 \usage{
-irt_model(scale, base_scale)
+irt_model(scale)
 }
 \arguments{
 \item{scale}{The scale}
-
-\item{base_scale}{A base scale on which the scale is based}
 }
 \value{
 A model object

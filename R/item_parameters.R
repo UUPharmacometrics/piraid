@@ -36,7 +36,7 @@ initial_estimate <- function(model, item, parameter) {
     } else if (parameter == "DIF") {
         0.1
     } else {
-        index <- stringr::str_extract(parameter, '\\d+')
+        index <- as.numeric(stringr::str_extract(parameter, '\\d+'))
         -3 + (6 * index) / length(item$levels)
     }
 }
@@ -117,7 +117,17 @@ item_inits <- function(model, item, start_theta) {
     parameters <- item_parameter_names(model$scale, item$number)
     theta_strings <- character()
     for (parameter in parameters) {
-        theta_strings <- c(theta_strings, theta_string_item_parameter(model, item, parameter, start_theta))
+        par_row <- dplyr::filter(model$item_parameters, item==!!item$number, parameter==!!parameter)
+        if (nrow(par_row) != 0 && !is.na(par_row$ignore) && par_row$ignore) {  # Item ignored: put placeholder
+            item_ignored <- TRUE
+        } else {
+            item_ignored <- FALSE
+        }
+        if (!item_ignored) {
+            theta_strings <- c(theta_strings, theta_string_item_parameter(model, item, parameter, start_theta))
+        } else {
+            theta_strings <- c(theta_strings, "0 FIX  ; THETA PLACEHOLDER")
+        }
         start_theta <- start_theta + 1
     }
     theta_strings
@@ -187,11 +197,11 @@ theta_string_label_part <- function(model, item, parameter, theta_number) {
 #' Insert into parameter table
 #'
 #' A helper function to insert new data into the parameter. The columns are:
-#' item, parameter, fix and init
+#' item, parameter, fix, init and ignore.
 #' 
 #' @param model An irt_model object
 #' @param new_df Data to be inserted
-#' @param column Name of the column to be inserted (fix or init)
+#' @param column Name of the column to be inserted (fix, init or ignore)
 #' @return A new irt_model object
 insert_into_parameter_table <- function(model, new_df, column) {
     df <- model$item_parameters
@@ -205,7 +215,7 @@ insert_into_parameter_table <- function(model, new_df, column) {
         }
         model$item_parameters <- rbind(df, new)
     } else {
-        model$item_parameters <- new_df   
+        model$item_parameters <- new_df 
     }
     model
 }
@@ -225,8 +235,35 @@ fix_item_parameters <- function(model, items, parameter_names) {
             stop(paste0("A specified parameter does not exist for item ", item, ". Valid parameter names for this item are: ", names_string))
         }
     }
-    new_df <- expand.grid(item=items, parameter=parameter_names, fix=TRUE, init=as.numeric(NA), stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
+    new_df <- expand.grid(item=items, parameter=parameter_names, fix=TRUE, init=as.numeric(NA), ignore=as.logical(NA), stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
     insert_into_parameter_table(model, new_df, "fix")
+}
+
+#' Ignore all parameters for some items
+#'
+#' Ignoring an item means to set its parameters to 0 FIX
+#' and to let data records with this item be ignored.
+#' 
+#' @param model An irt_model object
+#' @param items A vector of item numbers
+#' @return A new irt_model objet
+#' @export
+ignore_items <- function(model, items) {
+    for (i in items) {
+        parameters <- item_parameter_names(model$scale, i)
+        new_df <- data.frame(item=i, parameter=parameters, fix=as.logical(NA), ignore=TRUE, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
+        model <- insert_into_parameter_table(model, new_df, "ignore")
+    }
+    model
+}
+
+#' Get a vector of all ignored items
+#' 
+#' @param model An irt_model object
+#' @return Vetor of ignored items
+get_ignored_items <- function(model) {
+    rows <- dplyr::filter(model$item_parameters, .data$ignore==TRUE)
+    unique(rows[['item']])
 }
 
 #' Set initial estimates for some parameters
@@ -246,9 +283,9 @@ fix_item_parameters <- function(model, items, parameter_names) {
 initial_estimates_item_parameters <- function(model, items, parameters, inits) {
     stopifnot(length(inits) == 1 || length(parameters) == length(inits))
     
-    new_df <- expand.grid(parameter=parameters, item=items, fix=as.logical(NA), init=as.numeric(NA), stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
+    new_df <- expand.grid(parameter=parameters, item=items, fix=as.logical(NA), init=as.numeric(NA), ignore=as.logical(NA), stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
     new_df$init <- inits    # Broadcast hence order of parameters and item columns
-    new_df <- dplyr::select(new_df, "item", "parameter", "fix", "init")
+    new_df <- dplyr::select(new_df, "item", "parameter", "fix", "init", "ignore")
     insert_into_parameter_table(model, new_df, "init")
 }
 
@@ -268,8 +305,8 @@ initial_estimates_overview <- function(model) {
 
     # Add fix and init columns
     table <- table %>%
-        dplyr::group_by(UQ(sym("item")), UQ(sym("parameter"))) %>%
-        dplyr::mutate(fix=is_item_parameter_fixed(model, get_item(model$scale, UQ(sym("item"))), UQ(sym("parameter"))), init=initial_estimate(model, get_item(model$scale, UQ(sym("item"))), UQ(sym("parameter")))) %>%
+        dplyr::group_by(.data$item, .data$parameter) %>%
+        dplyr::mutate(fix=is_item_parameter_fixed(model, get_item(model$scale, .data$item), .data$parameter), init=initial_estimate(model, get_item(model$scale, .data$item), .data$parameter)) %>%
         dplyr::ungroup()
     as.data.frame(table)
 }

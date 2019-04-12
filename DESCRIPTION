@@ -1,13 +1,13 @@
 Package: nmIRT
 Encoding: UTF-8
-Version: 0.1
-Date: 2018-08-31
+Version: 0.2
+Date: 2019-03-28
 Title: Generation and diagnosis of non-linear mixed effects 'IRT' models
 Author: Rikard Nordgren <rikard.nordgren@farmbio.uu.se>
 Authors@R: c(person("Rikard", "Nordgren", role=c("aut", "cre", "cph"), email="rikard.nordgren@farmbio.uu.se"),
-             person("Leticia", "Arrington", role=c("aut", "cph")),
              person("Sebastian", "Ueckert", role=c("aut", "cph")),
-             person("Mats O.", "Karlsson", role=c("aut", "cph")))
+             person("Mats O.", "Karlsson", role=c("aut", "cph")),
+             person("Leticia", "Arrington", role=c("ctb")))
 Maintainer: Rikard Nordgren <rikard.nordgren@farmbio.uu.se>
 Depends:
     R (>= 3.3.0)
@@ -30,6 +30,6 @@ Description: Automatic generation of different types of item response theory (IR
     Diagnostic tools for IRT modelling.
 URL: https://github.com/UUPharmacometrics/nmIRT
 BugReports: https://github.com/UUPharmacometrics/nmIRT/issues
-License: GPL (>= 2)
-Copyright: 2018 Rikard Nordgren, Leticia Arrington, Sebastian Ueckert and Mats O. Karlsson
+License: LGPL (>= 2)
+Copyright: 2018 Rikard Nordgren, Sebastian Ueckert and Mats O. Karlsson
 RoxygenNote: 6.1.1

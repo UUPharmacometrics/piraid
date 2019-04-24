@@ -13,6 +13,6 @@ scale_overview(scale)
 A data.frame with scale information
 }
 \description{
-Generate a table with the columns Item, Levels, Type and Categories to give an
+Generate a table with the columns Item, Levels, Type, Categories and Name to give an
 overview of what a scale object contains.
 }

@@ -41,7 +41,7 @@ icc_plots <- function(df, scale, items_per_page=8) {
     score_labels <- paste0("score:", 1:global_max_level)
     names(score_labels) <- seq(1:global_max_level)
 
-    parameters <- df[!duplicated(df$ITEM),  ] %>% dplyr::select(-"PSI")
+    parameters <- df[!duplicated(df$ITEM),  ]
     psi_grid <- data.frame(PSI=seq(min(df$PSI), max(df$PSI), by=0.1)) %>%
         merge(score_combinations) %>%
         dplyr::full_join(parameters, by="ITEM") %>%

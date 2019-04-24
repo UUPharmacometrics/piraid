@@ -518,8 +518,6 @@ simulation_task <- function(model) {
     cg <- add_line(cg, paste0("$SIMULATION (875435432) (3872543 UNIFORM) NOPREDICTION ONLYSIMULATION SUBPROBLEMS=", model$subproblems, " TRUE=FINAL ", model$simulation_options))
     columns <- paste(model$data_columns, collapse=' ')
     cg <- add_line(cg, paste0("$TABLE ", columns, " FILE=simulation_tab", model$run_number, " FORMAT=,1PE11.4 NOAPPEND ONEHEADER NOPRINT"))
-    mirror_plot_columns <- c("ID", "ITEM", "DV", "PSI", mdv_string(model))
-    cg <- add_line(cg, paste0("$TABLE ", paste(mirror_plot_columns, collapse=" "), " FILE=mirror_plot_tab", model$run_number, " NOAPPEND ONEHEADER NOPRINT"))
     cg
 }
 

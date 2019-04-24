@@ -130,9 +130,10 @@ mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
 #' Item response correlation plot
 #'
 #' @param df A data.frame from the item_parameters_tab of a model run. ID, ITEM, TIME and PWRES will be used.
+#' @param scale An irt_scale object
 #' @return A plot object
 #' @export
-correlation_plot <- function(df) {
+correlation_plot <- function(df, scale) {
     resplot <- df %>%
         dplyr::select("ID", "ITEM", "TIME", "PWRES") %>%
         tidyr::spread(.data$ITEM, .data$PWRES) %>%
@@ -147,26 +148,33 @@ correlation_plot <- function(df) {
     cormat[lower.tri(cormat)] <- NA
 
     # Melt the correlation matrix so as to facilitate the plotting
-    melted_cormat <- tidyr::gather(as.data.frame(cormat), Var2, value)
+    melted_cormat <- tidyr::gather(as.data.frame(cormat), "Var2", "value")
     melted_cormat$Var1 <- as.numeric(rownames(cormat))
     melted_cormat$Var2 <- as.numeric(melted_cormat$Var2)
     melted_cormat <- stats::na.omit(melted_cormat)
 
+    lowest_item <- min(all_items(scale))
+    if (lowest_item %% 2 == 1) {        # Make sure that the axes always have even numbers
+        lowest_item <- lowest_item - 1
+    }
+    highest_item <- max(all_items(scale))
+    if (highest_item %% 2 == 1) {
+        highest_item <- highest_item + 1
+    }
+    
     plot <- ggplot(data=melted_cormat, aes(.data$Var2, .data$Var1, fill=.data$value)) +
         geom_tile(color="white") +
         scale_fill_gradient2(low="blue", high="red", mid="white", midpoint=0, limit=c(-1, 1), name="Pearson\nCorrelation") +
-        scale_x_continuous(breaks=seq(0, 68, 2)) +
-        scale_y_continuous(breaks=seq(0, 68, 2)) +
+        scale_x_continuous(breaks=seq(lowest_item, highest_item, 2)) +
+        scale_y_continuous(breaks=seq(lowest_item, highest_item, 2)) +
         labs(title="") +
         theme_bw() +
-        theme(legend.title=element_text(size=26),
-            legend.text=element_text(size=26),
-            axis.text.x=element_text(vjust=1, size=26, hjust=1, face="bold"),
-            axis.text.y=element_text(size=26, face="bold"),
+        theme(
             axis.title=element_blank(),
             panel.grid.major=element_line(size=0.5, linetype=1),
             panel.grid.minor=element_blank(),
-            legend.position="bottom")
+            legend.position="bottom"
+        )
 
     return(plot)
 }

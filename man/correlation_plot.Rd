@@ -4,12 +4,10 @@
 \alias{correlation_plot}
 \title{Item response correlation plot}
 \usage{
-correlation_plot(df, scale)
+correlation_plot(df)
 }
 \arguments{
 \item{df}{A data.frame from the item_parameters_tab of a model run. ID, ITEM, TIME and PWRES will be used.}
-
-\item{scale}{An irt_scale object}
 }
 \value{
 A plot object

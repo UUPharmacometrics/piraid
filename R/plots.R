@@ -130,10 +130,9 @@ mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
 #' Item response correlation plot
 #'
 #' @param df A data.frame from the item_parameters_tab of a model run. ID, ITEM, TIME and PWRES will be used.
-#' @param scale An irt_scale object
 #' @return A plot object
 #' @export
-correlation_plot <- function(df, scale) {
+correlation_plot <- function(df) {
     resplot <- df %>%
         dplyr::select("ID", "ITEM", "TIME", "PWRES") %>%
         tidyr::spread(.data$ITEM, .data$PWRES) %>%
@@ -153,11 +152,11 @@ correlation_plot <- function(df, scale) {
     melted_cormat$Var2 <- as.numeric(melted_cormat$Var2)
     melted_cormat <- stats::na.omit(melted_cormat)
 
-    lowest_item <- min(all_items(scale))
+    lowest_item <- min(df$ITEM)
     if (lowest_item %% 2 == 1) {        # Make sure that the axes always have even numbers
         lowest_item <- lowest_item - 1
     }
-    highest_item <- max(all_items(scale))
+    highest_item <- max(df$ITEM)
     if (highest_item %% 2 == 1) {
         highest_item <- highest_item + 1
     }

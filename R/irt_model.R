@@ -502,9 +502,9 @@ estimation_task <- function(model) {
     }
     dif_numbers <- seq(1, max - 1)
     cg <- add_line(cg, paste0("$TABLE ID TIME DV", mdv_string(model), "ITEM PSI PPRED PWRES FILE=psi_tab", model$run_number, " NOAPPEND ONEHEADER NOPRINT"))
-    columns <- c("DIS", paste0("DIF", dif_numbers), paste0("DIFG", dif_numbers))
-    columns_str <- paste(columns, collapse=" ")
-    cg <- add_line(cg, paste0("$TABLE ID TIME DV", mdv_string(model), "ITEM ", columns_str, binary))
+    parameters <- c("DIS", paste0("DIF", dif_numbers), paste0("DIFG", dif_numbers))
+    parameters_str <- paste(parameters, collapse=" ")
+    cg <- add_line(cg, paste0("$TABLE ID TIME DV", mdv_string(model), "ITEM ", parameters_str, binary))
     cg <- add_line(cg, paste0("       FILE=item_parameters_tab", model$run_number, " NOAPPEND ONEHEADER NOPRINT"))
     cg
 }

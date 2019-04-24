@@ -342,3 +342,19 @@ initial_estimates_from_data <- function(model) {
 
     return(model)
 }
+
+#' Get all unique non-ignored parameter names for a model
+#' 
+#' @param model An irt_model object
+#' @return A vector of parameter names
+all_parameter_names <- function(model) {
+    scale <- model$scale
+    ignored_items <- get_ignored_items(model)
+    parameter_names <- c()
+    for (item in scale$items) {
+        if (!(item$number %in% ignored_items)) {
+            parameter_names <- unique(c(parameter_names, item_parameter_names(scale, item$number)))
+        }
+    }
+    sort(parameter_names)
+}

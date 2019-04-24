@@ -490,21 +490,11 @@ estimation_task <- function(model) {
     }
     cg <- add_line(cg, paste0("$ESTIMATION METHOD=COND LAPLACE -2LL MAXEVAL=999999 PRINT=1", msfo, " ", model$estimaton_options))
     cg <- add_line(cg, "$COVARIANCE")
-    max <- 0
-    binary <- ""
-    for (item in model$scale$items) {
-        if (length(item$levels) > max) {
-            max <- length(item$levels)
-        }
-        if (item$type == "binary") {
-            binary <- " GUE "   
-        }
-    }
-    dif_numbers <- seq(1, max - 1)
-    cg <- add_line(cg, paste0("$TABLE ID TIME DV", mdv_string(model), "ITEM PSI PPRED PWRES FILE=psi_tab", model$run_number, " NOAPPEND ONEHEADER NOPRINT"))
-    parameters <- c("DIS", paste0("DIF", dif_numbers), paste0("DIFG", dif_numbers))
-    parameters_str <- paste(parameters, collapse=" ")
-    cg <- add_line(cg, paste0("$TABLE ID TIME DV", mdv_string(model), "ITEM ", parameters_str, binary))
+
+    psi_table_options <- c("$TABLE", "ID", "TIME", "DV", mdv_string(model), "ITEM", "PSI", "PPRED", "PWRES", paste0("FILE=psi_tab", model$run_number, "NOAPPEND", "ONEHEADER", "NOPRINT"))
+    cg <- add_line(cg, paste(psi_table_options, collapse=" "))
+    item_table_options <- c("$TABLE", "ID", "TIME", "DV", mdv_string(model), "ITEM", all_parameter_names(model))
+    cg <- add_line(cg, paste(item_table_options, collapse=" "))
     cg <- add_line(cg, paste0("       FILE=item_parameters_tab", model$run_number, " NOAPPEND ONEHEADER NOPRINT"))
     cg
 }
@@ -526,7 +516,8 @@ simulation_task <- function(model) {
     cg <- add_line(cg, paste0("$SIMULATION (875435432) (3872543 UNIFORM) NOPREDICTION ONLYSIMULATION SUBPROBLEMS=", model$subproblems, " TRUE=FINAL ", model$simulation_options))
     columns <- paste(model$data_columns, collapse=' ')
     cg <- add_line(cg, paste0("$TABLE ", columns, " FILE=simulation_tab", model$run_number, " FORMAT=,1PE11.4 NOAPPEND ONEHEADER NOPRINT"))
-    cg <- add_line(cg, paste0("$TABLE ID ITEM DV PSI", mdv_string(model), "FILE=mirror_plot_tab", model$run_number, " NOAPPEND ONEHEADER NOPRINT"))
+    mirror_plot_columns <- c("ID", "ITEM", "DV", "PSI", mdv_string(model))
+    cg <- add_line(cg, paste0("$TABLE ", paste(mirror_plot_columns, collapse=" "), " FILE=mirror_plot_tab", model$run_number, " NOAPPEND ONEHEADER NOPRINT"))
     cg
 }
 
@@ -743,16 +734,16 @@ consolidated <- function(model, item, level) {
     FALSE
 }
 
-#' Get a MDV string for $TABLE if dataset has MDV column
+#' Get an MDV string for $TABLE if dataset has MDV column
 #' 
 #' @param model irt_model object
 #' @return An empty string or " MDV "
 #' @keywords internal
 mdv_string <- function(model) {
     if ("MDV" %in% model$data_columns) {
-        " MDV "
+        "MDV"
     } else {
-        ""
+        NULL
     }
 }
 

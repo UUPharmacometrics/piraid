@@ -147,7 +147,7 @@ correlation_plot <- function(df) {
     cormat[lower.tri(cormat)] <- NA
 
     # Melt the correlation matrix so as to facilitate the plotting
-    melted_cormat <- tidyr::gather(as.data.frame(cormat), .data$Var2, .data$value)
+    melted_cormat <- tidyr::gather(as.data.frame(cormat), Var2, value)
     melted_cormat$Var1 <- as.numeric(rownames(cormat))
     melted_cormat$Var2 <- as.numeric(melted_cormat$Var2)
     melted_cormat <- stats::na.omit(melted_cormat)

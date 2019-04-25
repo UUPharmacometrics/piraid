@@ -146,7 +146,7 @@ scale_from_csv <- function(file, item='ITEM', dv='DV', name=NULL, type=NULL){
 
 #' Print an overview of a scale
 #' 
-#' Generate a table with the columns Item, Levels, Type and Categories to give an
+#' Generate a table with the columns Item, Levels, Type, Categories and Name to give an
 #' overview of what a scale object contains.
 #' 
 #' @param scale An irt_scale object
@@ -154,7 +154,7 @@ scale_from_csv <- function(file, item='ITEM', dv='DV', name=NULL, type=NULL){
 #' @export
 scale_overview <- function(scale) {
     n <- length(scale$items)
-    df <- data.frame(Item=rep(as.numeric(NA), n), Levels=rep("", n), Type=rep("", n), Categories=rep("", n), stringsAsFactors=FALSE)
+    df <- data.frame(Item=rep(as.numeric(NA), n), Levels=rep("", n), Type=rep("", n), Categories=rep("", n), Name=rep("", n), stringsAsFactors=FALSE)
     i <- 1
     for (item in scale$items) {
         if (length(item$categories) > 0) {
@@ -162,7 +162,8 @@ scale_overview <- function(scale) {
         } else {
             categories <- ""
         }
-        df[i, ] <- list(item$number, levels_as_string(item$levels), item$type, categories)
+        name <- gsub("\\n", " ", item$name)
+        df[i, ] <- list(item$number, levels_as_string(item$levels), item$type, categories, name)
         i <- i + 1
     }
     df

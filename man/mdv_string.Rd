@@ -2,7 +2,7 @@
 % Please edit documentation in R/irt_model.R
 \name{mdv_string}
 \alias{mdv_string}
-\title{Get a MDV string for $TABLE if dataset has MDV column}
+\title{Get an MDV string for $TABLE if dataset has MDV column}
 \usage{
 mdv_string(model)
 }
@@ -13,6 +13,6 @@ mdv_string(model)
 An empty string or " MDV "
 }
 \description{
-Get a MDV string for $TABLE if dataset has MDV column
+Get an MDV string for $TABLE if dataset has MDV column
 }
 \keyword{internal}

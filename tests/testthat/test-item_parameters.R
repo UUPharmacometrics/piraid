@@ -58,3 +58,8 @@ test_that("initial_estimates_overview", {
     expect_equal(df$fix[1], FALSE)
     expect_equal(df$init[9], 2.59)
 })
+
+test_that("all_parameter_names", {
+    parnames <- all_parameter_names(model)
+    expect_equal(parnames, c("DIF", "DIF1", "DIF2", "DIF3", "DIF4", "DIF5", "DIS", "GUE"))
+})

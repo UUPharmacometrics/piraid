@@ -41,7 +41,7 @@ icc_plots <- function(df, scale, items_per_page=8) {
     score_labels <- paste0("score:", 1:global_max_level)
     names(score_labels) <- seq(1:global_max_level)
 
-    parameters <- df[!duplicated(df$ITEM),  ] %>% dplyr::select(-"PSI")
+    parameters <- df[!duplicated(df$ITEM),  ]
     psi_grid <- data.frame(PSI=seq(min(df$PSI), max(df$PSI), by=0.1)) %>%
         merge(score_combinations) %>%
         dplyr::full_join(parameters, by="ITEM") %>%
@@ -147,26 +147,33 @@ correlation_plot <- function(df) {
     cormat[lower.tri(cormat)] <- NA
 
     # Melt the correlation matrix so as to facilitate the plotting
-    melted_cormat <- tidyr::gather(as.data.frame(cormat), .data$Var2, .data$value)
+    melted_cormat <- tidyr::gather(as.data.frame(cormat), "Var2", "value")
     melted_cormat$Var1 <- as.numeric(rownames(cormat))
     melted_cormat$Var2 <- as.numeric(melted_cormat$Var2)
     melted_cormat <- stats::na.omit(melted_cormat)
 
+    lowest_item <- min(df$ITEM)
+    if (lowest_item %% 2 == 1) {        # Make sure that the axes always have even numbers
+        lowest_item <- lowest_item - 1
+    }
+    highest_item <- max(df$ITEM)
+    if (highest_item %% 2 == 1) {
+        highest_item <- highest_item + 1
+    }
+    
     plot <- ggplot(data=melted_cormat, aes(.data$Var2, .data$Var1, fill=.data$value)) +
         geom_tile(color="white") +
         scale_fill_gradient2(low="blue", high="red", mid="white", midpoint=0, limit=c(-1, 1), name="Pearson\nCorrelation") +
-        scale_x_continuous(breaks=seq(0, 68, 2)) +
-        scale_y_continuous(breaks=seq(0, 68, 2)) +
+        scale_x_continuous(breaks=seq(lowest_item, highest_item, 2)) +
+        scale_y_continuous(breaks=seq(lowest_item, highest_item, 2)) +
         labs(title="") +
         theme_bw() +
-        theme(legend.title=element_text(size=26),
-            legend.text=element_text(size=26),
-            axis.text.x=element_text(vjust=1, size=26, hjust=1, face="bold"),
-            axis.text.y=element_text(size=26, face="bold"),
+        theme(
             axis.title=element_blank(),
             panel.grid.major=element_line(size=0.5, linetype=1),
             panel.grid.minor=element_blank(),
-            legend.position="bottom")
+            legend.position="bottom"
+        )
 
     return(plot)
 }

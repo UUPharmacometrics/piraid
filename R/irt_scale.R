@@ -98,21 +98,19 @@ select_categories <- function(scale, categories) {
 
 #' Infer a scale from a dataset
 #' 
-#' \code{scale_from_dataset} determines the scale from a dataset using the ITEM, DV and MDV columns.
-#' If the type option wasn't used all items will be assumed to be of type ordered categorical.
+#' \code{scale_from_df} and \code{scale_from_csv} determine the scale from a dataset (provided as data.frame or csv file) 
+#' using the ITEM, DV and MDV columns.
 #' 
-#' @param df Can either be a data.frame or a path to a csv file
+#' @param df A data.frame 
+#' @param file The path to a csv file
 #' @param item Name of the item columns. Default is \code{ITEM}
 #' @param dv Name of the dv column. Default is \code{DV}
 #' @param name Name of an optional name column. Each item can be given a name (mainly for plotting) through this column. Only the first row of a new item will be used for the name.
-#' @param type Name of an optional type column. Each item can be given a type (either ordcat or binary) through this column. Only the first row of a new item will be used as type.
+#' @param type Name of an optional type column. Each item can be given a type (either ordcat or binary) through this column. If the type option isn't used all items will be assumed 
+#' to be of type ordered categorical. Only the first row of a new item will be used as type.
 #' @return An irt_scale object
 #' @export
-scale_from_dataset <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
-    if (is.character(df)) {
-        df <- read_dataset(df, item=item, dv=dv)
-        df <- prepare_dataset(df)
-    }
+scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
     scale <- irt_scale()
     input_df <- df
     df <- filter_observations(df)
@@ -136,6 +134,14 @@ scale_from_dataset <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
         scale <- add_item(scale, new_item)
     }
     scale
+}
+
+#' @export
+#' @rdname scale_from_df 
+scale_from_csv <- function(file, item='ITEM', dv='DV', name=NULL, type=NULL){
+    df <- read_dataset(file, item=item, dv=dv)
+    df <- prepare_dataset(df)
+    scale_from_df(df, item, dv, name, type)
 }
 
 #' Print an overview of a scale

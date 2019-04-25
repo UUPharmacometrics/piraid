@@ -78,7 +78,7 @@ test_that("Scale from df",{
 })
 
 test_that("Scale from csv", {
-  scale <- scale_from_csv(file = system.file("testdata","hra-score-data.csv", package = "nmIRT"))
+  scale <- scale_from_csv(file = system.file("extdata","hra-score-data.csv", package = "nmIRT"))
   # item 100 should be ignored (MDV=1)
   expect_null(get_item(scale, 100))
   for(i in 1:7){ 

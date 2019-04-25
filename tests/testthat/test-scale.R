@@ -198,7 +198,7 @@ test_that("Items by type", {
 test_that("Item name list", {
     a <- item_name_list(myscale)
     expect_equal(names(a)[1], "1")
-    expect(is.character(a))
+    expect_true(is.character(a))
 })
 
 test_that("Items in categories", {

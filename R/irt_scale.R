@@ -112,16 +112,22 @@ select_categories <- function(scale, categories) {
 #' @export
 scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
     scale <- irt_scale()
+    item_sym <- rlang::sym(item)
+    dv_sym <- rlang::sym(dv)
     input_df <- df
     df <- filter_observations(df)
-    df <- dplyr::select(df, !!item, !!dv)
-    distinct <- dplyr::group_by_(df, item) %>% dplyr::distinct_(dv) %>% dplyr::summarise(DV=list(!!rlang::sym(dv)))
+    df <- dplyr::select(df, !!item_sym, !!dv)
+    distinct <- dplyr::group_by(df, !!item_sym) %>% 
+        dplyr::distinct(!!dv_sym) %>% 
+        dplyr::summarise(DV=list(!!dv_sym))
     for (i in  1:nrow(distinct)) {
         item_no <- as.numeric(distinct[i, item])
         levels <- sort(distinct[i, 'DV'][[1]][[1]])
         item_type <- "ordcat"
         
-        first_row <- input_df %>% dplyr::filter(!!rlang::sym(item) == !!item_no) %>% dplyr::slice(1)
+        first_row <- input_df %>% 
+            dplyr::filter(!!item_sym == !!item_no) %>% 
+            dplyr::slice(1)
         if (!is.null(name)){
             item_name <- first_row[[name]]
         } else {

@@ -50,19 +50,19 @@ items_by_type(scale, "binary")
 ```{r, fig.show='hold'}
 df <- data.frame(ID=c(1,1,1,2,2,2), ITEM=c(1,2,3,1,2,3), DV=c(0,2,4,1,2,1))
 
-scale <- scale_from_dataset(df)
+scale <- scale_from_df(df)
 ```
 
 By default the item column is called ITEM and the dv column is called DV, but this can be changed with options
 ```{r, eval=FALSE, fig.show='hold'}
-scale <- scale_from_dataset(df, item='ITEM', dv='DV')
+scale <- scale_from_df(df, item='ITEM', dv='DV')
 ```
 
 Note that if the dataset has an MDV column it will be used to filter out missing DVs.
 
-### Generating a scale from a dataset file
+### Generating a scale from a CSV file
 ```{r, eval=FALSE, fig.show='hold'}
-scale <- scale_from_dataset("mydata.csv")
+scale <- scale_from_csv("mydata.csv")
 ```
 
 ### Load scale from a scale definition file
@@ -210,7 +210,7 @@ model <- initial_estimates_item_parameters(model, 1:13, c("DIF2", "DIF3", "DIF4"
 ```
 will set all the initial estimates for the DIF2, DIF3 and DIF4 parameters for items 1 through 13 to 0.1
 
-A vector of initial estimates can also be supplied and these will then be broadcast to all each parameter. For example
+A vector of initial estimates can also be supplied and these will then be broadcast to each parameter. For example
 ```{r, eval=FALSE}
 model <- initial_estimates_item_parameters(model, 1:3, c("DIF2", "DIF3"), c(0.1, 0.2))
 ```

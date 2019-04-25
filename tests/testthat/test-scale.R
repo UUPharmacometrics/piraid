@@ -74,9 +74,22 @@ test_that("Scale from df",{
   item <- get_item(scale, 5)
   expect_equal(item$type, "binary")
 })
+
+test_that("Scale from csv", {
+  scale <- scale_from_csv(file = system.file("testdata","hra-score-data.csv", package = "nmIRT"))
+  # item 100 should be ignored (MDV=1)
+  expect_null(get_item(scale, 100))
+  for(i in 1:7){ 
+    # other items should have correct class, type and levels
+    item <- get_item(scale, i)
+    expect_s3_class(item, "irt_item")
     expect_equal(item$type, "ordcat")
-    item <- get_item(scale, 5)
-    expect_equal(item$type, "binary")
+    if(i %in% 1:2) {
+      expect_equal(item$levels, 0:5)
+    }else{
+      expect_equal(item$levels, 0:1)
+    }
+  }
 })
 
 test_that("Scale overview", {

@@ -64,9 +64,11 @@ test_that("Scale from df",{
   scale <- scale_from_df(df, name="name")
   item <- get_item(scale, 1)
   expect_equal(item$name, "myname1")
+  expect_equal(item$type, "binary")
   item <- get_item(scale, 5)
   expect_equal(item$name, "myname2")
-
+  expect_equal(item$type, "binary")
+  
   df <- data.frame(ITEM=c(1, 1, 5, 5), DV=c(0, 1, 0, 1), type=c("ordcat", "", "binary", ""), stringsAsFactors=FALSE)
   scale <- scale_from_df(df, type="type")
   item <- get_item(scale, 1)
@@ -83,11 +85,12 @@ test_that("Scale from csv", {
     # other items should have correct class, type and levels
     item <- get_item(scale, i)
     expect_s3_class(item, "irt_item")
-    expect_equal(item$type, "ordcat")
     if(i %in% 1:2) {
       expect_equal(item$levels, 0:5)
+      expect_equal(item$type, "ordcat")
     }else{
       expect_equal(item$levels, 0:1)
+      expect_equal(item$type, "binary")
     }
   }
 })

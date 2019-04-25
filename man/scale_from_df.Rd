@@ -20,8 +20,8 @@ scale_from_csv(file, item = "ITEM", dv = "DV", name = NULL,
 
 \item{name}{Name of an optional name column. Each item can be given a name (mainly for plotting) through this column. Only the first row of a new item will be used for the name.}
 
-\item{type}{Name of an optional type column. Each item can be given a type (either ordcat or binary) through this column. If the type option isn't used all items will be assumed 
-to be of type ordered categorical. Only the first row of a new item will be used as type.}
+\item{type}{Name of an optional type column. Each item can be given a type (either ordcat or binary) through this column. If the type option isn't used the type is 
+inferred from the number of distinct DV values}
 
 \item{file}{The path to a csv file}
 }

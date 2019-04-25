@@ -106,8 +106,8 @@ select_categories <- function(scale, categories) {
 #' @param item Name of the item columns. Default is \code{ITEM}
 #' @param dv Name of the dv column. Default is \code{DV}
 #' @param name Name of an optional name column. Each item can be given a name (mainly for plotting) through this column. Only the first row of a new item will be used for the name.
-#' @param type Name of an optional type column. Each item can be given a type (either ordcat or binary) through this column. If the type option isn't used all items will be assumed 
-#' to be of type ordered categorical. Only the first row of a new item will be used as type.
+#' @param type Name of an optional type column. Each item can be given a type (either ordcat or binary) through this column. If the type option isn't used the type is 
+#' inferred from the number of distinct DV values
 #' @return An irt_scale object
 #' @export
 scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
@@ -119,18 +119,24 @@ scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
     for (i in  1:nrow(distinct)) {
         item_no <- as.numeric(distinct[i, item])
         levels <- sort(distinct[i, 'DV'][[1]][[1]])
-        item_name <- ""
         item_type <- "ordcat"
-        if (!is.null(name) || !is.null(type)) {
-            first_row <- input_df %>% dplyr::filter(!!rlang::sym(item) == !!item_no) %>% utils::head(n=1)
-            if (!is.null(name)) {
-                item_name <- first_row[[name]]
-            }
-            if (!is.null(type)) {
+        
+        first_row <- input_df %>% dplyr::filter(!!rlang::sym(item) == !!item_no) %>% dplyr::slice(1)
+        if (!is.null(name)){
+            item_name <- first_row[[name]]
+        } else {
+            item_name <- ""
+        }
+        if(!is.null(type)){
                 item_type <- first_row[[type]]
+        }else{
+            if(length(levels)>2){
+                item_type <- "ordcat"
+            }else{
+                item_type <- "binary"
             }
         }
-        new_item <- irt_item(as.numeric(item_no), item_name, levels, item_type)     # Assuming ordered categorical here
+        new_item <- irt_item(as.numeric(item_no), item_name, levels, item_type)
         scale <- add_item(scale, new_item)
     }
     scale

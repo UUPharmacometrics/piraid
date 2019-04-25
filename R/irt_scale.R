@@ -147,7 +147,9 @@ scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
 scale_from_csv <- function(file, item='ITEM', dv='DV', name=NULL, type=NULL){
     df <- read_dataset(file, item=item, dv=dv)
     df <- prepare_dataset(df)
-    scale_from_df(df, item, dv, name, type)
+    scale <- scale_from_df(df, item, dv, name, type)
+    scale$source_file <- file
+    scale
 }
 
 #' Print an overview of a scale

@@ -9,6 +9,14 @@ irt_model <- function(scale) {
     item_parameters <- data.frame(item=numeric(0), parameter=character(0), fix=logical(0), init=numeric(0), stringsAsFactors=FALSE)
     model <- structure(list(scale=scale, simulation=FALSE, consolidation=list(), run_number=1,
         lv_models=list(), item_parameters=item_parameters, use_data_path=TRUE, simulation_options="", estimation_options=""), class="irt_model")
+    if(!is.null(scale$source_file)) {
+        if(!file.exists(scale$source_file)) {
+            warning("The file that was used to generate the scale does not exist and couldn't be added to the model.")
+        }else{
+            model <-  add_dataset(model, path = scale$source_file)
+        }
+    }
+    model
 }
 
 #' Change the scale of an IRT model object

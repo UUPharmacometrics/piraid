@@ -98,7 +98,7 @@ select_categories <- function(scale, categories) {
 
 #' Infer a scale from a dataset
 #' 
-#' \code{scale_from_df} and \code{scale_from_csv} determine the scale from a dataset (provided as data.frame or csv file) 
+#' \code{create_scale_from_df} and \code{create_scale_from_csv} determine the scale from a dataset (provided as data.frame or csv file) 
 #' using the ITEM, DV and MDV columns.
 #' 
 #' @param df A data.frame 
@@ -110,7 +110,7 @@ select_categories <- function(scale, categories) {
 #' inferred from the number of distinct DV values
 #' @return An irt_scale object
 #' @export
-scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
+create_scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
     scale <- irt_scale()
     item_sym <- rlang::sym(item)
     dv_sym <- rlang::sym(dv)
@@ -150,10 +150,10 @@ scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
 
 #' @export
 #' @rdname scale_from_df 
-scale_from_csv <- function(file, item='ITEM', dv='DV', name=NULL, type=NULL){
+create_scale_from_csv <- function(file, item='ITEM', dv='DV', name=NULL, type=NULL){
     df <- read_dataset(file, item=item, dv=dv)
     df <- prepare_dataset(df)
-    scale <- scale_from_df(df, item, dv, name, type)
+    scale <- create_scale_from_df(df, item, dv, name, type)
     scale$source_file <- file
     scale
 }

@@ -46,14 +46,14 @@ test_that("Select categories", {
 
 test_that("Scale from df",{
   df <- data.frame(ITEM=c(1,2,2), DV=c(1,1,2))
-  suppressWarnings(scale <- scale_from_df(df))
+  suppressWarnings(scale <- create_scale_from_df(df))
   item <- get_item(scale, 1)
   expect_null(item)   # One level makes no item
   item <- get_item(scale, 2)
   expect_equal(item$levels, c(1, 2))
   
   df <- data.frame(GROB=c(1,1,1,1,4,4), PROD=c(1,3,2,4,6,5))
-  suppressWarnings(scale <- scale_from_df(df, item="GROB", dv="PROD"))
+  suppressWarnings(scale <- create_scale_from_df(df, item="GROB", dv="PROD"))
   item <- get_item(scale, 1)
   expect_equal(item$levels, c(1,2,3,4))
   item <- get_item(scale, 4)
@@ -61,7 +61,7 @@ test_that("Scale from df",{
   expect_equal(length(scale$items), 2)
   
   df <- data.frame(ITEM=c(1, 1, 5, 5), DV=c(0, 1, 0, 1), name=c("myname1", "", "myname2", ""), stringsAsFactors=FALSE)
-  scale <- scale_from_df(df, name="name")
+  scale <- create_scale_from_df(df, name="name")
   item <- get_item(scale, 1)
   expect_equal(item$name, "myname1")
   expect_equal(item$type, "binary")
@@ -70,7 +70,7 @@ test_that("Scale from df",{
   expect_equal(item$type, "binary")
   
   df <- data.frame(ITEM=c(1, 1, 5, 5), DV=c(0, 1, 0, 1), type=c("ordcat", "", "binary", ""), stringsAsFactors=FALSE)
-  scale <- scale_from_df(df, type="type")
+  scale <- create_scale_from_df(df, type="type")
   item <- get_item(scale, 1)
   expect_equal(item$type, "ordcat")
   item <- get_item(scale, 5)
@@ -78,7 +78,7 @@ test_that("Scale from df",{
 })
 
 test_that("Scale from csv", {
-  scale <- scale_from_csv(file = system.file("extdata","hra-score-data.csv", package = "nmIRT"))
+  scale <- create_scale_from_csv(file = system.file("extdata","hra-score-data.csv", package = "nmIRT"))
   # item 100 should be ignored (MDV=1)
   expect_null(get_item(scale, 100))
   for(i in 1:7){ 

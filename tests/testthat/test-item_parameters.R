@@ -1,6 +1,6 @@
 context("item_parameters")
 
-scale <- predefined_scale("MDS-UPDRS")
+scale <- load_predefined_scale("MDS-UPDRS")
 model <- irt_model(scale)
 
 

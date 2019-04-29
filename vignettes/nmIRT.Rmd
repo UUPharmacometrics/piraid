@@ -26,7 +26,7 @@ A scale object is a representation in R of a certain scale. It is a collection o
 
 ```{r, fig.show='hold'}
 library(nmIRT)
-scale <- predefined_scale("MDS-UPDRS")
+scale <- load_predefined_scale("MDS-UPDRS")
 ```
 To find out which scales are available
 ```{r, fig.show='hold'}
@@ -97,7 +97,7 @@ subscale <- select_categories(scale, c("motor"))
 It is also possible to simply list all items in a certain combination of categories.
 
 ```{r}
-items_in_categories(predefined_scale("MDS-UPDRS"), c("motor", "tremor"))
+items_in_categories(load_predefined_scale("MDS-UPDRS"), c("motor", "tremor"))
 ```
 
 ### Remove items from a scale
@@ -258,7 +258,7 @@ The diagnostic plots can be created after an IRT model has been run. They will t
 To generate a set of item characteristic curves
 
 ```{r, eval=FALSE}
-scale <- predefined_scale("MDS-UPDRS")
+scale <- load_predefined_scale("MDS-UPDRS")
 df <- read.table("item_parameters_tab1", skip=1, header=T, sep=",")
 plots <- icc_plots(df, scale, items_per_page=6)
 print(plots)
@@ -269,7 +269,7 @@ print(plots)
 The mirror plot gives an overview of the frequencies of levels in the dataset and compares it to frequencies in simulations.
 
 ```{r, eval=FALSE}
-scale <- predefined_scale("MDS-UPDRS")
+scale <- load_predefined_scale("MDS-UPDRS")
 origdata <- read.table("mydata.dta")
 simdata <- read.table("simulation_tab1", skip=1, header=T, sep=",")
 plots <- mirror_plots(origdata, scale, simdata, nrow=4, ncol=5)

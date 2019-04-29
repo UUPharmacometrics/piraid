@@ -24,7 +24,7 @@ list_predefined_scales <- function() {
 #' @param scale_name The name of the scale
 #' @return A scale object or an error if the scale does not exist
 #' @export
-predefined_scale <- function(scale_name) {
+load_predefined_scale <- function(scale_name) {
     scale_name <- tolower(scale_name)
     path <- system.file("extdata", paste0(scale_name, ".yaml"), package="nmIRT")
     if (path == "") {
@@ -149,7 +149,7 @@ create_scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL)
 }
 
 #' @export
-#' @rdname scale_from_df 
+#' @rdname create_scale_from_df 
 create_scale_from_csv <- function(file, item='ITEM', dv='DV', name=NULL, type=NULL){
     df <- read_dataset(file, item=item, dv=dv)
     df <- prepare_dataset(df)

@@ -1,5 +1,5 @@
 context("Scale objects")
-myscale <- predefined_scale("MDS-UPDRS")
+myscale <- load_predefined_scale("MDS-UPDRS")
 
 test_that("Scale constructor", {
     scale <- irt_scale()
@@ -13,7 +13,7 @@ test_that("List predifined scales", {
 })
 
 test_that("Predefined scale", {
-    scale <- predefined_scale("MDS-UPDRS")
+    scale <- load_predefined_scale("MDS-UPDRS")
     item <- get_item(scale, 14)
     expect_equal(item$number, 14)
     expect_equal(item$levels, c(0, 1, 2, 3, 4))
@@ -29,13 +29,13 @@ test_that("Load scale", {
 test_that("Save scale", {
     mf <- mockery::mock(1)
     mockery::stub(save_scale, 'yaml::write_yaml', mf)
-    scale <- predefined_scale("MDS-UPDRS")
+    scale <- load_predefined_scale("MDS-UPDRS")
     save_scale(scale, "myscale.yaml")
     mockery::expect_called(mf, 1)
 })
 
 test_that("Select categories", {
-    scale <- predefined_scale("MDS-UPDRS")
+    scale <- load_predefined_scale("MDS-UPDRS")
     scale <- select_categories(scale, "motor")
     item <- get_item(scale, 14)
     expect_equal(item$number, 14)
@@ -96,7 +96,7 @@ test_that("Scale from csv", {
 })
 
 test_that("Scale overview", {
-    scale <- predefined_scale("MDS-UPDRS")
+    scale <- load_predefined_scale("MDS-UPDRS")
     df <- scale_overview(scale)
     expect_equal(nrow(df), 68)
 })
@@ -126,7 +126,7 @@ test_that("Add item", {
 })
 
 test_that("Remove items", {
-    scale <- predefined_scale("MDS-UPDRS")
+    scale <- load_predefined_scale("MDS-UPDRS")
     scale <- remove_items(scale, 1:67)
     expect_equal(length(scale$items), 1)
     item <- get_item(scale, 68)

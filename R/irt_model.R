@@ -668,7 +668,7 @@ check_data <- function(model_or_data, scale=NULL) {
 #' @param levels A vector of levels to consolidate, i.e. merging into the nearest lower level.
 #' @return A new irt_model object
 #' @export
-consolidate_levels_in_model <- function(model, item_numbers, levels) {
+consolidate_levels <- function(model, item_numbers, levels) {
     stopifnot(length(levels) >= 1)
     for (item_number in item_numbers) {
         item <- get_item(model$scale, item_number)
@@ -699,7 +699,7 @@ consolidate_levels_in_model <- function(model, item_numbers, levels) {
 #' @param count The maximum count for consolidation
 #' @return A new irt_model object
 #' @export 
-automatic_consolidation <- function(model, count) {
+consolidate_levels_below <- function(model, count) {
     df <- item_level_count(model)
     df <- dplyr::mutate(df, thresh=.data$n <= !!count)
     df
@@ -720,7 +720,7 @@ automatic_consolidation <- function(model, count) {
             }
         }
         if (length(levels_to_consolidate > 0) && length(levels_to_consolidate) < length(levels_in_scale)) {
-            model <- consolidate_levels_in_model(model, item_numbers=item$number, levels=levels_to_consolidate)
+            model <- consolidate_levels(model, item_numbers=item$number, levels=levels_to_consolidate)
         }
     }
     model

@@ -105,13 +105,6 @@ items_in_categories(load_predefined_scale("MDS-UPDRS"), c("motor", "tremor"))
 new_scale <- remove_items(scale, 1:14)
 ```
 
-### Consolidate levels
-A basic mechanism for consolidating items of a scale is available. This will merge items together. If we for example have a very few observations for level 4 in item number 14 and we would like to consolidate level 4 into level 3. The third arguments is a vector of levels that we wish to merge together. Levels must be at one end of the available levels.
-
-```{r, fig.show='hold', eval=FALSE}
-new_scale <- consolidate_levels(scale, 14, c(3, 4))
-```
-
 ## Creating a model object from a scale
 ```{r, fig.show='hold'}
 model <- irt_model(scale)
@@ -131,7 +124,7 @@ This is useful when creating and running the model on different machines.
 
 ### Generate the NONMEM code from a model object
 ```{r, fig.show='hold', eval=FALSE}
-scale <- scale_from_dataset(df)
+scale <- create_scale_from_dataset(df)
 model <- irt_model(scale)
 print_model_code(model)
 ```
@@ -153,7 +146,7 @@ This function also has the optional argument ```options``` that takes a string t
 ### Consolidate levels by fixing parameters
 It is possible to consolidate levels in the upper end of the level range by fixing the corresponding DIF parameter to a high value and keeping the level in the model. The benefit of this is to facilitate using different datasets for the same model by only changing the initial estimates. This is done on the model object:
 ```{r, eval=FALSE}
-model <- consolidate_levels_in_model(model, 23, c(4))
+model <- consolidate_levels(model, 23, c(4))
 ```
 
 This will set the probability of level 4 to 0 by fixing DIF4 to a high value. The item number can be a list of items to consolidate the same levels for.
@@ -166,7 +159,7 @@ item_level_count(model_or_dataframe)
 To consolidate all levels that does not occur frequently in the dataset use
 ```{r, eval=FALSE}
 count <- 5
-model <- automatic_consolidation(model, count)
+model <- consolidate_levels_below(model, count)
 ```
 The count is the minimum number of occurences for any level in the dataset to have it consolidated. Note that the model has to have an added dataset before using this function.
 

@@ -95,9 +95,9 @@ test_that("Scale from csv", {
   }
 })
 
-test_that("Scale overview", {
+test_that("Scale summary", {
     scale <- predefined_scale("MDS-UPDRS")
-    df <- scale_overview(scale)
+    df <- summary(scale)
     expect_equal(nrow(df), 68)
 })
 

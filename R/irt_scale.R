@@ -123,7 +123,7 @@ scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
     for (i in  1:nrow(distinct)) {
         item_no <- as.numeric(distinct[i, item])
         levels <- sort(distinct[i, 'DV'][[1]][[1]])
-        item_type <- "ordcat"
+        type_of_item <- item_type$ordered_categorical
         
         first_row <- input_df %>% 
             dplyr::filter(!!item_sym == !!item_no) %>% 
@@ -134,7 +134,7 @@ scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL) {
             item_name <- ""
         }
         if(!is.null(type)){
-                item_type <- first_row[[type]]
+                type_of_item <- first_row[[type]]
         }else{
             if(length(levels)>2){
                 type_of_item <- item_type$ordered_categorical
@@ -158,15 +158,17 @@ scale_from_csv <- function(file, item='ITEM', dv='DV', name=NULL, type=NULL){
     scale
 }
 
-#' Print an overview of a scale
+#' Print an summary overview of a scale
 #' 
 #' Generate a table with the columns Item, Levels, Type, Categories and Name to give an
 #' overview of what a scale object contains.
 #' 
-#' @param scale An irt_scale object
+#' @param object An irt_scale object
+#' @param ... No additional arguments are supported
 #' @return A data.frame with scale information
 #' @export
-scale_overview <- function(scale) {
+summary.irt_scale <- function(object, ...) {     # ... needed to match the generic function
+    scale <- object
     n <- length(scale$items)
     df <- data.frame(Item=rep(as.numeric(NA), n), Levels=rep("", n), Type=rep("", n), Categories=rep("", n), Name=rep("", n), stringsAsFactors=FALSE)
     i <- 1

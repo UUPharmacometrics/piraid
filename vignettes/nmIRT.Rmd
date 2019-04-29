@@ -34,9 +34,9 @@ list_predefined_scales()
 ```
 
 ### Getting an overview of a scale
-A table of all items of a scale can be generated
+A summary table of all items of a scale can be generated
 ```{r}
-scale_overview(scale)
+summary(scale)
 ```
 
 There is also the option of getting just the item numbers available or all that are of a certain type

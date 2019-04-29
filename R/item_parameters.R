@@ -294,7 +294,7 @@ initial_estimates_item_parameters <- function(model, items, parameters, inits) {
 #' @param model An irt_model object
 #' @return A data frame with columns item, parameter, fix and init for all items and parameters
 #' @export
-initial_estimates_overview <- function(model) {
+list_initial_estimates <- function(model) {
     # First generate table over keys (item, parameters)
     table <- data.frame(item=numeric(0), parameter=character(0))
     for (item in model$scale$items) {

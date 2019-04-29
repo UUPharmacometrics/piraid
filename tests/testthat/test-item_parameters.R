@@ -49,8 +49,8 @@ test_that("initial_estimates_item_parameters", {
     expect_equal(mod3$item_parameters, data.frame(item=c(1, 1, 2, 2), parameter=c("DIF1", "DIF2", "DIF1", "DIF2"), fix=as.logical(c(NA, NA, NA, NA)), init=c(0.1, 0.2, 0.1, 0.2), ignore=as.logical(c(NA, NA, NA, NA)), stringsAsFactors=F))
 })
 
-test_that("initial_estimates_overview", {
-    df <- initial_estimates_overview(model)
+test_that("list_initial_estimates", {
+    df <- list_initial_estimates(model)
     expect_equal(df$item[1], 1)
     expect_equal(df$item[6], 2)
     expect_equal(df$parameter[1], "DIS")

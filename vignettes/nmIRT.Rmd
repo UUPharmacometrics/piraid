@@ -237,7 +237,7 @@ model <- ignore_items(model, 1:13)
 ### Getting an overview of initial estimates
 
 ```{r}
-inits <- initial_estimates_overview(model)
+inits <- list_initial_estimates(model)
 head(inits, n=12)
 ```
 

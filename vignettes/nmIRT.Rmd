@@ -91,7 +91,7 @@ This function will check if there are items or levels missing from the dataset t
 Items of a scale can belong to zero or more categories. These categories simplifies the creation of subscales. The following example will create a subscale of the items belonging to the "motor" category.
 
 ```{r, fig.show='hold', eval=FALSE}
-subscale <- select_categories(scale, c("motor"))
+subscale <- create_subscale(scale, c("motor"))
 ```
 
 It is also possible to simply list all items in a certain combination of categories.

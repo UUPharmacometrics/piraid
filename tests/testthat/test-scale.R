@@ -36,7 +36,7 @@ test_that("Save scale", {
 
 test_that("Select categories", {
     scale <- load_predefined_scale("MDS-UPDRS")
-    scale <- select_categories(scale, "motor")
+    scale <- create_subscale(scale, "motor")
     item <- get_item(scale, 14)
     expect_equal(item$number, 14)
     item <- get_item(scale, 13)

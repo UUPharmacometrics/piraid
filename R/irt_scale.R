@@ -78,15 +78,15 @@ save_scale <- function(scale, path) {
     yaml::write_yaml(scale, path)
 }
 
-#' Select categories
+#' Create subscale
 #'
-#' \code{select_categories} Create a new scale with items from selected categories only
+#' \code{create_subscale} Create a new scale with items from selected categories only
 #'
 #' @param scale An irt_scale object
 #' @param categories A vector of category names to include in the new scale
 #' @return A new irt_scale object
 #' @export
-select_categories <- function(scale, categories) {
+create_subscale <- function(scale, categories) {
     new_scale <- irt_scale()
     for (item in scale$items) {
         if (any(categories %in% item$categories)) {
@@ -476,7 +476,7 @@ item_name_list <- function(scale) {
 #' @return A vector of item numbers
 #' @export
 items_in_categories <- function(scale, categories) {
-    new_scale <- select_categories(scale, categories)
+    new_scale <- create_subscale(scale, categories)
     items <- c()
     for (item in new_scale$items) {
         items <- c(items, item$number)

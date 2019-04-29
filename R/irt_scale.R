@@ -300,41 +300,6 @@ get_item_index <- function(scale, number) {
     NULL
 }
 
-#' Consolidate item levels
-#'
-#' Consolidate, i.e. merge levels together, of a certain items in a scale object. Consolidated items will be removed
-#' from the scale.
-#' 
-#' @param scale An irt_scale object
-#' @param item_numbers A vector of item numbers to apply the same consolidation to
-#' @param levels The levels to be merged together
-#' @return A new irt_scale object
-#' @export
-consolidate_levels <- function(scale, item_numbers, levels) {
-    stopifnot(length(levels) >= 2)
-    for (item_number in item_numbers) {
-        item <- get_item(scale, item_number)
-        run <- rle(item$levels %in% levels)$values      # Check that consolidated levels are at an edge of the available levels and consecutive
-        if (length(run) == 2) {
-            low <- all(run == c(TRUE, FALSE))
-            high <- all(run == c(FALSE, TRUE))
-        }
-        if (length(run) == 2 && (low || high)) {
-            if (low) {
-                levels_to_remove <- sort(levels)[-length(levels)]
-            } else {
-                levels_to_remove <- sort(levels)[-1]
-            }
-            index <- get_item_index(scale, item_number)
-            scale$items[[index]]$levels <- setdiff(item$levels, levels_to_remove)
-        } else {
-            stop("Could only consolidate levels at the low or high end of the level range")
-        }
-    }
-
-    scale
-}
-
 #' Get a sorted array of sizes of ordered categorical items
 #' 
 #' Will give a list of all unique number of items for all ordcat items

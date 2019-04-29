@@ -144,16 +144,6 @@ test_that("Get item index", {
       expect_equal(i, 1)
 })
 
-test_that("Consolidate levels", {
-    scale <- consolidate_levels(myscale, 2, c(0, 1, 2, 3))
-    item <- get_item(scale, 2)
-    expect_equal(item$levels, c(3, 4))
-    scale <- consolidate_levels(myscale, 3, c(3, 4))
-    item <- get_item(scale, 3)
-    expect_equal(item$levels, c(0, 1, 2, 3))
-    expect_error(consolidate_levels(myscale, 3, c(0)))
-    expect_error(consolidate_levels(myscale, 3, c(1, 2)))
-})
 
 test_that("Ordcat levels", {
     levels <- ordcat_levels(myscale)

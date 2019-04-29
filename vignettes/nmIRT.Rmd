@@ -80,7 +80,7 @@ scale <- save_scale(scale, "myscale.yaml")
 
 ### Check a dataset against a scale
 ```{r, eval=FALSE}
-data_check(dataset, scale)
+check_data(dataset, scale)
 ```
 This function will check if there are items or levels missing from the dataset that are present in the scale or vice versa.
 

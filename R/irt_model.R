@@ -609,7 +609,7 @@ initial_item_thetas <- function(model) {
 #' @param model_or_data Either a data.frame or a model object from which to take the dataset
 #' @param scale If model_or_data was a data.frame a scale must be supplied otherwise the scale from the model object will be taken
 #' @export
-data_check <- function(model_or_data, scale=NULL) {
+check_data <- function(model_or_data, scale=NULL) {
     if (class(model_or_data) == "irt_model") {
         dataset <- model_or_data$dataset
         scale <- model_or_data$scale

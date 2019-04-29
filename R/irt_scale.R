@@ -158,6 +158,48 @@ create_scale_from_csv <- function(file, item='ITEM', dv='DV', name=NULL, type=NU
     scale
 }
 
+#' Format a vector containing integers to a readable string
+#' 
+#' The string will use a-b if there is a range of consecutive integers
+#' between a and b inclusive. Commas will be used between such groups.
+#' A lone integer will be written by it self.
+#' 
+#' @examples
+#' nmIRT:::format_integers(c(1,2,3,5,7,8)) #will return "1-3, 5, 7-8"
+#' 
+#' @param x A vector containing integers
+#' @return A readable string
+format_integers <- function(x) {
+    x <- sort(x)
+    string <- ""
+    partition <- split(x, cumsum(c(1, diff(x) != 1)))
+    format_one_partition <- function(x) {
+        if (length(x) == 1) {
+            as.character(x)
+        } else {
+            paste0(x[1], "-", x[length(x)])
+        }
+    }
+    paste0(lapply(partition, format_one_partition), collapse=', ')
+}
+
+#' Print a short overview of a scale
+#' 
+#' @param x An irt_scale object
+#' @param ... No additional arguments are supported
+#' @export
+print.irt_scale <- function(x, ...) {
+    scale <- x
+    items <- all_items(scale)
+    binary_items <- items_by_type(scale, item_type$binary)
+    ordcat_items <- items_by_type(scale, item_type$ordered_categorical)
+    ordcat_levels <- ordcat_level_arrays(scale)
+    cat("A scale object from ", utils::packageName(), "\n\n", sep="")
+    cat("Total number of items: ", length(items), "\n", sep="")
+    cat("    Ordered categorical items: ", format_integers(ordcat_items), "\n", sep="")
+    cat("    Binary items: ", format_integers(binary_items), "\n", sep="")
+}
+
 #' Print an summary overview of a scale
 #' 
 #' Generate a table with the columns Item, Levels, Type, Categories and Name to give an

@@ -133,12 +133,12 @@ This is useful when creating and running the model on different machines.
 ```{r, fig.show='hold', eval=FALSE}
 scale <- scale_from_dataset(df)
 model <- irt_model(scale)
-print_model(model)
+print_model_code(model)
 ```
 
 ### Write the NONMEM code to a file
 ```{r, eval=FALSE}
-save_model(model, "run1.mod")
+save_model_code(model, "run1.mod")
 ```
 
 ## Make changes to a model

@@ -38,7 +38,7 @@ set_scale <- function(model, scale) {
 #' 
 #' @param model A model object
 #' @export
-print_model <- function(model) {
+print_model_code <- function(model) {
     cat(str_irt_model(model))
 }
 
@@ -49,7 +49,7 @@ print_model <- function(model) {
 #' @param model A model object
 #' @param path Path to the created model file
 #' @export
-save_model <- function(model, path) {
+save_model_code <- function(model, path) {
     str <- str_irt_model(model)
     fp <- file(path)
     writeLines(str, fp)

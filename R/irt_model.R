@@ -225,7 +225,7 @@ type_constants <- function(model) {
     }
     i = i + 1
     for (item in model$scale$items) {
-        if (item$type == "binary") {
+        if (item$type == item_type$binary) {
             cg <- add_line(cg, paste0("BIN=", i, '    ; binary ', levels_as_string(item$levels)))
             break
         }
@@ -239,7 +239,7 @@ type_constants <- function(model) {
 #' @return A code generator object
 data_models_code <- function(model) {
     cg <- code_generator()
-    bin_items <- items_by_type(model$scale, "binary")
+    bin_items <- items_by_type(model$scale, item_type$binary)
     if (length(bin_items) > 0) {
         cg <- add_code(cg, binary_data_model_code())    # Only one type of binary allowed (0, 1)
     }
@@ -259,7 +259,7 @@ data_models_code <- function(model) {
 #' @param item An irt_item object
 #' @return The code symbol for item (i.e. BIN, OC1 etc)
 model_type_constant <- function(scale, item) {
-    if (item$type == "binary") {
+    if (item$type == item_type$binary) {
         return("BIN")
     }
     ordcat_levels <- ordcat_level_arrays(scale)
@@ -292,14 +292,14 @@ irt_item_assignment_code <- function(model, item, next_theta, first) {
         cg <- add_line(cg, paste0("PSI_MODEL=", lv_index))
     }
     cg <- add_line(cg, paste0("MODEL=", model_type_constant(scale, item)))
-    if (item$type == "ordcat") {
+    if (item$type == item_type$ordered_categorical) {
         cg <- add_line(cg, paste0("DIS=THETA(", next_theta, ")"))
         next_theta <- next_theta + 1
         for (i in 1:(length(item$levels) - 1)) {
             cg <- add_line(cg, paste0("DIF", i, "=THETA(", next_theta, ")"))
             next_theta <- next_theta + 1
         }
-    } else { # type == "binary"
+    } else { # item_type$binary
         cg <- add_line(cg, paste0("DIS=THETA(", next_theta, ")"))
         cg <- add_line(cg, paste0("DIF=THETA(", next_theta + 1, ")"))
         cg <- add_line(cg, paste0("GUE=THETA(", next_theta + 2, ")"))
@@ -377,7 +377,7 @@ binary_data_model_code <- function() {
 #' @param levels A vector of the response levels
 #' @return A code generator object
 ordered_categorical_data_model_code <- function(scale, levels) {
-    dummy_item <- irt_item(0, "", levels, "ordcat")
+    dummy_item <- irt_item(0, "", levels, item_type$ordered_categorical)
     cg <- code_generator()
     cg <- banner_comment(cg, paste0("ordered categorical data model with ", length(levels), " levels: ", levels_as_string(levels)))
     cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ") THEN"))
@@ -463,7 +463,7 @@ simulation_code <- function(model) {
     cg <- banner_comment(cg, "simulation code")
     cg <- add_line(cg, "IF(ICALL.EQ.4) THEN")
     cg <- increase_indent(cg)
-    bin_items <- items_by_type(model$scale, "binary")
+    bin_items <- items_by_type(model$scale, item_type$binary)
     if (length(bin_items) > 0) {
         cg <- add_line(cg, "IF(MODEL.EQ.BIN) THEN")
         cg <- increase_indent(cg)
@@ -549,7 +549,7 @@ omegas <- function(model, numomegas) {
 #' @param levels A vector of levels for the item
 #' @return A code generator object
 ordered_categorical_simulation_code <- function(scale, levels) {
-    dummy_item <- irt_item(0, "", levels, "ordcat")
+    dummy_item <- irt_item(0, "", levels, item_type$ordered_categorical)
     cg <- code_generator()
     cg <- add_line(cg, paste0("IF(MODEL.EQ.", model_type_constant(scale, dummy_item), ") THEN"))
     cg <- increase_indent(cg)

@@ -9,7 +9,7 @@ items_by_type(scale, types)
 \arguments{
 \item{scale}{An irt_scale object}
 
-\item{types}{A vector of types (currently "binary" and "ordcat")}
+\item{types}{A vector of item types}
 }
 \description{
 Get a vector of all items of certain type

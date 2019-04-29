@@ -145,7 +145,7 @@ theta_string_init_part <- function(model, item, parameter) {
         init
     } else if (parameter == "DIS") {
         theta_init(init, lower=0)
-    } else if (item$type == "binary" && parameter == "DIF") {
+    } else if (item$type == item_type$binary && parameter == "DIF") {
         theta_init(init, lower=-50, upper=50)
     } else if (startsWith(parameter, "DIF")) {
         index <- stringr::str_extract(parameter, "\\d+")
@@ -325,7 +325,7 @@ initial_estimates_from_data <- function(model) {
 
     types <- c()
     for (item in as.numeric(colnames(wide))) {
-        if (get_item(model$scale, item)$type == "ordcat") {
+        if (get_item(model$scale, item)$type == item_type$ordered_categorical) {
             types <- c(types, "graded")
         } else {
             types <- c(types, "3PL")    # For binary always use 3PL

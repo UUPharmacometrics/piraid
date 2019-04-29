@@ -64,17 +64,17 @@ test_that("Scale from df",{
   scale <- create_scale_from_df(df, name="name")
   item <- get_item(scale, 1)
   expect_equal(item$name, "myname1")
-  expect_equal(item$type, "binary")
+  expect_equal(item$type, item_type$binary)
   item <- get_item(scale, 5)
   expect_equal(item$name, "myname2")
-  expect_equal(item$type, "binary")
+  expect_equal(item$type, item_type$binary)
   
   df <- data.frame(ITEM=c(1, 1, 5, 5), DV=c(0, 1, 0, 1), type=c("ordcat", "", "binary", ""), stringsAsFactors=FALSE)
   scale <- create_scale_from_df(df, type="type")
   item <- get_item(scale, 1)
-  expect_equal(item$type, "ordcat")
+  expect_equal(item$type, item_type$ordered_categorical)
   item <- get_item(scale, 5)
-  expect_equal(item$type, "binary")
+  expect_equal(item$type, item_type$binary)
 })
 
 test_that("Scale from csv", {
@@ -87,38 +87,39 @@ test_that("Scale from csv", {
     expect_s3_class(item, "irt_item")
     if(i %in% 1:2) {
       expect_equal(item$levels, 0:5)
-      expect_equal(item$type, "ordcat")
+      expect_equal(item$type, item_type$ordered_categorical)
     }else{
       expect_equal(item$levels, 0:1)
-      expect_equal(item$type, "binary")
+      expect_equal(item$type, item_type$binary)
     }
   }
 })
 
-test_that("Scale overview", {
+
+test_that("Scale summary", {
     scale <- load_predefined_scale("MDS-UPDRS")
-    df <- scale_overview(scale)
+    df <- summary(scale)
     expect_equal(nrow(df), 68)
 })
 
 test_that("Get item", {
-    item <- irt_item(23, "myNAME", c(1, 2), "ordcat")
+    item <- irt_item(23, "myNAME", c(1, 2), item_type$ordered_categorical)
     scale <- irt_scale()
     scale <- add_item(scale, item)
     outitem <- get_item(scale, 23)
     expect_equal(outitem$number, 23)
     expect_equal(outitem$name, "myNAME")
     expect_equal(outitem$levels, c(1, 2))
-    expect_equal(outitem$type, "ordcat")
+    expect_equal(outitem$type, item_type$ordered_categorical)
 })
 
 test_that("Add item", {
-    item <- irt_item(23, "myNAME", c(1, 2), "ordcat")
+    item <- irt_item(23, "myNAME", c(1, 2), item_type$ordered_categorical)
     scale <- irt_scale()
     scale <- add_item(scale, item)
     expect_equal(length(scale$items), 1)
     expect_equal(scale$items[[1]]$number, 23)
-    item2 <- irt_item(28, "otherName", c(2), "ordcat")
+    item2 <- irt_item(28, "otherName", c(2), item_type$ordered_categorical)
     expect_warning(scale <- add_item(scale, item2))
     expect_equal(length(scale$items), 1)
     expect_warning(scale <- add_item(scale, item))
@@ -136,7 +137,7 @@ test_that("Remove items", {
 test_that("Get item index", {
       i <- get_item_index(myscale, 43)
       expect_equal(i, 43)
-      item <- irt_item(23, "myNAME", c(1, 2), "ordcat")
+      item <- irt_item(23, "myNAME", c(1, 2), item_type$ordered_categorical)
       scale <- irt_scale()
       scale <- add_item(scale, item)
       i <- get_item_index(scale, 23)
@@ -165,7 +166,7 @@ test_that("Ordcat level arrays", {
 })
 
 test_that("irt_item constructor", {
-    item <- irt_item(1, "name", c(1, 2, 3), "ordcat", c("cat1", "cat5"), inits=c(8, 9, 10))
+    item <- irt_item(1, "name", c(1, 2, 3), item_type$ordered_categorical, c("cat1", "cat5"), inits=c(8, 9, 10))
     expect_equal(item$levels, c(1, 2, 3))
 })
 
@@ -191,7 +192,7 @@ test_that("All items", {
 })
 
 test_that("Items by type", {
-    a <- items_by_type(myscale, "binary")
+    a <- items_by_type(myscale, item_type$binary)
     expect_equal(a, c(60, 61))
 })
 

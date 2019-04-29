@@ -123,7 +123,7 @@ create_scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL)
     for (i in  1:nrow(distinct)) {
         item_no <- as.numeric(distinct[i, item])
         levels <- sort(distinct[i, 'DV'][[1]][[1]])
-        item_type <- "ordcat"
+        type_of_item <- item_type$ordered_categorical
         
         first_row <- input_df %>% 
             dplyr::filter(!!item_sym == !!item_no) %>% 
@@ -134,15 +134,15 @@ create_scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL)
             item_name <- ""
         }
         if(!is.null(type)){
-                item_type <- first_row[[type]]
+                type_of_item <- first_row[[type]]
         }else{
             if(length(levels)>2){
-                item_type <- "ordcat"
+                type_of_item <- item_type$ordered_categorical
             }else{
-                item_type <- "binary"
+                type_of_item <- item_type$binary
             }
         }
-        new_item <- irt_item(as.numeric(item_no), item_name, levels, item_type)
+        new_item <- irt_item(as.numeric(item_no), item_name, levels, type_of_item)
         scale <- add_item(scale, new_item)
     }
     scale
@@ -158,15 +158,17 @@ create_scale_from_csv <- function(file, item='ITEM', dv='DV', name=NULL, type=NU
     scale
 }
 
-#' Print an overview of a scale
+#' Print an summary overview of a scale
 #' 
 #' Generate a table with the columns Item, Levels, Type, Categories and Name to give an
 #' overview of what a scale object contains.
 #' 
-#' @param scale An irt_scale object
+#' @param object An irt_scale object
+#' @param ... No additional arguments are supported
 #' @return A data.frame with scale information
 #' @export
-scale_overview <- function(scale) {
+summary.irt_scale <- function(object, ...) {     # ... needed to match the generic function
+    scale <- object
     n <- length(scale$items)
     df <- data.frame(Item=rep(as.numeric(NA), n), Levels=rep("", n), Type=rep("", n), Categories=rep("", n), Name=rep("", n), stringsAsFactors=FALSE)
     i <- 1
@@ -215,7 +217,7 @@ add_item <- function(scale, item, overwrite=FALSE) {
         warning(paste0("Item ", item$number, " is already present in the scale and will not be added."))
     } else if (length(item$levels) < 2) {
         warning(paste0("Item ", item$number, " has only 1 level and will not be added to the scale."))
-    } else if (length(item$levels) != 2 && item$type == "binary") {
+    } else if (length(item$levels) != 2 && item$type == item_type$binary) {
         warning(paste0("Item ", item$number, " is of type binary, but does not have exactly 2 levels. Will not be added to scale."))
     } else {
         scale$items <- c(scale$items, list(item))
@@ -300,7 +302,7 @@ consolidate_levels <- function(scale, item_numbers, levels) {
 ordcat_levels <- function(scale) {
     levels <- c()
     for (item in scale$items) {
-        if (item$type == "ordcat") {
+        if (item$type == item_type$ordered_categorical) {
             levels <- c(levels, length(item$levels)) 
         }
     }
@@ -312,13 +314,22 @@ ordcat_level_arrays <- function(scale) {
     levels <- list()
     i = 1
     for (item in scale$items) {
-        if (item$type == "ordcat") {
+        if (item$type == item_type$ordered_categorical) {
             levels[[i]] <- item$levels
             i = i + 1
         }
     }
     unique(levels)
 }
+
+#' A list enumerating all supported item types
+#' 
+#' @examples
+#' item_type$binary
+#' 
+#' @export
+item_type <- list(binary="binary", ordered_categorical="ordcat")
+
 
 #' Constructor for the irt_item class
 #' 
@@ -330,7 +341,7 @@ ordcat_level_arrays <- function(scale) {
 #' @param inits Option vector of initial values for the item parameters
 #' @keywords interal
 irt_item <- function(number, name, levels, type, categories=NULL, inits=NULL) {
-    stopifnot(type == "ordcat" || type == "binary")
+    stopifnot(type == item_type$ordered_categorical || type == item_type$binary)
     structure(list(number=number, name=name, levels=levels, type=type, categories=categories, inits=inits), class="irt_item")
 }
 
@@ -394,7 +405,7 @@ all_items <- function(scale) {
 #' Get a vector of all items of certain type
 #' 
 #' @param scale An irt_scale object
-#' @param types A vector of types (currently "binary" and "ordcat")
+#' @param types A vector of item types
 #' @export
 items_by_type <- function(scale, types) {
     items <- c()
@@ -414,7 +425,7 @@ items_by_type <- function(scale, types) {
 #' @export
 item_parameter_names <- function(scale, item_number) {
     item <- get_item(scale, item_number)
-    if (item$type == "ordcat") {
+    if (item$type == item_type$ordered_categorical) {
         dif_names <- paste0("DIF", 1:(length(item$levels) - 1))
         c("DIS", dif_names)
     } else {    # Currently binary

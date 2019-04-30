@@ -19,7 +19,7 @@ prepare_dataset <- function(df) {
 wide_item_data <- function(df, baseline=FALSE) {
     grouped <- dplyr::group_by(df, .data$ID)
     if (baseline) {
-        filtered <- dplyr::filter(grouped, .data$TIME == min(.data$TIME))
+        filtered <- dplyr::slice(grouped, 1)
     } else {
         filtered <- grouped
     }
@@ -30,6 +30,12 @@ wide_item_data <- function(df, baseline=FALSE) {
     tidyr::spread(.data$ITEM, .data$DV) %>%
     dplyr::ungroup() %>%
     dplyr::select(-"ID", -"TIME")
+}
+
+convert_to_wide_data <- function(df){
+    df %>% 
+        dplyr::as_tibble() %>% 
+        tidyr::spread(.data$ITEM, .data$DV, sep = "_")
 }
 
 # Can handle bypassing a data.frame

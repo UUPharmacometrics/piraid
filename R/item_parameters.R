@@ -219,11 +219,12 @@ insert_into_parameter_table <- function(model, new_df, column) {
     }
     model
 }
-#' @export
+
 update_parameter_table <- function(model, new_df){
     model$item_parameters <- update_or_insert(model$item_parameters, new_df, c("item", "parameter"))
     model
 }
+
 
 #' Fix the same parameters for some items
 #'
@@ -291,10 +292,14 @@ set_initial_estimates <- function(model, items, parameters, inits){
 }
 
 #' @rdname set_initial_estimates
-#' @param df A data.frame with columns 'item', 'parameter', 'init'
+#' @param df A data.frame with columns 'item', 'parameter', 'init'/'value'
 #' @export
 set_initial_estimates_table <- function(model, df){
-    stopifnot(c("item", "parameter", "init") %in% names(df))
+    if(!all(c("item", "parameter") %in% colnames(df))) rlang::abort("The columns 'item' and 'parameter' are required")
+    if("value" %in% colnames(df)) {
+        df <- dplyr::rename(df, init = value)
+    }else if(!"init" %in% colnames(df)) rlang::abort("The columns 'init' or 'value' are required")
+    
     update_parameter_table(model, df)
 }
 
@@ -321,37 +326,6 @@ list_initial_estimates <- function(model) {
     as.data.frame(table)
 }
 
-#' Calculate initial estimates given the data
-#' 
-#' Use the mirt package to calculate initial estimates for the item parameters
-#' Can only handle models where there are no missing levels except for at the high end of the range.
-#'
-#' @param model An irt_model object
-#' @return A new irt_model
-#' @export
-initial_estimates_from_data <- function(model) {
-    df <- read_dataset(model$dataset) %>% prepare_dataset()
-    wide <- df %>% wide_item_data(baseline=TRUE)
-
-    types <- c()
-    for (item in as.numeric(colnames(wide))) {
-        if (get_item(model$scale, item)$type == item_type$ordered_categorical) {
-            types <- c(types, "graded")
-        } else {
-            types <- c(types, "3PL")    # For binary always use 3PL
-        }
-    }
-    mirt_model <- mirt::mirt(data=wide, model=1, itemtype=types)
-    coeffs <- mirt::coef(mirt_model, IRTpars=TRUE)
-    for (item in colnames(wide)) {
-        inits <- as.numeric(coeffs[[item]])
-        parameters <- item_parameter_names(model$scale, as.numeric(item))
-        parameters <- parameters[1:length(inits)]
-        model <- initial_estimates_item_parameters(model, as.numeric(item), parameters, inits)
-    }
-
-    return(model)
-}
 
 #' Get all unique non-ignored parameter names for a model
 #' 

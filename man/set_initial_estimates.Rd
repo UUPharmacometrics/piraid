@@ -18,7 +18,7 @@ set_initial_estimates_table(model, df)
 
 \item{inits}{A vector of initial estimates. Must be equal in size to parameters or have size one.}
 
-\item{df}{A data.frame with columns 'item', 'parameter', 'init'}
+\item{df}{A data.frame with columns 'item', 'parameter', 'init'/'value'}
 }
 \value{
 A new irt_model object

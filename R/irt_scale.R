@@ -189,12 +189,21 @@ format_integers <- function(x) {
 #' @param ... No additional arguments are supported
 #' @export
 print.irt_scale <- function(x, ...) {
-    scale <- x
+    print_scale_info(x)
+}
+
+#' Print a short overview of a scale
+#'
+#' @param scale An irt_scale object
+#' @param header Set to print the header (set to FALSE if called from print.irt_model)
+print_scale_info <- function(scale, header=TRUE) {
     items <- all_items(scale)
     binary_items <- items_by_type(scale, item_type$binary)
     ordcat_items <- items_by_type(scale, item_type$ordered_categorical)
     ordcat_levels <- ordcat_level_arrays(scale)
-    cat("A scale object from ", utils::packageName(), "\n\n", sep="")
+    if (header) {
+        cat("A scale object from ", utils::packageName(), "\n\n", sep="")
+    }
     cat("Total number of items: ", length(items), "\n", sep="")
     cat("    Ordered categorical items: ", format_integers(ordcat_items), "\n", sep="")
     cat("    Binary items: ", format_integers(binary_items), "\n", sep="")

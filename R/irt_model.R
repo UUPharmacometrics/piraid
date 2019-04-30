@@ -19,6 +19,26 @@ irt_model <- function(scale) {
     model
 }
 
+#' Print a brief overview of a model
+#' 
+#' @param x An irt_model object
+#' @param ... No additional arguments are supported
+#' @export
+print.irt_model <- function(x, ...) {
+    model <- x
+    scale <- model$scale
+    number_of_lv_models <- length(model$lv_models)
+    if (number_of_lv_models == 0) {
+        number_of_lv_models <- 1
+    }
+    number_of_item_parameters <- sum(sapply(all_items(scale), function(x, scale) {length(item_parameter_names(scale, x))}, scale=scale))
+    cat("A model object from ", utils::packageName(), "\n\n", sep="")
+    cat("Number of item parameters: ", number_of_item_parameters, "\n", sep="")
+    cat("Number of latent variables: ",  number_of_lv_models, "\n", sep="")
+    cat("\nScale information:\n", sep="")
+    print_scale_info(scale, header=FALSE)
+}
+
 #' Change the scale of an IRT model object
 #'
 #' \code{set_scale} returns a newly created model object

@@ -24,6 +24,13 @@ test_that("theta_string_label_part", {
     expect_equal(a, "; I1DIF2 23")
 })
 
+test_that("update parameter table", {
+    new_values <- tibble::tibble(item = c(1,2), parameter = c("DIF1", "DIF2"), init = 0.1)
+    mod1 <- update_parameter_table(model, new_values)
+    newer_values <- tibble::tibble(item = c(1,2), parameter = c("DIF1", "DIF1"), init = -0.1, bla ="bla")
+    mod2 <- update_parameter_table(mod1, newer_values)
+})
+
 test_that("fix_item_parameters", {
     # White box testing ahead
     mod <- fix_item_parameters(model, 1, "DIF1")
@@ -38,15 +45,28 @@ test_that("fix_item_parameters", {
     expect_equal(mod4$item_parameters, data.frame(item=c(1, 1), parameter=c("DIS", "DIF1"), fix=c(T, T), init=c(0.25, 3), ignore=as.logical(c(NA, NA)), stringsAsFactors=F))
 })
 
-test_that("initial_estimates_item_parameters", {
-    mod <- initial_estimates_item_parameters(model, 2, "DIF1", 0.1)
+test_that("setting initial estimates", {
+    mod <- set_initial_estimates(model, 2, "DIF1", 0.1)
     expect_equal(mod$item_parameters, data.frame(item=2, parameter="DIF1", fix=as.logical(NA), init=0.1, ignore=as.logical(NA), stringsAsFactors=FALSE))
     
-    mod2 <- initial_estimates_item_parameters(model, c(1, 2), c("DIF1", "DIF2"), 0.1)
+    mod2 <- set_initial_estimates(model, c(1, 2), c("DIF1", "DIF2"), 0.1)
     expect_equal(mod2$item_parameters, data.frame(item=c(1, 1, 2, 2), parameter=c("DIF1", "DIF2", "DIF1", "DIF2"), fix=as.logical(c(NA, NA, NA, NA)), init=c(0.1, 0.1, 0.1, 0.1), ignore=as.logical(c(NA, NA, NA, NA)), stringsAsFactors=F))
     
-    mod3 <- initial_estimates_item_parameters(model, c(1, 2), c("DIF1", "DIF2"), c(0.1, 0.2))
+    mod3 <- set_initial_estimates(model, c(1, 2), c("DIF1", "DIF2"), c(0.1, 0.2))
     expect_equal(mod3$item_parameters, data.frame(item=c(1, 1, 2, 2), parameter=c("DIF1", "DIF2", "DIF1", "DIF2"), fix=as.logical(c(NA, NA, NA, NA)), init=c(0.1, 0.2, 0.1, 0.2), ignore=as.logical(c(NA, NA, NA, NA)), stringsAsFactors=F))
+})
+
+
+test_that("setting initial estimates table", {
+    inits <- tibble::tibble(item = c(1,2), parameter = c("DIF1", "DIF2"), init = c(0.1, 0.2))
+    mod <- set_initial_estimates_table(model, inits)
+    
+    dplyr::left_join(inits, mod$item_parameter, c("item", "parameter")) %>% 
+        {expect_equal(.$init.x, .$init.y)}
+    
+    inits2 <- dplyr::mutate(inits, init = -1)
+    mod2 <- set_initial_estimates_table(mod, inits2)
+
 })
 
 test_that("list_initial_estimates", {

@@ -219,6 +219,11 @@ insert_into_parameter_table <- function(model, new_df, column) {
     }
     model
 }
+#' @export
+update_parameter_table <- function(model, new_df){
+    model$item_parameters <- update_or_insert(model$item_parameters, new_df, c("item", "parameter"))
+    model
+}
 
 #' Fix the same parameters for some items
 #'
@@ -266,28 +271,33 @@ get_ignored_items <- function(model) {
     unique(rows[['item']])
 }
 
-#' Set initial estimates for some parameters
+#' Set initial estimates
 #' 
-#' Each item will for the selected parameters get a new initial estimate.
-#' If there is only one initial estimate provided all parameters will get this value.
-#' If more than one initial estimate is provided they will be distributed to the parameters
-#' in order. Note that the number of parameters and the number of initial estimates provided
-#' must then be equal.
+#' These functions allow to set the initial estimates for parameters in the model. Values
+#' can either be set for particular set of items and parameters or by providing a data.frame with 
+#' the inital values for each parameter. 
 #' 
 #' @param model An irt_model object
 #' @param items A vector of item numbers
-#' @param parameters A vector of parameter names
+#' @param parameters A vector of parameter names that will be used for each of the items
 #' @param inits A vector of initial estimates. Must be equal in size to parameters or have size one.
 #' @return A new irt_model object
 #' @export
-initial_estimates_item_parameters <- function(model, items, parameters, inits) {
+set_initial_estimates <- function(model, items, parameters, inits){
     stopifnot(length(inits) == 1 || length(parameters) == length(inits))
-    
-    new_df <- expand.grid(parameter=parameters, item=items, fix=as.logical(NA), init=as.numeric(NA), ignore=as.logical(NA), stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
-    new_df$init <- inits    # Broadcast hence order of parameters and item columns
-    new_df <- dplyr::select(new_df, "item", "parameter", "fix", "init", "ignore")
-    insert_into_parameter_table(model, new_df, "init")
+    df <- expand.grid(parameter=parameters, item=items, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
+    df$init <- inits    # Broadcast hence order of parameters and item columns
+    update_parameter_table(model, df)
 }
+
+#' @rdname set_initial_estimates
+#' @param df A data.frame with columns 'item', 'parameter', 'init'
+#' @export
+set_initial_estimates_table <- function(model, df){
+    stopifnot(c("item", "parameter", "init") %in% names(df))
+    update_parameter_table(model, df)
+}
+
 
 #' Generate a data frame to give an overview of initial estimates for a model
 #' 

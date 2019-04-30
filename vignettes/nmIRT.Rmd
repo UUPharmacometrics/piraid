@@ -199,13 +199,13 @@ The most straight forward way of setting some initial estimates is to use the fu
 
 For example
 ```{r, eval=FALSE}
-model <- initial_estimates_item_parameters(model, 1:13, c("DIF2", "DIF3", "DIF4"), 0.1)
+model <- set_initial_estimates(model, 1:13, c("DIF2", "DIF3", "DIF4"), 0.1)
 ```
 will set all the initial estimates for the DIF2, DIF3 and DIF4 parameters for items 1 through 13 to 0.1
 
 A vector of initial estimates can also be supplied and these will then be broadcast to each parameter. For example
 ```{r, eval=FALSE}
-model <- initial_estimates_item_parameters(model, 1:3, c("DIF2", "DIF3"), c(0.1, 0.2))
+model <- set_initial_estimates(model, 1:3, c("DIF2", "DIF3"), c(0.1, 0.2))
 ```
 will set the initial estimates for DIF2 and DIF3 for items 1, 2 and 3 to 0.1 for the DIF2:s and 0.2 for the DIF3:s
 

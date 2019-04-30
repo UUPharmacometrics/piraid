@@ -6,7 +6,7 @@
 #' @return A model object
 #' @export
 irt_model <- function(scale) {
-    item_parameters <- data.frame(item=numeric(0), parameter=character(0), fix=logical(0), init=numeric(0), stringsAsFactors=FALSE)
+    item_parameters <- data.frame(item=numeric(0), parameter=character(0), fix=logical(0), init=numeric(0), ignore=logical(0), stringsAsFactors=FALSE)
     model <- structure(list(scale=scale, simulation=FALSE, consolidation=list(), run_number=1,
         lv_models=list(), item_parameters=item_parameters, use_data_path=TRUE, simulation_options="", estimation_options=""), class="irt_model")
     if(!is.null(scale$source_file)) {

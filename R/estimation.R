@@ -26,6 +26,66 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
     
     wide_data <- dplyr::select(wide_data, starts_with("ITEM"))
     rlang::inform(paste("Using data with", ncol(wide_data), "items and", nrow(wide_data), "subjects"))
+    types <- prepare_mirt_type_vector(model, wide_data)
+    rlang::inform("Starting item paramter estimation using 'mirt'")
+    mirt_model <- mirt::mirt(data=wide_data, model=1, itemtype=types)
+    rlang::inform("Estimation done")
+
+    coef_list <- mirt::coef(mirt_model, IRTpars=TRUE)
+    mirt_estimates_to_nmirt_format(coef_list)
+}
+
+#' @rdname estimate_item_parameters
+#' @export
+data_use_strategies <- c("baseline", "visits-as-subjects")
+
+#' Estimate Latent Variable Values
+#' 
+#' The function uses the data associated with the model to estimate a latent variable value for each time point.
+#' 
+#' @param model The model
+#'
+#' @param estimate_item_prms Whether to re-estimate the item parameters from the data. 
+#' 
+#' @return A tibble with columns PSI (the estimated latent variable value), SE_PSI (the associated standard error), and all columns 
+#' from the data (except ITEM and DV).
+#'
+#' @export
+estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_estimates(model)){
+    df <- read_dataset(model$dataset) %>% prepare_dataset()
+    wide_data <- convert_to_wide_data(df)
+    
+    item_data_wide <- dplyr::select(wide_data, starts_with("ITEM"))
+    non_item_data_wide <- dplyr::select(wide_data, -starts_with("ITEM"))
+
+    rlang::inform(paste("Using data with", ncol(item_data_wide), "items and", nrow(item_data_wide), "subjects"))
+    types <- prepare_mirt_type_vector(model, item_data_wide)
+
+    if(estimate_item_prms){
+        rlang::inform("Starting item paramter estimation using 'mirt'")
+        mirt_model <- mirt::mirt(data=item_data_wide, model=1, itemtype=types)
+        rlang::inform("Estimation done")
+    }else{
+        mirt_prms <- mirt::mirt(data=item_data_wide, model=1, itemtype=types, pars = "values")
+        item_prms <-  nmirt_estimates_to_mirt_format(model$item_parameters) 
+        mirt_prms <- dplyr::left_join(mirt_prms, item_prms, by = c("item","name"), suffix = c("", "_nmirt")) %>% 
+            dplyr::mutate(value = ifelse(is.na(value_nmirt), value, value_nmirt)) %>% 
+            dplyr::select(-value_nmirt)
+        mirt_model <- mirt::mirt(data=item_data_wide, model=1, itemtype = types, pars = mirt_prms, TOL = NA)
+    }
+
+    rlang::inform("Estimating latent variable values for all subjects using 'mirt'")
+    lv_values <- mirt::fscores(mirt_model, method = "MAP", full.scores.SE = TRUE)
+    rlang::inform("Latent variable estimation done")
+    
+    lv_values %>% 
+        dplyr::as_tibble() %>% 
+        dplyr::rename(PSI = .data$F1, SE_PSI = .data$SE_F1) %>% 
+        dplyr::bind_cols(non_item_data_wide, .)
+
+}
+
+prepare_mirt_type_vector <- function(model, wide_data){
     types <- c()
     for (item_name in colnames(wide_data)) {
         item <- sub("ITEM_", "", item_name) %>% as.numeric()
@@ -35,38 +95,60 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
             types <- c(types, "3PL")    # For binary always use 3PL
         }
     }
-    rlang::inform("Starting item paramter estimation using 'mirt'")
-    mirt_model <- mirt::mirt(data=wide_data, model=1, itemtype=types)
-    rlang::inform("Estimation done")
-    coef_list <- mirt::coef(mirt_model, IRTpars=TRUE, simplify =T)
-    prm_names <- colnames(coef_list$items) 
-    ncat <- mirt::extract.mirt(mirt_model, "K")
-    item_prms <- coef_list$items
-    
-    # translate DIF parameters to NM format DIF(x) = DIF(x) - DIF(x-1)
-    for(item_index in seq_along(ncat)){
-        if(ncat[item_index]<=2) next 
-        for(dif_index in (ncat[item_index]-1):2){
-            dif_prm <- paste0("b", dif_index)
-            pdif_prm <- paste0("b", dif_index-1)
-            item_prms[item_index, dif_prm] <- item_prms[item_index, dif_prm] - item_prms[item_index, pdif_prm]
-        }
-    }
-    
-    item_prms %>% 
-        dplyr::as_tibble(rownames = "item") %>% 
-        dplyr::mutate(item = sub("ITEM_", "", item) %>% as.integer()) %>% 
-        dplyr::rename(
-            DIS = a,
-            GUE = g
-        ) %>% 
-        dplyr::rename_at(vars(starts_with("b")), ~sub("^b", "DIF", .)) %>% 
-        dplyr::select(-u) %>% 
-        tidyr::gather("parameter", "value", -item) %>%
-        dplyr::filter(!is.na(value)) %>% 
-        dplyr::arrange(item)
+    types
 }
 
-#' @rdname estimate_item_parameters
-#' @export
-data_use_strategies <- c("baseline", "visits-as-subjects")
+mirt_to_nmirt_name_map <- c(a = "DIS", b = "DIF", g = "GUE")
+nmirt_to_mirt_name_map <- purrr::set_names(names(mirt_to_nmirt_name_map), mirt_to_nmirt_name_map)
+
+mirt_estimates_to_nmirt_format <- function(estimates_list){
+    estimates_list %>% 
+        purrr::map(~ .[1, ]) %>% 
+        purrr::map_if(~rlang::has_name(., "b1"), ~c(.[1:2], diff(.[-1]))) %>% # translate DIF parameters to NM format DIF(x) = DIF(x) - DIF(x-1)
+        purrr::map_dfr(~tibble( parameter=names(.x), value = .x), .id = "item") %>% 
+        dplyr::filter(!(parameter=="u"|item=="GroupPars")) %>% 
+        dplyr::mutate(parameter = stringr::str_replace_all(parameter, mirt_to_nmirt_name_map),
+                      item = stringr::str_extract(item, "\\d+") %>% as.integer())
+} 
+
+nmirt_estimates_to_mirt_format <- function(df){
+    df %>% 
+        dplyr::select(item, parameter, init) %>% 
+        tidyr::nest(-item) %>% 
+        dplyr::mutate(
+            item = paste0("ITEM_", item),
+            # convert to named vector with MIRT prm names
+            data = purrr::map(data, ~set_names(.$init, stringr::str_replace_all(.$parameter, nmirt_to_mirt_name_map))) %>%  
+                # translate DIF prms for graded model to accumulative format
+                purrr::map_if(~mirt_model_from_prms(.x)=="graded", function(x){
+                    dif_prm_index <- stringr::str_detect(names(x), "b\\d+")
+                    x[dif_prm_index] <- cumsum(x[dif_prm_index])
+                    x
+                }) %>% 
+                # add upper probability paramater for 3PL model
+                purrr::map_if(~mirt_model_from_prms(.x)=="3PL", ~c(.x, u = 1)) %>% 
+                purrr::map(~mirt::traditional2mirt(.x, mirt_model_from_prms(.x), ncat_from_prms(.x))) %>% 
+                purrr::map(~tibble::enframe(.x))
+        ) %>% 
+        tidyr::unnest()
+}
+
+# get mirt model name from prm names
+mirt_model_from_prms <- function(prms){
+    if(all(rlang::has_name(prms, c("a","b","g")))) return("3PL")
+    if(all(rlang::has_name(prms, c("a","b1")))) return("graded")
+    rlang::abort("Could not infer model from parameter names.")
+}
+
+# get the number of categories from the prm names
+ncat_from_prms <- function(prms){
+    if(all(rlang::has_name(prms, c("a","b","g")))){
+        return(2)
+    }else{
+        npar <- names(prms) %>% 
+            stringr::str_extract("\\d+") %>% 
+            as.integer() %>% 
+            max(na.rm=T)  
+        return(npar + 1)
+    } 
+}

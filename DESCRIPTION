@@ -22,7 +22,9 @@ Imports:
     ggforce,
     scales,
     rlang,
-    mirt
+    mirt,
+    purrr,
+    tibble
 Suggests: knitr, rmarkdown, testthat, mockery
 VignetteBuilder: knitr
 NeedsCompilation: no

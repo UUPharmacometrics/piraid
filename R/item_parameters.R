@@ -342,3 +342,24 @@ all_parameter_names <- function(model) {
     }
     sort(parameter_names)
 }
+
+
+#' Test if a model has all required inital estimates 
+#'
+#' @param model The model
+#'
+#' @return TRUE if an initial value is given for all item parameters in the model, otherwise FALSE 
+#' @export 
+has_all_initial_estimates <- function(model){
+    for (item in model$scale$items) {
+        item_prms <- dplyr::filter(model$item_parameters, .data$item==!!item$number)
+        if(nrow(item_prms)==0) return(FALSE)
+        if(item$type == item_type$binary){
+            required_prms <- c("DIS", "DIF", "GUE")
+        }else if(item$type == item_type$ordered_categorical){
+            required_prms <- c("DIS", paste0("DIF", item$levels[-1]))
+        }
+        if(!all(required_prms %in% item_prms$parameter)) return(FALSE)
+    }
+    return(TRUE)
+}

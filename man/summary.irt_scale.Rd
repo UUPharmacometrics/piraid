@@ -2,7 +2,7 @@
 % Please edit documentation in R/irt_scale.R
 \name{summary.irt_scale}
 \alias{summary.irt_scale}
-\title{Print an summary overview of a scale}
+\title{Print a summary overview of a scale}
 \usage{
 \method{summary}{irt_scale}(object, ...)
 }

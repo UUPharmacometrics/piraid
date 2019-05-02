@@ -209,7 +209,7 @@ print_scale_info <- function(scale, header=TRUE) {
     cat("    Binary items: ", format_integers(binary_items), "\n", sep="")
 }
 
-#' Print an summary overview of a scale
+#' Print a summary overview of a scale
 #' 
 #' Generate a table with the columns Item, Levels, Type, Categories and Name to give an
 #' overview of what a scale object contains.

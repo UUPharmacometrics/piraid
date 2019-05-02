@@ -178,6 +178,50 @@ correlation_plot <- function(df) {
     return(plot)
 }
 
+#' Plot latent variable versus time
+#'
+#' @param lv_dataset A dataframe 
+#' @param lv_col Name of the latent variable column
+#' @param time_col Name of the time column
+#' @param se_col Name of the standard error of PSI column
+#' @param grouping_col Name of optional grouping column
+#'
+#' @return A ggplot plot object
+#' @export
+lv_vs_time_plot <- function(lv_dataset, lv_col = "PSI", time_col = "TIME", 
+                            se_col = "SE_PSI", grouping_col = NULL){
+    lv_sym <- rlang::sym(lv_col)
+    time_sym <- rlang::sym(time_col)
+    se_sym <- rlang::sym(se_col) 
+
+    if(!se_col %in% colnames(lv_dataset)) lv_dataset <- dplyr::mutate(lv_dataset, !!se_sym := 1)
+    lv_dataset <- dplyr::group_by(lv_dataset, !!time_sym)
+    if(!is.null(grouping_col)){
+        grouping_sym <- rlang::sym(grouping_col)
+        lv_dataset <- lv_dataset %>%
+            dplyr::mutate(!!grouping_sym:=factor(!!grouping_sym)) %>% 
+            dplyr::group_by(!!grouping_sym, !!time_sym)
+    }
+    weighted_average <- lv_dataset %>% 
+        dplyr::summarise(PSI = weighted.mean(!!lv_sym, 1/(!!se_sym)^2))
+    
+    if(!is.null(grouping_col)){
+        plot <- ggplot(lv_dataset, aes(!!time_sym, !!lv_sym, group = ID, color = !!grouping_sym)) + 
+            geom_line(alpha = 0.3)+
+            geom_line(data=weighted_average, mapping = aes(TIME, PSI, group =NULL), size = 2)
+    }else{
+        plot <- ggplot(lv_dataset, aes(!!time_sym, !!lv_sym, group = ID)) + 
+            geom_line(alpha = 0.3)+
+            geom_line(data=weighted_average, mapping = aes(TIME, PSI, group =NULL), size = 2, color = "darkred")
+    }
+    
+    plot <- plot + 
+        scale_y_continuous("Latent variable value")+
+        scale_x_continuous("Time")
+    
+    return(plot)
+}
+
 #item.parameters <- read.table("/home/rikard/devel/ICC_plot/item_parameters_tab1", skip=1, header=T,sep=",")
 #scale <- predefined_scale("MDS-UPDRS")
 #mirror_plots(item.parameters, scale)

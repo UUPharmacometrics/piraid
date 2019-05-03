@@ -81,7 +81,7 @@ estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_esti
     lv_values %>% 
         dplyr::as_tibble() %>% 
         dplyr::rename(PSI = .data$F1, SE_PSI = .data$SE_F1) %>% 
-        dplyr::bind_cols(non_item_data_wide, .)
+        dplyr::bind_cols(non_item_data_wide, UQ(sym(".")))
 
 }
 
@@ -106,19 +106,19 @@ mirt_estimates_to_nmirt_format <- function(estimates_list){
         purrr::map(~ .[1, ]) %>% 
         purrr::map_if(~rlang::has_name(., "b1"), ~c(.[1:2], diff(.[-1]))) %>% # translate DIF parameters to NM format DIF(x) = DIF(x) - DIF(x-1)
         purrr::map_dfr(~tibble( parameter=names(.x), value = .x), .id = "item") %>% 
-        dplyr::filter(!(parameter=="u"|item=="GroupPars")) %>% 
-        dplyr::mutate(parameter = stringr::str_replace_all(parameter, mirt_to_nmirt_name_map),
-                      item = stringr::str_extract(item, "\\d+") %>% as.integer())
+        dplyr::filter(!(.data$parameter == "u" | .data$item == "GroupPars")) %>% 
+        dplyr::mutate(parameter = stringr::str_replace_all(.data$parameter, mirt_to_nmirt_name_map),
+                      item = stringr::str_extract(.data$item, "\\d+") %>% as.integer())
 } 
 
 nmirt_estimates_to_mirt_format <- function(df){
     df %>% 
-        dplyr::select(item, parameter, init) %>% 
-        tidyr::nest(-item) %>% 
+        dplyr::select("item", "parameter", "init") %>% 
+        tidyr::nest(-"item") %>% 
         dplyr::mutate(
-            item = paste0("ITEM_", item),
+            item = paste0("ITEM_", .data$item),
             # convert to named vector with MIRT prm names
-            data = purrr::map(data, ~set_names(.$init, stringr::str_replace_all(.$parameter, nmirt_to_mirt_name_map))) %>%  
+            data = purrr::map(.data$data, ~set_names(.$init, stringr::str_replace_all(.$parameter, nmirt_to_mirt_name_map))) %>%  
                 # translate DIF prms for graded model to accumulative format
                 purrr::map_if(~mirt_model_from_prms(.x)=="graded", function(x){
                     dif_prm_index <- stringr::str_detect(names(x), "b\\d+")

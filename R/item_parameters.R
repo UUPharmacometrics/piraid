@@ -328,7 +328,7 @@ set_initial_estimates <- function(model, items, parameters, inits){
 set_initial_estimates_table <- function(model, df){
     if(!all(c("item", "parameter") %in% colnames(df))) rlang::abort("The columns 'item' and 'parameter' are required")
     if("value" %in% colnames(df)) {
-        df <- dplyr::rename(df, init = value)
+        df <- dplyr::rename(df, init=.data$value)
     }else if(!"init" %in% colnames(df)) rlang::abort("The columns 'init' or 'value' are required")
     
     update_parameter_table(model, df)

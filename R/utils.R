@@ -19,7 +19,7 @@ update_or_insert <- function(old, new, id_cols, only_existing_cols = TRUE){
         dplyr::mutate(.index = seq_len(dplyr::n())) # add index column to keep track of ordering
     # determine all entries that will not change and update index column
     unchanged <- dplyr::anti_join(old, new, by=id_cols) %>%
-        dplyr::arrange(.index) %>%
+        dplyr::arrange(UQ(sym(".index"))) %>%
         dplyr::mutate(.index = seq_len(dplyr::n()))
     # generate index for updated or added entries
     changed <- dplyr::mutate(new, .index = seq_len(dplyr::n())+nrow(unchanged))
@@ -28,12 +28,12 @@ update_or_insert <- function(old, new, id_cols, only_existing_cols = TRUE){
     updated <- dplyr::semi_join(changed, old, by=id_cols)
     # determine columns in old that were not provided in new
     missing_cols <- dplyr::semi_join(old, changed, by=id_cols) %>% 
-        dplyr::select(!!!id_cols, !!!setdiff(colnames(old), colnames(new)), -.index)
+        dplyr::select(!!!id_cols, !!!setdiff(colnames(old), colnames(new)), -".index")
     updated <- dplyr::full_join(updated, missing_cols, by = id_cols)
     # warn if entries will be updated
     if(nrow(updated)!=0) rlang::inform(paste(nrow(updated) ,"existing row(s) updated"))
     # combine and sort by index
     dplyr::bind_rows(unchanged, added, updated) %>%
-        dplyr::arrange(.index) %>% 
-        dplyr::select(-.index)
+        dplyr::arrange(.data$.index) %>% 
+        dplyr::select(-".index")
 }

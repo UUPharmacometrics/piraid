@@ -48,7 +48,7 @@ data_use_strategies <- c("baseline", "visits-as-subjects")
 #' @param estimate_item_prms Whether to re-estimate the item parameters from the data. 
 #' 
 #' @return A tibble with columns PSI (the estimated latent variable value), SE_PSI (the associated standard error), and all columns 
-#' from the data (except ITEM and DV).
+#' from the data (except ITEM and DV)
 #'
 #' @export
 estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_estimates(model)){

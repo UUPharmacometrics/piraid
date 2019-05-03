@@ -11,8 +11,8 @@
 #' @export
 prepare_lv_analysis <- function(lv_dataset, output_directory, model_filename = "lv_run1.mod", data_filename = "lv_data.csv"){
     if(!dir.exists(output_directory)) rlang::abort("The output directory does not exist.")
-    
-    write.csv(lv_dataset, file = file.path(output_directory, data_filename), na = "0", quote = F, row.names = F)
+    utils::write.csv(lv_dataset, file = file.path(output_directory, data_filename), na = "0", quote = F, row.names = F)
+
     
     str <- str_lv_scaffold_model(lv_dataset, data_filename)
     fp <- file(file.path(output_directory, model_filename))

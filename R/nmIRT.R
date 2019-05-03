@@ -5,3 +5,5 @@
 #' @importFrom magrittr "%>%"
 #' @importFrom rlang .data 
 "_PACKAGE"
+
+. <- NULL

@@ -439,48 +439,18 @@ items_by_type <- function(scale, types) {
     items
 }
 
-#' Get vector of parameter names of an item
-#' 
-#' @param scale An irt_scale object
-#' @param item_number An item number
-#' @return A character vector of parameter names
-#' @export
-item_parameter_names <- function(scale, item_number) {
-    item <- get_item(scale, item_number)
-    if (item$type == item_type$ordered_categorical) {
-        dif_names <- paste0("DIF", 1:(length(item$levels) - 1))
-        c("DIS", dif_names)
-    } else {    # Currently binary
-        c("DIS", "DIF", "GUE")
-    }
-}
-
-#' Get the index of an item parameter relative to the first parameter of that item
-#' 
-#' DIS would have index 1, DIF1 would have 2 etc
-#' 
-#' @param scale An irt_scale object
-#' @param item_number Number of the item
-#' @param parameter The name of the parameter
-#' @return The index of the parameter  starting from 1 or NA if not found
-item_parameter_index <- function(scale, item_number, parameter) {
-    names <- item_parameter_names(scale, item_number)
-    match(parameter, names)
-}
-
 #' Get published initial estimate for a parameter of an item
 #' 
 #' @param scale An irt_scale object
 #' @param item_number The number of an item
-#' @param parameter Name of a parameter
+#' @param parameter_index The index of a parameter
 #' @return The initial estimate or NULL if not available
 #' @keywords internal
-published_init <- function(scale, item_number, parameter) {
+published_init <- function(scale, item_number, parameter_index) {
     item <- get_item(scale, item_number)
     if ("inits" %in% names(item)) {
-        index <- item_parameter_index(scale, item_number, parameter)
-        if (!is.na(index)) {
-            return(item$inits[index])
+        if (!is.na(parameter_index)) {
+            return(item$inits[parameter_index])
         }
     }
     NULL

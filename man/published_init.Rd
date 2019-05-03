@@ -4,14 +4,14 @@
 \alias{published_init}
 \title{Get published initial estimate for a parameter of an item}
 \usage{
-published_init(scale, item_number, parameter)
+published_init(scale, item_number, parameter_index)
 }
 \arguments{
 \item{scale}{An irt_scale object}
 
 \item{item_number}{The number of an item}
 
-\item{parameter}{Name of a parameter}
+\item{parameter_index}{The index of a parameter}
 }
 \value{
 The initial estimate or NULL if not available

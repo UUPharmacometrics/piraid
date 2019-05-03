@@ -21,11 +21,12 @@ initial_estimate <- function(model, item, parameter) {
     }
     if (length(model$consolidation) >= item$number) {   # Does item exist in consolidation list
         consolidated <- model$consolidation[[item$number]]
-        if (!is.null(consolidated) && (item_parameter_index(model$scale, item$number, parameter) - 1) %in% consolidated) {
+        if (!is.null(consolidated) && (item_parameter_index(model, item$number, parameter) - 1) %in% consolidated) {
             return(50)
         }
     }
-    published <- published_init(model$scale, item$number, parameter)
+    parameter_index <- item_parameter_index(model, item$number, parameter)
+    published <- published_init(model$scale, item$number, parameter_index)
     if (!is.null(published)) {
         return(published)
     }
@@ -39,6 +40,36 @@ initial_estimate <- function(model, item, parameter) {
         index <- as.numeric(stringr::str_extract(parameter, '\\d+'))
         -3 + (6 * index) / length(item$levels)
     }
+}
+
+#' Get vector of parameter names of an item
+#' 
+#' @param model An irt_model object
+#' @param item_number An item number
+#' @return A character vector of parameter names
+#' @export
+item_parameter_names <- function(model, item_number) {
+    scale <- model$scale
+    item <- get_item(scale, item_number)
+    if (item$type == item_type$ordered_categorical) {
+        dif_names <- paste0("DIF", 1:(length(item$levels) - 1))
+        c("DIS", dif_names)
+    } else {    # Currently binary
+        c("DIS", "DIF", "GUE")
+    }
+}
+
+#' Get the index of an item parameter relative to the first parameter of that item
+#' 
+#' DIS would have index 1, DIF1 would have 2 etc
+#' 
+#' @param model An irt_model object
+#' @param item_number Number of the item
+#' @param parameter The name of the parameter
+#' @return The index of the parameter  starting from 1 or NA if not found
+item_parameter_index <- function(model, item_number, parameter) {
+    names <- item_parameter_names(model, item_number)
+    match(parameter, names)
 }
 
 #' Check if an item parameter is fixed
@@ -59,7 +90,7 @@ is_item_parameter_fixed <- function(model, item, parameter) {
 
     if (init == 0) {
         return(TRUE)
-    } else if (consolidated(model, item, item_parameter_index(model$scale, item$number, parameter) - 1)) {
+    } else if (consolidated(model, item, item_parameter_index(model, item$number, parameter) - 1)) {
         return(TRUE)
     }
     par_row <- dplyr::filter(model$item_parameters, item==!!item$number, parameter==!!parameter)
@@ -114,7 +145,7 @@ theta_string_item_parameter <- function(model, item, parameter, theta_num) {
 #' @return A vector of initial estimates definitions for NONMEM
 #' @keywords internal
 item_inits <- function(model, item, start_theta) {
-    parameters <- item_parameter_names(model$scale, item$number)
+    parameters <- item_parameter_names(model, item$number)
     theta_strings <- character()
     for (parameter in parameters) {
         par_row <- dplyr::filter(model$item_parameters, item==!!item$number, parameter==!!parameter)
@@ -235,7 +266,7 @@ update_parameter_table <- function(model, new_df){
 #' @export
 fix_item_parameters <- function(model, items, parameter_names) {
     for (item in items) {   # Check that all parameter_names are valid
-        names <- item_parameter_names(model$scale, item)
+        names <- item_parameter_names(model, item)
         if (!all(parameter_names %in% names)) {
             names_string <- paste(names,  collapse=',')
             stop(paste0("A specified parameter does not exist for item ", item, ". Valid parameter names for this item are: ", names_string))
@@ -256,7 +287,7 @@ fix_item_parameters <- function(model, items, parameter_names) {
 #' @export
 ignore_items <- function(model, items) {
     for (i in items) {
-        parameters <- item_parameter_names(model$scale, i)
+        parameters <- item_parameter_names(model, i)
         new_df <- data.frame(item=i, parameter=parameters, fix=as.logical(NA), ignore=TRUE, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
         model <- insert_into_parameter_table(model, new_df, "ignore")
     }
@@ -297,7 +328,7 @@ set_initial_estimates <- function(model, items, parameters, inits){
 set_initial_estimates_table <- function(model, df){
     if(!all(c("item", "parameter") %in% colnames(df))) rlang::abort("The columns 'item' and 'parameter' are required")
     if("value" %in% colnames(df)) {
-        df <- dplyr::rename(df, init = value)
+        df <- dplyr::rename(df, init=.data$value)
     }else if(!"init" %in% colnames(df)) rlang::abort("The columns 'init' or 'value' are required")
     
     update_parameter_table(model, df)
@@ -313,7 +344,7 @@ list_initial_estimates <- function(model) {
     # First generate table over keys (item, parameters)
     table <- data.frame(item=numeric(0), parameter=character(0))
     for (item in model$scale$items) {
-        parameters <- item_parameter_names(model$scale, item$number)
+        parameters <- item_parameter_names(model, item$number)
         item_table <- expand.grid(item=item$number, parameter=parameters, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
         table <- rbind(table, item_table)
     }
@@ -337,7 +368,7 @@ all_parameter_names <- function(model) {
     parameter_names <- c()
     for (item in scale$items) {
         if (!(item$number %in% ignored_items)) {
-            parameter_names <- unique(c(parameter_names, item_parameter_names(scale, item$number)))
+            parameter_names <- unique(c(parameter_names, item_parameter_names(model, item$number)))
         }
     }
     sort(parameter_names)

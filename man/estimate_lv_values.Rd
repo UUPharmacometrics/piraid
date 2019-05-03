@@ -14,7 +14,7 @@ estimate_lv_values(model,
 }
 \value{
 A tibble with columns PSI (the estimated latent variable value), SE_PSI (the associated standard error), and all columns 
-from the data (except ITEM and DV).
+from the data (except ITEM and DV)
 }
 \description{
 The function uses the data associated with the model to estimate a latent variable value for each time point.

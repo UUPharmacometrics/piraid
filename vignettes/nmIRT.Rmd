@@ -112,12 +112,12 @@ model <- irt_model(scale)
 
 ### Attach a dataset to a model
 ```{r, eval=FALSE}
-model <- add_dataset(model, "my.dta")
+model <- set_dataset(model, "my.dta")
 ```
 
 It is also possible to not use the full path of the dataset in $DATA
 ```{r, eval=FALSE}
-model <- add_dataset(model, "my.dta", use_path=FALSE)
+model <- set_dataset(model, "my.dta", use_path=FALSE)
 ```
 This is useful when creating and running the model on different machines.
 

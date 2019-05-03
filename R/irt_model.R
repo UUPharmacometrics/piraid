@@ -13,7 +13,7 @@ irt_model <- function(scale) {
         if(!file.exists(scale$source_file)) {
             warning("The file that was used to generate the scale does not exist and couldn't be added to the model.")
         }else{
-            model <-  add_dataset(model, path = scale$source_file)
+            model <-  set_dataset(model, path = scale$source_file)
         }
     }
     model
@@ -85,7 +85,7 @@ save_model_code <- function(model, path) {
 #' @keywords internal
 model_complete <- function(model) {
     if (!("dataset" %in% names(model))) {
-        stop("A dataset needs to be added to the model. Please use add_dataset before printing the model")
+        stop("A dataset needs to be added to the model. Please use set_dataset before printing the model")
     }
 }
 
@@ -143,16 +143,16 @@ str_irt_model <- function(model) {
     get_code(cg)
 }
 
-#' Add dataset
+#' Set dataset
 #' 
-#' Add a dataset to a model object
+#' Set the dataset of a model object
 #' 
 #' @param model A model object
 #' @param path Path to a dataset file
 #' @param use_path Should the path be put in $DATA or not? If FALSE only the filename will go into $DATA
 #' @return A new model object
 #' @export
-add_dataset <- function(model, path, use_path=TRUE) {
+set_dataset <- function(model, path, use_path=TRUE) {
     model$dataset <- path
     model$use_data_path <- use_path
     df <- utils::read.csv(model$dataset, nrows=0)

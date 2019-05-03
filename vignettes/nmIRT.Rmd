@@ -181,7 +181,7 @@ model <- add_estimation_options(model, "SIGDIGITS=4 SADDLE_RESET=1")
 ### Getting parameter names
 
 ```{r}
-item_parameter_names(scale, 1)
+item_parameter_names(model, 1)
 ```
 
 ### Initial estimates

@@ -31,7 +31,7 @@ print.irt_model <- function(x, ...) {
     if (number_of_lv_models == 0) {
         number_of_lv_models <- 1
     }
-    number_of_item_parameters <- sum(sapply(all_items(scale), function(x, scale) {length(item_parameter_names(scale, x))}, scale=scale))
+    number_of_item_parameters <- sum(sapply(all_items(scale), function(x, scale) {length(item_parameter_names(model, x))}, scale=scale))
     cat("A model object from ", utils::packageName(), "\n\n", sep="")
     cat("Number of item parameters: ", number_of_item_parameters, "\n", sep="")
     cat("Number of latent variables: ",  number_of_lv_models, "\n", sep="")

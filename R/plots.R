@@ -203,16 +203,16 @@ lv_vs_time_plot <- function(lv_dataset, lv_col = "PSI", time_col = "TIME",
             dplyr::group_by(!!grouping_sym, !!time_sym)
     }
     weighted_average <- lv_dataset %>% 
-        dplyr::summarise(PSI = weighted.mean(!!lv_sym, 1/(!!se_sym)^2))
+        dplyr::summarise(PSI = stats::weighted.mean(!!lv_sym, 1/(!!se_sym)^2))
     
     if(!is.null(grouping_col)){
-        plot <- ggplot(lv_dataset, aes(!!time_sym, !!lv_sym, group = ID, color = !!grouping_sym)) + 
+        plot <- ggplot(lv_dataset, aes(!!time_sym, !!lv_sym, group = .data$ID, color = !!grouping_sym)) + 
             geom_line(alpha = 0.3)+
-            geom_line(data=weighted_average, mapping = aes(TIME, PSI, group =NULL), size = 2)
+            geom_line(data=weighted_average, mapping = aes(.data$TIME, .data$PSI, group =NULL), size = 2)
     }else{
-        plot <- ggplot(lv_dataset, aes(!!time_sym, !!lv_sym, group = ID)) + 
+        plot <- ggplot(lv_dataset, aes(!!time_sym, !!lv_sym, group = .data$ID)) + 
             geom_line(alpha = 0.3)+
-            geom_line(data=weighted_average, mapping = aes(TIME, PSI, group =NULL), size = 2, color = "darkred")
+            geom_line(data=weighted_average, mapping = aes(.data$TIME, .data$PSI, group =NULL), size = 2, color = "darkred")
     }
     
     plot <- plot + 

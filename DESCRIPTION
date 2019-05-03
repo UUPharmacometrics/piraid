@@ -24,7 +24,8 @@ Imports:
     rlang,
     mirt,
     purrr,
-    tibble
+    tibble,
+    tidyselect
 Suggests: knitr, rmarkdown, testthat, mockery
 VignetteBuilder: knitr
 NeedsCompilation: no

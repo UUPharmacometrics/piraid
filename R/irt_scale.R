@@ -98,8 +98,14 @@ create_subscale <- function(scale, categories) {
 
 #' Infer a scale from a dataset
 #' 
-#' \code{create_scale_from_df} and \code{create_scale_from_csv} determine the scale from a dataset (provided as data.frame or csv file) 
-#' using the ITEM, DV and MDV columns.
+#' These functions allow to infer a scale definition from a dataset (provided as data.frame or CSV file) if it follows a general data specification template.  
+#' 
+#' 
+#' In order for the automatic inference to work, the dataset needs to contain the columns ITEM and DV. The function will then use the observed levels for each 
+#' item to determine the item type (binary or ordered categorical) while taking MDV and EVID columns into account (records with MDV or EVID not equal to 0 are
+#' ignored) . The automatic recognition can be over-written by providing a type column which can specify the item type using the keywords 'ordcat' and 'binary'. 
+#' Additionally, a label for each item can be provided through the column name.
+#' 
 #' 
 #' @param df A data.frame 
 #' @param file The path to a csv file

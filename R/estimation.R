@@ -24,7 +24,7 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
     if(data_use_strategy == 'baseline') wide_data <- dplyr::group_by(wide_data, .data$ID) %>% dplyr::slice(1) %>% dplyr::ungroup()
     
     
-    wide_data <- dplyr::select(wide_data, starts_with("ITEM"))
+    wide_data <- dplyr::select(wide_data, dplyr::starts_with("ITEM"))
     rlang::inform(paste("Using data with", ncol(wide_data), "items and", nrow(wide_data), "subjects"))
     types <- prepare_mirt_type_vector(model, wide_data)
     rlang::inform("Starting item paramter estimation using 'mirt'")
@@ -55,8 +55,8 @@ estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_esti
     df <- read_dataset(model$dataset) %>% prepare_dataset()
     wide_data <- convert_to_wide_data(df)
     
-    item_data_wide <- dplyr::select(wide_data, starts_with("ITEM"))
-    non_item_data_wide <- dplyr::select(wide_data, -starts_with("ITEM"))
+    item_data_wide <- dplyr::select(wide_data, dplyr::starts_with("ITEM"))
+    non_item_data_wide <- dplyr::select(wide_data, -dplyr::starts_with("ITEM"))
 
     rlang::inform(paste("Using data with", ncol(item_data_wide), "items and", nrow(item_data_wide), "subjects"))
     types <- prepare_mirt_type_vector(model, item_data_wide)
@@ -69,8 +69,8 @@ estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_esti
         mirt_prms <- mirt::mirt(data=item_data_wide, model=1, itemtype=types, pars = "values")
         item_prms <-  nmirt_estimates_to_mirt_format(model$item_parameters) 
         mirt_prms <- dplyr::left_join(mirt_prms, item_prms, by = c("item","name"), suffix = c("", "_nmirt")) %>% 
-            dplyr::mutate(value = ifelse(is.na(value_nmirt), value, value_nmirt)) %>% 
-            dplyr::select(-value_nmirt)
+            dplyr::mutate(value = ifelse(is.na(.data$value_nmirt), .data$value, .data$value_nmirt)) %>% 
+            dplyr::select(-.data$value_nmirt)
         mirt_model <- mirt::mirt(data=item_data_wide, model=1, itemtype = types, pars = mirt_prms, TOL = NA)
     }
 
@@ -106,19 +106,19 @@ mirt_estimates_to_nmirt_format <- function(estimates_list){
         purrr::map(~ .[1, ]) %>% 
         purrr::map_if(~rlang::has_name(., "b1"), ~c(.[1:2], diff(.[-1]))) %>% # translate DIF parameters to NM format DIF(x) = DIF(x) - DIF(x-1)
         purrr::map_dfr(~tibble( parameter=names(.x), value = .x), .id = "item") %>% 
-        dplyr::filter(!(parameter=="u"|item=="GroupPars")) %>% 
-        dplyr::mutate(parameter = stringr::str_replace_all(parameter, mirt_to_nmirt_name_map),
-                      item = stringr::str_extract(item, "\\d+") %>% as.integer())
+        dplyr::filter(!(.data$parameter=="u"|.data$item=="GroupPars")) %>% 
+        dplyr::mutate(parameter = stringr::str_replace_all(.data$parameter, mirt_to_nmirt_name_map),
+                      item = stringr::str_extract(.data$item, "\\d+") %>% as.integer())
 } 
 
 nmirt_estimates_to_mirt_format <- function(df){
     df %>% 
-        dplyr::select(item, parameter, init) %>% 
-        tidyr::nest(-item) %>% 
+        dplyr::select(.data$item, .data$parameter, .data$init) %>% 
+        tidyr::nest(-.data$item) %>% 
         dplyr::mutate(
-            item = paste0("ITEM_", item),
+            item = paste0("ITEM_", .data$item),
             # convert to named vector with MIRT prm names
-            data = purrr::map(data, ~set_names(.$init, stringr::str_replace_all(.$parameter, nmirt_to_mirt_name_map))) %>%  
+            data = purrr::map(.data$data, ~set_names(.$init, stringr::str_replace_all(.$parameter, nmirt_to_mirt_name_map))) %>%  
                 # translate DIF prms for graded model to accumulative format
                 purrr::map_if(~mirt_model_from_prms(.x)=="graded", function(x){
                     dif_prm_index <- stringr::str_detect(names(x), "b\\d+")

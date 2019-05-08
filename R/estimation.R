@@ -39,7 +39,7 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
 #' @format NULL
 #' @docType NULL
 #' @keywords NULL
-#' @eval paste0("@usage data_use_strategies <- ", deparse(data_use_strategies))
+#' @eval paste0("@usage data_use_strategies \n#", deparse(data_use_strategies))
 #' @export
 data_use_strategies <- c("baseline", "visits-as-subjects")
 

@@ -37,16 +37,23 @@ add_custom_lv_model <- function(model, lv_model_code, items = all_items(model)) 
 #' @param items A vector of item numbers
 #' @return A new irt_model object
 #' @export
-add_lv_model <- function(model, lv_model_type, items = all_items(model)) {
+add_lv_model <- function(model, lv_model_type = "constant", items = all_items(model)) {
+    lv_model_type <- rlang::arg_match(lv_model_type, lv_model_types)
     if (lv_model_type == "constant") {
         code = c("PSI=THETA(1)+ETA(1)")
     } else if (lv_model_type == "linear") {
         code = c("BASE=THETA(1)+ETA(1)", "SLP=THETA(2)+ETA(2)", "PSI=BASE+SLP*TIME")
-    } else {
-        stop("Unknown lv_model_type. Available are \"constant\" and \"linear\"")   
-    }
+    } 
     add_custom_lv_model(model, code, items)
 }
+
+
+#' @rdname add_lv_model
+#' @format NULL
+#' @docType NULL
+#' @keywords NULL
+#' @eval paste0("@usage lv_model_types \n#", deparse(lv_model_types))
+lv_model_types <- c("constant", "linear")
 
 #' Reset all added latent variable models
 #' 

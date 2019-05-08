@@ -7,7 +7,8 @@
 \usage{
 estimate_item_parameters(model, data_use_strategy = "baseline")
 
-data_use_strategies <- c("baseline", "visits-as-subjects")
+data_use_strategies 
+#c("baseline", "visits-as-subjects")
 }
 \arguments{
 \item{model}{The model}

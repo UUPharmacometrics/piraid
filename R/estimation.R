@@ -36,8 +36,13 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
 }
 
 #' @rdname estimate_item_parameters
+#' @format NULL
+#' @docType NULL
+#' @keywords NULL
+#' @eval paste0("@usage data_use_strategies <- ", deparse(data_use_strategies))
 #' @export
 data_use_strategies <- c("baseline", "visits-as-subjects")
+
 
 #' Estimate Latent Variable Values
 #' 

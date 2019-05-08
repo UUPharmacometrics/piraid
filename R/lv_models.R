@@ -53,6 +53,7 @@ add_lv_model <- function(model, lv_model_type = "constant", items = all_items(mo
 #' @docType NULL
 #' @keywords NULL
 #' @eval paste0("@usage lv_model_types \n#", deparse(lv_model_types))
+#' @export
 lv_model_types <- c("constant", "linear")
 
 #' Reset all added latent variable models

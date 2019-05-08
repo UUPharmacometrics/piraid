@@ -411,33 +411,7 @@ levels_as_string <- function(levels) {
     }
 }
 
-#' Get a vector of all item numbers from scale
-#' 
-#' @param scale An irt_scale object
-#' @return A vector of all item numbers
-#' @export
-all_items <- function(scale) {
-    a <- c()
-    for (item in scale$items) {
-        a <- c(a, item$number)
-    }
-    a
-}
 
-#' Get a vector of all items of certain type
-#' 
-#' @param scale An irt_scale object
-#' @param types A vector of item types
-#' @export
-items_by_type <- function(scale, types) {
-    items <- c()
-    for (item in scale$items) {
-        if (item$type %in% types) {
-            items <- c(items, item$number)   
-        }
-    }
-    items
-}
 
 #' Get published initial estimate for a parameter of an item
 #' 
@@ -472,17 +446,3 @@ item_name_list <- function(scale) {
     item_names  
 }
 
-#' Get a list of all items in one or more categories
-#' 
-#' @param scale An irt_scale object
-#' @param categories A vector of names of categories
-#' @return A vector of item numbers
-#' @export
-items_in_categories <- function(scale, categories) {
-    new_scale <- create_subscale(scale, categories)
-    items <- c()
-    for (item in new_scale$items) {
-        items <- c(items, item$number)
-    }
-    items
-}

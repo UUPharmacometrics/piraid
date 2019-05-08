@@ -1,0 +1,132 @@
+---
+title: "Introduction to nmIRT"
+author: "Sebastian Ueckert"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{css echo = F}
+.scroll {
+  max-height: 300px;
+  
+  float: left;
+  overflow-y: auto;
+}
+```
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+```
+
+
+The nmIRT package simplifies working with item response theory (IRT) models within the non-linear mixed effect software NONMEM. The package is designed to facilitate 
+
+- The generation of NONMEM model code for a longitudinal item response theory model
+- The estimation item characteristic curve (ICC) paramters 
+- The production of diagnostics based on NONMEM output
+- The preparation of a direct latent variable analysis in NONMEM
+
+While the package can provide substantial help during an IRT-based analysis, the model building and estimation of the longitudinal model needs to be performed in in NONMEM separately.
+
+## An IRT analysis with nmIRT
+
+In this vignette, we illustrate some important steps during an IRT-based analysis that nmIRT can facilitate. The data for this analysis come from a simulated phase II study that measured the hypothetical rheumatoid arthritis (HRA) score. The dataset is provided with the package and can be accessed using   
+
+```{r}
+hra_data_path <- system.file("extdata","hra-score-data.csv", 
+                             package = "nmIRT") # use internal hra score dataset 
+```
+
+Using standard R function we can load the data and have a look at its structure. 
+
+```{r}
+hra_data <- read.csv(hra_data_path)
+head(hra_data)
+```
+
+The data is in NONMEM format with the column ITEM to indicate which part of the assessment each data record belongs to. 
+
+### Loading a scale
+
+The assessment itself is described within nmIRT through scale objects, which store information about the number of items, their name and the number of valid levels for each item. The scale objects can be created in a number of different ways, for our HRA scale a scale definition file is provided and we can simply load it using      
+
+```{r}
+library(nmIRT)
+hra_scale_def_path <- system.file("extdata","hra-score.yaml", 
+                             package = "nmIRT") 
+scale <- load_scale(hra_scale_def_path)
+scale
+```
+
+A more detailed overview can be obtained using the summary function:
+
+```{r}
+summary(scale)
+```
+
+We can also check whether our dataset is in agreement with the scale or whether their are missing items or levels.
+
+```{r}
+check_data(hra_data, scale)
+```
+
+### Creating a model
+
+Since everything looks fine, we can move now to building the pharmacometric IRT model. This is process is initiated using
+
+```{r}
+model <- irt_model(scale)
+```
+
+The resulting model object can then be further manipulated by, for example, setting a run number or adding the actual dataset. The `nmIRT` package provides the pipe operator from the `magrittr` package to simplify the chaining of manipulation operation, i.e., we can write 
+
+```{r}
+model <- model %>% 
+  set_run_number(1) %>% 
+  set_dataset(hra_data_path, use_path = FALSE)
+```
+
+to make these changes to our model. With a dataset associated with the model, nmIRT can also perform the estimation of the item parameters using the mirt package. This is a two step process. First, all item parameters in the model are estimated using  
+
+```{r}
+item_prms <- estimate_item_parameters(model)
+head(item_prms)
+```
+
+then these estimates can be assigned to the model
+
+```{r}
+model <- set_initial_estimates_table(model, item_prms)
+```
+
+### Setting the latent variable model
+
+After constructing the item response component of the model, we can now focus on how the latent variable changes over time. A simple linear model, for example, can be added using  
+
+```{r}
+model <- add_lv_model(model,  lv_model_type = "linear")
+```
+
+By default, the same latent variable model is added to all items but this can be changed using the `items` argument of the `add_lv_model` function.
+
+### Generating NONMEM code
+
+When we are satisfied with the model, we can ask nmIRT to generate the corresponding NONMEM code, either by printing to the R console using
+
+```{r, class.output = "scroll", comment=NA}
+print_model_code(model)
+```
+
+or by directly writting it to the specified file using
+```{r, eval = F}
+save_model_code(model, "run1.mod")
+```
+
+The next step in the workflow is to run the generated model in NONMEM. This has to be done outside the nmIRT packge. 

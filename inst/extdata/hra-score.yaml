@@ -1,0 +1,35 @@
+items:
+  - number: 1
+    name: "Patients global assessment"
+    levels: '[0,5]'
+    type: ordcat
+    
+  - number: 2
+    name: "Pain"
+    levels: '[0,5]'
+    type: ordcat
+    
+  - number: 3
+    name: "Dress yourself"
+    levels: '[0,1]'
+    type: binary
+    
+  - number: 4
+    name: "Get in and out of bed"
+    levels: '[0,1]'
+    type: binary
+    
+  - number: 5
+    name: "Walk outdoors on flat ground"
+    levels: '[0,1]'
+    type: binary
+    
+  - number: 6
+    name: "Get a good night sleep"
+    levels: '[0,1]'
+    type: binary
+    
+  - number: 7
+    name: "Turn regular faucets on and off"
+    levels: '[0,1]'
+    type: binary

@@ -145,18 +145,26 @@ str_irt_model <- function(model) {
 
 #' Set dataset
 #' 
-#' Set the dataset of a model object
+#' This function sets the dataset of a model (i.e., $DATA) as well as the data columns in $INPUT.
+#' 
+#' The function will open the dataset to extract the column names for $INPUT. The dataset is expected to be in CSV format without special characters
+#' in the header. 
 #' 
 #' @param model A model object
 #' @param path Path to a dataset file
 #' @param use_path Should the path be put in $DATA or not? If FALSE only the filename will go into $DATA
+#' @param data_columns Optional character vector of data columns for $INPUT to use instead of the dataset header
 #' @return A new model object
 #' @export
-set_dataset <- function(model, path, use_path=TRUE) {
+set_dataset <- function(model, path, use_path=TRUE, data_columns = NULL) {
     model$dataset <- path
     model$use_data_path <- use_path
-    df <- utils::read.csv(model$dataset, nrows=0)
-    model$data_columns <- colnames(df)
+    if(is.null(data_columns)){
+        df <- utils::read.csv(model$dataset, nrows=0)
+        model$data_columns <- colnames(df)
+    }else{
+        model$data_columns <- data_columns
+    }
     model
 }
 

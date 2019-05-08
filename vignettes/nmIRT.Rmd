@@ -238,7 +238,8 @@ head(inits, n=12)
 The mirt package can be used to estimate the initial estimates given the dataset.
 
 ```{r, eval=FALSE}
-model <- initial_estimates_from_data(model)
+item_prm <- estimate_item_parameters(model)
+model <- set_initial_estimates_table(model, item_prm)
 ```
 
 

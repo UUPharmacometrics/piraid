@@ -16,7 +16,7 @@
 #'
 #' @export
 estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
-    data_use_strategy <- rlang::arg_match(data_use_strategy)
+    data_use_strategy <- rlang::arg_match(data_use_strategy, data_use_strategies)
     
     df <- read_dataset(model$dataset) %>% prepare_dataset()
     wide_data <- convert_to_wide_data(df)
@@ -105,7 +105,7 @@ mirt_estimates_to_nmirt_format <- function(estimates_list){
     estimates_list %>% 
         purrr::map(~ .[1, ]) %>% 
         purrr::map_if(~rlang::has_name(., "b1"), ~c(.[1:2], diff(.[-1]))) %>% # translate DIF parameters to NM format DIF(x) = DIF(x) - DIF(x-1)
-        purrr::map_dfr(~tibble( parameter=names(.x), value = .x), .id = "item") %>% 
+        purrr::map_dfr(~tibble::tibble( parameter=names(.x), value = .x), .id = "item") %>% 
         dplyr::filter(!(.data$parameter=="u"|.data$item=="GroupPars")) %>% 
         dplyr::mutate(parameter = stringr::str_replace_all(.data$parameter, mirt_to_nmirt_name_map),
                       item = stringr::str_extract(.data$item, "\\d+") %>% as.integer())

@@ -4,14 +4,14 @@
 \alias{add_lv_model}
 \title{Add a pre-defined latent variable model}
 \usage{
-add_lv_model(model, items, lv_model_type)
+add_lv_model(model, lv_model_type, items = all_items(model))
 }
 \arguments{
 \item{model}{An irt_model object}
 
-\item{items}{A vector of item numbers}
-
 \item{lv_model_type}{The name of the type}
+
+\item{items}{A vector of item numbers}
 }
 \value{
 A new irt_model object

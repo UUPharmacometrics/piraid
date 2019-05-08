@@ -4,14 +4,14 @@
 \alias{add_custom_lv_model}
 \title{Add a custom latent variable model}
 \usage{
-add_custom_lv_model(model, items, lv_model_code)
+add_custom_lv_model(model, lv_model_code, items = all_items(model))
 }
 \arguments{
 \item{model}{An irt_model object}
 
-\item{items}{A vector of item numbers}
-
 \item{lv_model_code}{NM-TRAN abbreviated code as a character vector of lines}
+
+\item{items}{A vector of item numbers}
 }
 \value{
 A new irt_model object

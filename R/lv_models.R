@@ -8,12 +8,12 @@
 #' * ETAs and THETAs can be used and numbering of these must start from 1
 #' 
 #' @param model An irt_model object
-#' @param items A vector of item numbers
 #' @param lv_model_code NM-TRAN abbreviated code as a character vector of lines
+#' @param items A vector of item numbers
 #' @return A new irt_model object
 #' @export
 #' @md
-add_custom_lv_model <- function(model, items, lv_model_code) {
+add_custom_lv_model <- function(model, lv_model_code, items = all_items(model)) {
     for (lv_model in model$lv_models) {
         if (any(items %in% lv_model$items)) {
             stop("A model for this item has already been specified. Please use reset_lv_models to start over.")
@@ -33,11 +33,11 @@ add_custom_lv_model <- function(model, items, lv_model_code) {
 #' The default is to use the same "constant" model for all items.
 #' 
 #' @param model An irt_model object
-#' @param items A vector of item numbers
 #' @param lv_model_type The name of the type
+#' @param items A vector of item numbers
 #' @return A new irt_model object
 #' @export
-add_lv_model <- function(model, items, lv_model_type) {
+add_lv_model <- function(model, lv_model_type, items = all_items(model)) {
     if (lv_model_type == "constant") {
         code = c("PSI=THETA(1)+ETA(1)")
     } else if (lv_model_type == "linear") {
@@ -45,7 +45,7 @@ add_lv_model <- function(model, items, lv_model_type) {
     } else {
         stop("Unknown lv_model_type. Available are \"constant\" and \"linear\"")   
     }
-    add_custom_lv_model(model, items, code)
+    add_custom_lv_model(model, code, items)
 }
 
 #' Reset all added latent variable models

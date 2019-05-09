@@ -128,6 +128,12 @@ mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
 
 
 #' Item response correlation plot
+#' 
+#' Visualizes the correlation of residuals between items as a correlation coefficients heatmap. 
+#' 
+#' The residuals need to be available as PWRES in the data and are assumed to be standard Pearson residuals (i.e., difference between 
+#' observed and expected devided by the expected standard devition). Models that are generated with this package will include the 
+#' proper calculation of PWRES by default.
 #'
 #' @param df A data.frame from the item_parameters_tab of a model run. ID, ITEM, TIME and PWRES will be used.
 #' @return A plot object

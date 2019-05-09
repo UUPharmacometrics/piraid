@@ -13,5 +13,10 @@ correlation_plot(df)
 A plot object
 }
 \description{
-Item response correlation plot
+Visualizes the correlation of residuals between items as a correlation coefficients heatmap.
+}
+\details{
+The residuals need to be available as PWRES in the data and are assumed to be standard Pearson residuals (i.e., difference between 
+observed and expected devided by the expected standard devition). Models that are generated with this package will include the 
+proper calculation of PWRES by default.
 }

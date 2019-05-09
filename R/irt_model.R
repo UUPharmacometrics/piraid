@@ -608,7 +608,7 @@ initial_thetas <- function(model, numthetas) {
 #' Generate NONMEM code for initial estimates of thetas
 #' 
 #' Will use the initial estimates of the scale
-#' @param model An irt_model object
+#' @param model An irt_model object 
 #' @return A code generator object
 initial_item_thetas <- function(model) {
     cg <- code_generator()

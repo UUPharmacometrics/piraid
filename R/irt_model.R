@@ -645,6 +645,7 @@ check_data <- function(model_or_data, scale=NULL) {
         dataset <- model_or_data
     }
 
+    mismatch_found <- FALSE
     df <- read_dataset(dataset) %>%
         prepare_dataset()
 
@@ -653,11 +654,13 @@ check_data <- function(model_or_data, scale=NULL) {
     dataset_in_scale <- all_dataset_items %in% all_scale_items
     if (!all(dataset_in_scale)) {
         missing_items <- all_dataset_items[!dataset_in_scale]
+        mismatch_found <- TRUE
         cat("Items present in dataset but not in scale:", paste(missing_items, collapse=", "), "\n")
     }
     scale_in_dataset <- all_scale_items %in% all_dataset_items
     if (!all(scale_in_dataset)) {
         missing_items <- all_scale_items[!scale_in_dataset]
+        mismatch_found <- TRUE
         cat("Items present in scale but not in dataset:", paste(missing_items, collapse=", "), "\n")
     }
 
@@ -671,15 +674,18 @@ check_data <- function(model_or_data, scale=NULL) {
             dataset_in_scale <- dataset_levels %in% scale_levels
             if (!all(dataset_in_scale)) {
                 missing_levels <- dataset_levels[!dataset_in_scale]
+                mismatch_found <- TRUE
                 cat("Levels present in dataset but not in scale for item", n, ":", paste(missing_levels, collapse=", "), "\n")
             }
             scale_in_dataset <- scale_levels %in% dataset_levels
             if (!all(scale_in_dataset)) {
                 missing_levels <- scale_levels[!scale_in_dataset]
+                mismatch_found <- TRUE
                 cat("Levels present in scale but not in dataset for item", n, ":", paste(missing_levels, collapse=", "), "\n")
             }
         }
     }
+    if(!mismatch_found) cat("The dataset is in agreement with the scale definition", "\n")
 }
 
 #' Consolidation of levels in a model without changing the scale

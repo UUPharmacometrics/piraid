@@ -2,6 +2,9 @@
 
 S3method(all_items,irt_model)
 S3method(all_items,irt_scale)
+S3method(check_data,character)
+S3method(check_data,data.frame)
+S3method(check_data,irt_model)
 S3method(items_by_type,irt_model)
 S3method(items_by_type,irt_scale)
 S3method(items_in_categories,irt_model)

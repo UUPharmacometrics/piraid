@@ -12,7 +12,7 @@ irt_scale <- function() {
 #' @export
 list_predefined_scales <- function() {
     dir <- system.file("extdata", package="nmIRT")
-    files <- tools::file_path_sans_ext(list.files(dir))
+    files <- tools::file_path_sans_ext(list.files(dir, pattern = "\\.yaml$"))
     return(files)
 }
 

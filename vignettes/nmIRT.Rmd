@@ -215,7 +215,7 @@ It is possible to fix certain item parameters of a model.
 
 For example
 ```{r, eval=FALSE}
-model <- fix_item_parameters(model, items_in_categories(scale, "motor"), item_parameter_names(scale, 1)
+model <- fix_item_parameters(model, items_in_categories(scale, "motor"), item_parameter_names(scale, 1))
 ```
 will fix all parameters in the motor category
 
@@ -241,7 +241,6 @@ The mirt package can be used to estimate the initial estimates given the dataset
 item_prm <- estimate_item_parameters(model)
 model <- set_initial_estimates_table(model, item_prm)
 ```
-
 
 ## Diagnostic plots
 

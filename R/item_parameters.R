@@ -286,11 +286,21 @@ fix_item_parameters <- function(model, items, parameter_names) {
 #' @return A new irt_model objet
 #' @export
 ignore_items <- function(model, items) {
+    new_df <- NULL
     for (i in items) {
         parameters <- item_parameter_names(model, i)
-        new_df <- data.frame(item=i, parameter=parameters, fix=as.logical(NA), ignore=TRUE, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
-        model <- insert_into_parameter_table(model, new_df, "ignore")
+        new_df <- dplyr::bind_rows(
+            new_df,
+            data.frame(
+                item = i,
+                parameter = parameters,
+                ignore = TRUE,
+                stringsAsFactors = FALSE,
+                KEEP.OUT.ATTRS = FALSE
+            )
+        )
     }
+    model <- update_parameter_table(model, new_df)
     model
 }
 

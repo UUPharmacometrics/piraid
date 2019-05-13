@@ -65,3 +65,31 @@ comment_code <- function(generator) {
     generator$code <- paste(";", generator$code)
     generator
 }
+
+#' Join strings together into lines. Each line cannot be longer than max.
+#' 
+#' @param strs A vector of strings to join together.
+#' @param sep Separator for joining the strings.
+#' @param max Maximum number of characters for each line.
+#' @return A vector of strings. Each element represents a line of text.
+join_with_max_length <- function(strs, sep=' ', max=100) {
+    lines <- c()
+    current_line <- ""
+    first <- TRUE
+    for (i in 1:length(strs)) {
+        current_string <- strs[i]
+        if (first) {    # Always add a string first to a line even if it is to long
+            current_line <- current_string
+            first <- FALSE
+        } else if (nchar(current_line) + nchar(current_string) + nchar(sep) <= max) {
+            current_line <- paste0(current_line, sep, current_string)
+        } else {
+            lines <- c(lines, current_line)
+            current_line <- current_string
+        }
+    }
+    if (nchar(current_line) > 0) {
+        lines <- c(lines, current_line)
+    }
+    lines
+}

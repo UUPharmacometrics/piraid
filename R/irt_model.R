@@ -228,12 +228,15 @@ data_and_input_code <- function(model, rewind=FALSE) {
         cg <- add_line(cg, paste0("$INPUT ", paste(model$data_columns, collapse=' ')))
         ignored_items <- get_ignored_items(model)
         if (length(ignored_items) > 0) {
-            ignores <- paste0("IGNORE(ITEM.EQN.", ignored_items, ")", collapse=" ")
-            ignores <- paste0(" ", ignores)
-        } else {
-            ignores <- ""
+            ignores <- paste0("IGNORE(ITEM.EQN.", ignored_items, ")")
         }
-        cg <- add_line(cg, paste0("$DATA ", data_path, rewind_code, " IGNORE=@", ignores))
+        cg <- add_line(cg, paste0("$DATA ", data_path, rewind_code, " IGNORE=@"))
+        if (exists("ignores")) {
+            ignore_lines <- join_with_max_length(ignores)
+            cg <- increase_indent(cg)
+            cg <- add_lines(cg, ignore_lines)
+            cg <- decrease_indent(cg)
+        }
     }
     cg
 }

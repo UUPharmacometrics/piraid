@@ -63,6 +63,7 @@ lv_model_types <- c("constant", "linear")
 #' @export
 reset_lv_models <- function(model) {
     model$lv_models <- list()
+    model
 }
 
 #' Get number of THETAs and ETAs used in a vector of code lines

@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-nmIRT as an R package for generation and diagnostics of IRT NONMEM models.
+nmIRT as an R package for generation and diagnostics of IRT NONMEM models. This document displays all different features of the package. For a tutorial introduction please read the introduction vignette.
 
 ## Scales
 
@@ -241,6 +241,25 @@ The mirt package can be used to estimate the initial estimates given the dataset
 item_prm <- estimate_item_parameters(model)
 model <- set_initial_estimates_table(model, item_prm)
 ```
+
+## Latent variable models
+
+An IRT model can describe one or more latent variables. Each latent variable can be modelled differently. A latent variable model can be connected to one or more items. Either a pre-defined model can be used:
+
+```{r}
+model <- add_lv_model(model, lv_model_type="constant", items=1:14)
+```
+
+or a custom model
+
+```{r}
+model <- reset_lv_models(model)
+lv_model_code <- c("PSI = THETA(1) + ETA(1)")
+model <- add_custom_lv_model(model, lv_model_code, items=items_in_categories(model, "motor"))
+```
+
+The latent variable models have to be reset before changing them as illustrated above. To simplify setting the items ```all_items```, ```items_by_type``` and ```items_in_categories``` can be used.
+
 
 ## Diagnostic plots
 

@@ -103,7 +103,8 @@ create_subscale <- function(scale, categories) {
 #' 
 #' In order for the automatic inference to work, the dataset needs to contain the columns ITEM and DV. The function will then use the observed levels for each 
 #' item to determine the item type (binary or ordered categorical) while taking MDV and EVID columns into account (records with MDV or EVID not equal to 0 are
-#' ignored) . The automatic recognition can be over-written by providing a type column which can specify the item type using the keywords 'ordcat' and 'binary'. 
+#' ignored) . The automatic recognition can be over-written by providing a type column which can specify the item type using the keywords 'ordcat' and 'binary'.
+#' These keywords are available through the item_type list, i.e. \code{item_type$ordered_categorical} and \code{item_type$binary}.
 #' Additionally, a label for each item can be provided through the column name.
 #' 
 #' 
@@ -112,7 +113,7 @@ create_subscale <- function(scale, categories) {
 #' @param item Name of the item columns. Default is \code{ITEM}
 #' @param dv Name of the dv column. Default is \code{DV}
 #' @param name Name of an optional name column. Each item can be given a name (mainly for plotting) through this column. Only the first row of a new item will be used for the name.
-#' @param type Name of an optional type column. Each item can be given a type (either ordcat or binary) through this column. If the type option isn't used the type is 
+#' @param type Name of an optional type column. Each item can be given a type (either \code{item_type$ordered_categorical} or \code{item_type$binary}) through this column. If the type option isn't used the type is 
 #' inferred from the number of distinct DV values
 #' @return An irt_scale object
 #' @export

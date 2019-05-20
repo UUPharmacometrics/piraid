@@ -187,7 +187,7 @@ item_parameter_names(model, 1)
 ### Initial estimates
 There are multiple ways of setting the initial estimates for the item parameters in an irt model. This is the order of priority of how the initial estimates are determined:
 
-1. User defined value from ```initial_estimates_item_parameters```
+1. User defined value from ```set_initial_estimates```
 2. 50 if the parameter was consolidated
 3. Taken from the published model in the scale
 4. A fall back value of:
@@ -195,7 +195,7 @@ There are multiple ways of setting the initial estimates for the item parameters
        Ordered categorical: DIS=1, DIFn=$-3 + \frac{6n}{n_{cats}}$
 
 ### Providing user defined initial estimates
-The most straight forward way of setting some initial estimates is to use the function ```initial_estimates_item_parameters```.
+The most straight forward way of setting some initial estimates is to use the function ```set_initial_estimates```.
 
 For example
 ```{r, eval=FALSE}

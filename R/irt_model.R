@@ -534,7 +534,7 @@ estimation_task <- function(model) {
     cg <- add_line(cg, paste(psi_table_options, collapse=" "))
     item_parameters <- all_parameter_names(model)
     item_parameters <- c(item_parameters, paste0("DIFG", 1:sum(stringr::str_starts(item_parameters, "DIF\\d"))))
-    item_table_options <- c("$TABLE", "ID", "TIME", "DV", mdv_string(model), "ITEM", item_parameters)
+    item_table_options <- c("$TABLE", "ID", "TIME", "DV", mdv_string(model), "PSI", "ITEM", item_parameters)
     cg <- add_line(cg, paste(item_table_options, collapse=" "))
     cg <- add_line(cg, paste0("       FILE=item_parameters_tab", model$run_number, " NOAPPEND ONEHEADER NOPRINT"))
     cg

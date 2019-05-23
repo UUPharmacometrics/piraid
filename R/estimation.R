@@ -25,6 +25,20 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
     
     
     wide_data <- dplyr::select(wide_data, dplyr::starts_with("ITEM"))
+
+    required_levels <- model$scale$items %>% 
+        purrr::map("levels")
+    
+    # check if all levels are available in the data
+    all_equal <- wide_data %>% 
+        dplyr::summarise_all(~list(unique(.))) %>% 
+        purrr::transpose() %>% 
+        purrr::flatten() %>% 
+        purrr::map(na.exclude) %>% 
+        purrr::map(sort) %>% 
+        purrr::map2(required_levels, ~identical(.x,.y)) %>% 
+        purrr::reduce(.init = TRUE, `&`)
+    if(!all_equal) stop("The data provided does not contain all levels of the scale. Can not estimate item parameters.", call. = F)
     rlang::inform(paste("Using data with", ncol(wide_data), "items and", nrow(wide_data), "subjects"))
     types <- prepare_mirt_type_vector(model, wide_data)
     rlang::inform("Starting item paramter estimation using 'mirt'")

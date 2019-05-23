@@ -122,7 +122,12 @@ check_data.data.frame <- function(model_or_data, scale=NULL) {
             }
         }
     }
-    if(!mismatch_found) cat("The dataset is in agreement with the scale definition", "\n")
+    if(!mismatch_found) {
+        cat("The dataset is in agreement with the scale definition", "\n")
+        invisible(TRUE)
+    }else{
+        invisible(FALSE)
+    }
 }
 
 #' @rdname check_data

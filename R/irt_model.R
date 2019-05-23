@@ -646,7 +646,7 @@ consolidate_levels <- function(model, item_numbers, levels) {
     stopifnot(length(levels) >= 1)
     for (item_number in item_numbers) {
         item <- get_item(model$scale, item_number)
-        run <- rle(item$levels %in% levels)$values      # Check that consolidated levels are at an edge of the available levels and consecutive
+        run <- rle(item$levels %in% levels)$values      # Check that consolidated levels are at the upper edge of the available levels and consecutive
         if (length(run) == 2) {
             high <- all(run == c(FALSE, TRUE))
             if (high) {

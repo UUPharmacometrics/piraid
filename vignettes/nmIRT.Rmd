@@ -192,7 +192,7 @@ There are multiple ways of setting the initial estimates for the item parameters
 3. Taken from the published model in the scale
 4. A fall back value of:
        Binary: DIS=1, DIF=0.1, GUE=0.01
-       Ordered categorical: DIS=1, DIFn=$-3 + \frac{6n}{n_{cats}}$
+       Ordered categorical: DIS=1, DIFn=$-3 + \frac{6n}{n_{cats}}$ (not lower than 0.1)
 
 ### Providing user defined initial estimates
 The most straight forward way of setting some initial estimates is to use the function ```set_initial_estimates```.
@@ -270,9 +270,8 @@ The diagnostic plots can be created after an IRT model has been run. They will t
 To generate a set of item characteristic curves
 
 ```{r, eval=FALSE}
-scale <- load_predefined_scale("MDS-UPDRS")
 df <- read.table("item_parameters_tab1", skip=1, header=T, sep=",")
-plots <- icc_plots(df, scale, items_per_page=6)
+plots <- icc_plots(df, model, items_per_page=6)
 print(plots)
 ```
 
@@ -281,10 +280,9 @@ print(plots)
 The mirror plot gives an overview of the frequencies of levels in the dataset and compares it to frequencies in simulations.
 
 ```{r, eval=FALSE}
-scale <- load_predefined_scale("MDS-UPDRS")
 origdata <- read.table("mydata.dta")
 simdata <- read.table("simulation_tab1", skip=1, header=T, sep=",")
-plots <- mirror_plots(origdata, scale, simdata, nrow=4, ncol=5)
+plots <- mirror_plots(origdata, model, simdata, nrow=4, ncol=5)
 print(plots)
 ```
 

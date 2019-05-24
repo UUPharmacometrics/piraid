@@ -21,17 +21,21 @@ graded_response_model <- function(data) {
 #' Plot item characteristic curves
 #' 
 #' MDV and EVID will be used to filter out non-observations before plotting
+#' Consolidation is handled by moving consolidated levels into the closest level blow.
 #' 
 #' @section Warning:
 #' Binary items are not handled well.
 #' 
 #' @param df A data.frame from the item_parameters_tab of a model run. ITEM, DV, DIS, DIFn are needed
-#' @param scale The corresponding scale object
+#' @param model The model that was used to create the output table
 #' @param items_per_page Default to 8
 #' @return A list of pages
 #' @export
-icc_plots <- function(df, scale, items_per_page=8) {
-    df <- filter_observations(df)
+icc_plots <- function(df, model, items_per_page=8) {
+    scale <- model$scale
+    df <- df %>%
+        filter_observations() %>%
+        consolidate_data(model)
     max_levels <- df %>%
         dplyr::group_by(.data$ITEM) %>%
         dplyr::summarise(max_level=max(.data$DV))
@@ -41,11 +45,12 @@ icc_plots <- function(df, scale, items_per_page=8) {
     score_labels <- paste0("score:", 1:global_max_level)
     names(score_labels) <- seq(1:global_max_level)
 
-    parameters <- df[!duplicated(df$ITEM),  ]
+    parameters <- df[!duplicated(df$ITEM),  ] %>%
+        dplyr::select(-"PSI")
     psi_grid <- data.frame(PSI=seq(min(df$PSI), max(df$PSI), by=0.1)) %>%
         merge(score_combinations) %>%
         dplyr::full_join(parameters, by="ITEM") %>%
-        dplyr::mutate(P=graded_response_model(UQ(sym(".")))) %>%
+        dplyr::mutate(P=graded_response_model(UQ(rlang::sym(".")))) %>%
         dplyr::select("ITEM", "CAT", "PSI", "P")
 
     full_df <- dplyr::full_join(df, score_combinations, by="ITEM")
@@ -85,17 +90,20 @@ icc_plots <- function(df, scale, items_per_page=8) {
 #' MDV and EVID will be used to filter out non-observations before plotting
 #'
 #' @param origdata The original dataset
-#' @param scale A scale object
+#' @param model The model used to generate the data
 #' @param simdata The simulated data. Will plot only original data if this is missing
 #' @param nrow The number of rows per page to use for the matrix of plots
 #' @param ncol The number of columns per page to use for the matrix of plots
 #' @return A list of plots. One page per item.
 #' @export
-mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
+mirror_plots <- function(origdata, model, simdata=NULL, nrow=4, ncol=5) {
+    scale <- model$scale
     unique_items <- sort(unique(origdata$ITEM))
     item_labels <- item_name_list(scale)
 
-    origdata <- filter_observations(origdata)
+    origdata <- origdata %>%
+        filter_observations() %>%
+        consolidate_data(model)
     origdata <- dplyr::select(origdata, "DV", "ITEM")
     origdata$type <- "observed"
 

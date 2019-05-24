@@ -260,19 +260,25 @@ get_item <- function(scale, number) {
     NULL
 }
 
-#' Add an item to a scale
+#' Add or replace an item to a scale
 #'
 #' \code{add_item} returns a new scale with item added
 #' Will not add items with less than 2 levels and warn instead.
-#' Will not add items with the same number as item already in scale
+#' Will not add items with the same number as item already in scale unless replace is set to TRUE
 #'
 #' @param scale An irt_scale object
 #' @param item An irt_item to add to scale
+#' @param replace Set to overwrite an already existing item
 #' @return A new scale with the item added
 #' @keywords internal
-add_item <- function(scale, item, overwrite=FALSE) {
+add_item <- function(scale, item, replace=FALSE) {
     if (!is.null(get_item(scale, item$number))) {
-        warning(paste0("Item ", item$number, " is already present in the scale and will not be added."))
+        if (!replace) {
+            warning(paste0("Item ", item$number, " is already present in the scale and will not be added."))
+        } else {
+            i <- get_item_index(scale, item$number)
+            scale$items[[i]] <- item
+        }
     } else if (length(item$levels) < 2) {
         warning(paste0("Item ", item$number, " has only 1 level and will not be added to the scale."))
     } else if (length(item$levels) != 2 && item$type == item_type$binary) {

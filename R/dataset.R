@@ -144,3 +144,29 @@ check_data.irt_model <- function(model_or_data, scale=NULL) {
     scale <- model_or_data$scale
     check_data(filename, scale)
 }
+
+#' Apply the consolidations in model to the data by moving
+#' consolidated levels into the nearest lower level.
+#' 
+#' @param df A data.frame with ITEM and DV columns
+#' @param model An irt_model object
+#' @return An updated data.frame
+consolidate_data <- function(df, model) {
+    if (length(model$consolidation) == 0) {
+        return(df)
+    }
+    # Create table with ITEM and CONSINTO for all items, CONSINTO being the level to consolidate into or Inf if no consolidation
+    items <- all_items(model$scale)
+    cons_table <- data.frame(ITEM=items, CONSINTO=rep(Inf, length(items)))
+    for (n in 1:(length(model$consolidation))) {
+        consolidated <- model$consolidation[[n]]
+        if (!is.null(consolidated)) {
+            cons_table$CONSINTO[cons_table$ITEM == n] <- min(consolidated) - 1   # This only supports consecutive levels
+        }
+    }
+
+    df %>%
+        dplyr::left_join(cons_table, by=.data$ITEM) %>%
+        dplyr::mutate(DV=pmin(.data$DV, .data$CONSINTO)) %>%
+        dplyr::select(-"CONSINTO")
+}

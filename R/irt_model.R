@@ -89,6 +89,28 @@ model_complete <- function(model) {
     }
 }
 
+#' Will remove the consolidated levels from the scale of a model
+#' 
+#' @param model irt_model object
+#' @return An irt_model object
+#' @keywords internal
+apply_consolidation <- function(model) {
+    scale <- model$scale
+    if (length(model$consolidation) == 0) {
+        return(model)
+    }
+    for (n in 1:(length(model$consolidation))) {
+        consolidated <- model$consolidation[[n]]
+        if (is.null(consolidated)) {
+            next
+        }
+        item <- get_item(scale, n)
+        item$levels <- setdiff(item$levels, model$consolidation[[n]])
+        scale <- add_item(scale, item, replace=TRUE)
+    }
+    model$scale <- scale
+    model
+}
 
 #' Create NONMEM model as a string
 #' 
@@ -96,6 +118,7 @@ model_complete <- function(model) {
 #' @return A string with the NONMEM code
 str_irt_model <- function(model) {
     model_complete(model)
+    model <- apply_consolidation(model) # Will remove the consolidated levels from the scale
     next_theta <- 1
     cg <- code_generator()
     cg <- add_line(cg, "$SIZES LIM6=4000 LTH=-1000 DIMNEW=-10000")

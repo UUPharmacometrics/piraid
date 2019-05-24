@@ -4,12 +4,12 @@
 \alias{icc_plots}
 \title{Plot item characteristic curves}
 \usage{
-icc_plots(df, scale, items_per_page = 8)
+icc_plots(df, model, items_per_page = 8)
 }
 \arguments{
 \item{df}{A data.frame from the item_parameters_tab of a model run. ITEM, DV, DIS, DIFn are needed}
 
-\item{scale}{The corresponding scale object}
+\item{model}{The model that was used to create the output table}
 
 \item{items_per_page}{Default to 8}
 }
@@ -18,6 +18,7 @@ A list of pages
 }
 \description{
 MDV and EVID will be used to filter out non-observations before plotting
+Consolidation is handled by moving consolidated levels into the closest level blow.
 }
 \section{Warning}{
 

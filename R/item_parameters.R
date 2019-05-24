@@ -7,7 +7,7 @@
 #' 3. Taken from the published model in the scale
 #' 4. A fall back value of:
 #'       Binary: DIS=1, DIF=0.1, GUE=0.01
-#'       Ordered categorical: DIS=1, DIFn=-3 + 6n/#cats
+#'       Ordered categorical: DIS=1, DIFn=-3 + 6n/#cats (not lower than 0.1)
 #' 
 #' @param model An irt_model object
 #' @param item An irt_item object
@@ -38,7 +38,12 @@ initial_estimate <- function(model, item, parameter) {
         0.1
     } else {
         index <- as.numeric(stringr::str_extract(parameter, '\\d+'))
-        -3 + (6 * index) / length(item$levels)
+        init <- -3 + (6 * index) / length(item$levels)
+        if (init <= 0) {
+            0.1
+        } else {
+            init
+        }
     }
 }
 

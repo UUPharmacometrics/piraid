@@ -515,7 +515,6 @@ undef_item_code <- function() {
     cg <- increase_indent(cg)
     cg <- add_line(cg, "PWRES=0")
     cg <- add_line(cg, "P=0")
-    cg <- add_line(cg, "PSI=0")
     cg <- add_line(cg, "Y=0")
     cg <- decrease_indent(cg)
     cg

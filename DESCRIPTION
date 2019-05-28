@@ -1,4 +1,4 @@
-Package: nmIRT
+Package: piraid
 Encoding: UTF-8
 Version: 0.2
 Date: 2019-03-28
@@ -31,8 +31,8 @@ VignetteBuilder: knitr
 NeedsCompilation: no
 Description: Automatic generation of different types of item response theory (IRT) models.
     Diagnostic tools for IRT modelling.
-URL: https://github.com/UUPharmacometrics/nmIRT
-BugReports: https://github.com/UUPharmacometrics/nmIRT/issues
+URL: https://github.com/UUPharmacometrics/piraid
+BugReports: https://github.com/UUPharmacometrics/piraid/issues
 License: LGPL (>= 2)
 Copyright: 2018 Rikard Nordgren, Sebastian Ueckert and Mats O. Karlsson
 RoxygenNote: 6.1.1

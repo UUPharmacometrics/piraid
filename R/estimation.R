@@ -27,7 +27,7 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
     wide_data <- dplyr::select(wide_data, dplyr::starts_with("ITEM"))
     
     #consolidate levels in data as specified by model
-    for(i in 1:length(model$consolidation)){
+    for (i in seq_along(model$consolidation)) {
         if(!is.null(model$consolidation[[i]])){
             new_value <- min(model$consolidation[[i]]) - 1 
             wide_data[[i]] <- ifelse(wide_data[[i]] %in% model$consolidation[[i]], new_value, wide_data[[i]])

@@ -1,5 +1,5 @@
 library(testthat)
 library(mockery)
-library(nmIRT)
+library(piraid)
 
-test_check("nmIRT")
+test_check("piraid")

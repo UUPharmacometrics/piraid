@@ -20,7 +20,7 @@ test_that("Predefined scale", {
 })
 
 test_that("Load scale", {
-    path <- system.file("extdata", "mds-updrs.yaml", package="nmIRT")
+    path <- system.file("extdata", "mds-updrs.yaml", package="piraid")
     scale <- load_scale(path)
     item <- get_item(scale, 14)
     expect_equal(item$levels, c(0, 1, 2, 3, 4))
@@ -78,7 +78,7 @@ test_that("Scale from df",{
 })
 
 test_that("Scale from csv", {
-  scale <- create_scale_from_csv(file = system.file("extdata","hra-score-data.csv", package = "nmIRT"))
+  scale <- create_scale_from_csv(file = system.file("extdata","hra-score-data.csv", package = "piraid"))
   # item 100 should be ignored (MDV=1)
   expect_null(get_item(scale, 100))
   for(i in 1:7){ 

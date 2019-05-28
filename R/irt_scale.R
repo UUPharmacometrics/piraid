@@ -11,7 +11,7 @@ irt_scale <- function() {
 #' @return A character vector with the names
 #' @export
 list_predefined_scales <- function() {
-    dir <- system.file("extdata", package="nmIRT")
+    dir <- system.file("extdata", package="piraid")
     files <- tools::file_path_sans_ext(list.files(dir, pattern = "\\.yaml$"))
     return(files)
 }
@@ -26,7 +26,7 @@ list_predefined_scales <- function() {
 #' @export
 load_predefined_scale <- function(scale_name) {
     scale_name <- tolower(scale_name)
-    path <- system.file("extdata", paste0(scale_name, ".yaml"), package="nmIRT")
+    path <- system.file("extdata", paste0(scale_name, ".yaml"), package="piraid")
     if (path == "") {
         stop("Error: No such predefined scale. Available scale is MDS-UPDRS")
     }
@@ -172,7 +172,7 @@ create_scale_from_csv <- function(file, item='ITEM', dv='DV', name=NULL, type=NU
 #' A lone integer will be written by it self.
 #' 
 #' @examples
-#' nmIRT:::format_integers(c(1,2,3,5,7,8)) #will return "1-3, 5, 7-8"
+#' piraid:::format_integers(c(1,2,3,5,7,8)) #will return "1-3, 5, 7-8"
 #' 
 #' @param x A vector containing integers
 #' @return A readable string
@@ -380,8 +380,8 @@ irt_item <- function(number, name, levels, type, categories=NULL, inits=NULL) {
 #' If a string is input it will be parsed to get a list of all levels it describes
 #' Allowed formats are [a,b] for an interval and (1,2,3,4) to explicitly write all possible levels
 #' @examples 
-#' levels <- nmIRT:::item_levels("[1,3]")   # levels will be 1, 2 and 3.
-#' levels <- nmIRT:::item_levels("(0,1,2,3,4)")
+#' levels <- piraid:::item_levels("[1,3]")   # levels will be 1, 2 and 3.
+#' levels <- piraid:::item_levels("(0,1,2,3,4)")
 #' @param x Can either be a string or an array of levels
 #' @return A sorted array of levels
 #' @keywords internal

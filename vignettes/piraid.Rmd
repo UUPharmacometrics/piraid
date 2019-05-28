@@ -1,10 +1,10 @@
 ---
-title: "nmIRT"
+title: "piraid"
 author: "Rikard Nordgren"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{nmIRT}
+  %\VignetteIndexEntry{piraid}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-nmIRT as an R package for generation and diagnostics of IRT NONMEM models. This document displays all different features of the package. For a tutorial introduction please read the introduction vignette.
+piraid as an R package for generation and diagnostics of IRT NONMEM models. This document displays all different features of the package. For a tutorial introduction please read the introduction vignette.
 
 ## Scales
 
@@ -25,7 +25,7 @@ A scale object is a representation in R of a certain scale. It is a collection o
 ### Using a built in scale
 
 ```{r, fig.show='hold'}
-library(nmIRT)
+library(piraid)
 scale <- load_predefined_scale("MDS-UPDRS")
 ```
 To find out which scales are available

@@ -43,7 +43,7 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
         dplyr::summarise_all(~list(unique(.))) %>% 
         purrr::transpose() %>% 
         purrr::flatten() %>% 
-        purrr::map(na.exclude) %>% 
+        purrr::map(stats::na.exclude) %>% 
         purrr::map(sort) %>% 
         purrr::map(as.integer) %>% 
         purrr::map2(required_levels, ~identical(.x,.y)) %>% 

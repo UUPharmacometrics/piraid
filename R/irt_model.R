@@ -96,10 +96,8 @@ model_complete <- function(model) {
 #' @keywords internal
 apply_consolidation <- function(model) {
     scale <- model$scale
-    if (length(model$consolidation) == 0) {
-        return(model)
-    }
-    for (n in 1:(length(model$consolidation))) {
+
+    for (n in seq_along(model$consolidation)) {
         consolidated <- model$consolidation[[n]]
         if (is.null(consolidated)) {
             next
@@ -149,6 +147,8 @@ str_irt_model <- function(model) {
     cg <- add_empty_line(cg)
     cg <- add_code(cg, data_models_code(model))
     cg <- add_code(cg, response_probability_prediction_code())
+    cg <- add_empty_line(cg)
+    cg <- add_code(cg, undef_item_code())
     cg <- add_empty_line(cg)
     cg <- add_code(cg, simulation_code(model))
     cg <- add_empty_line(cg)
@@ -272,8 +272,8 @@ type_constants <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "constants to select model type")
     levels <- ordcat_level_arrays(model$scale)
-    cg <- add_line(cg, "MODEL=0")
     cg <- add_line(cg, "PSI_MODEL=0")
+    cg <- add_line(cg, "UNDEF=0")
     for (i in 1:length(levels)) {
         cg <- add_line(cg, paste0("OC", i, "=", i, '    ; ordered categorical ', levels_as_string(levels[[i]])))
     }
@@ -376,9 +376,7 @@ irt_item_assignment_code <- function(model, item, next_theta, first) {
 irt_item_assignment_fallthrough <- function(cg, scale) {
     cg <- add_line(cg, "ELSE")
     cg <- increase_indent(cg)
-    cg <- add_line(cg, "; Exit if dataset contains an ITEM that the model cannot handle")
-    cg <- add_line(cg, "EXIT 2")
-    cg <- add_line(cg, "; Unreachable code below. There to silence NM-TRAN warning.")
+    cg <- add_line(cg, "MODEL=UNDEF")
     cg <- add_line(cg, "PPRED=0")
     cg <- add_line(cg, "SDPRED=0")
     cg <- add_line(cg, "P=0")
@@ -505,6 +503,21 @@ response_probability_prediction_code <- function() {
     cg <- add_line(cg, "IF(P.GT.(1-1E-16)) P=1-1E-16  ; To protect for P->1")
     cg <- add_line(cg, "Y=-2*LOG(P)")
     cg <- add_line(cg, "PWRES=(DV-PPRED)/SDPRED")
+    cg
+}
+
+#' Generate NONMEM code to clear variables for undef item
+#'
+#' @return A code generator object
+undef_item_code <- function() {
+    cg <- code_generator()
+    cg <- add_line(cg, "IF (MODEL.EQ.UNDEF) THEN")
+    cg <- increase_indent(cg)
+    cg <- add_line(cg, "PWRES=0")
+    cg <- add_line(cg, "P=0")
+    cg <- add_line(cg, "PSI=0")
+    cg <- add_line(cg, "Y=0")
+    cg <- decrease_indent(cg)
     cg
 }
 

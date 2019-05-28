@@ -158,7 +158,7 @@ consolidate_data <- function(df, model) {
     # Create table with ITEM and CONSINTO for all items, CONSINTO being the level to consolidate into or Inf if no consolidation
     items <- all_items(model$scale)
     cons_table <- data.frame(ITEM=items, CONSINTO=rep(Inf, length(items)))
-    for (n in 1:(length(model$consolidation))) {
+    for (n in seq_along(model$consolidation)) {
         consolidated <- model$consolidation[[n]]
         if (!is.null(consolidated)) {
             cons_table$CONSINTO[cons_table$ITEM == n] <- min(consolidated) - 1   # This only supports consecutive levels

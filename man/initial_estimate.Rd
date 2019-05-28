@@ -26,6 +26,6 @@ The initial estimate will be:
 \item Taken from the published model in the scale
 \item A fall back value of:
 Binary: DIS=1, DIF=0.1, GUE=0.01
-Ordered categorical: DIS=1, DIFn=-3 + 6n/#cats (lowest 0.1)
+Ordered categorical: DIS=1, DIFn=-3 + 6n/#cats (not lower than 0.1)
 }
 }

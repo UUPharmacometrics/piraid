@@ -54,6 +54,7 @@ initial_estimate <- function(model, item, parameter) {
 #' @return A character vector of parameter names
 #' @export
 item_parameter_names <- function(model, item_number) {
+    stopifnot(is.irt_model(model))
     scale <- model$scale
     item <- get_item(scale, item_number)
     if (item$type == item_type$ordered_categorical) {
@@ -331,6 +332,7 @@ get_ignored_items <- function(model) {
 #' @return A new irt_model object
 #' @export
 set_initial_estimates <- function(model, items, parameters, inits){
+    stopifnot(is.irt_model(model))
     stopifnot(length(inits) == 1 || length(parameters) == length(inits))
     df <- expand.grid(parameter=parameters, item=items, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
     df$init <- inits    # Broadcast hence order of parameters and item columns
@@ -341,6 +343,7 @@ set_initial_estimates <- function(model, items, parameters, inits){
 #' @param df A data.frame with columns 'item', 'parameter', 'init'/'value'
 #' @export
 set_initial_estimates_table <- function(model, df){
+    stopifnot(is.irt_model(model))
     if(!all(c("item", "parameter") %in% colnames(df))) rlang::abort("The columns 'item' and 'parameter' are required")
     if("value" %in% colnames(df)) {
         df <- dplyr::rename(df, init=.data$value)
@@ -356,6 +359,7 @@ set_initial_estimates_table <- function(model, df){
 #' @return A data frame with columns item, parameter, fix and init for all items and parameters
 #' @export
 list_initial_estimates <- function(model) {
+    stopifnot(is.irt_model(model))
     # First generate table over keys (item, parameters)
     table <- data.frame(item=numeric(0), parameter=character(0))
     for (item in model$scale$items) {
@@ -397,6 +401,7 @@ all_parameter_names <- function(model) {
 #' @return TRUE if an initial value is given for all item parameters in the model, otherwise FALSE 
 #' @export 
 has_all_initial_estimates <- function(model){
+    stopifnot(is.irt_model(model))
     for (item in model$scale$items) {
         item_prms <- dplyr::filter(model$item_parameters, .data$item==!!item$number)
         if(nrow(item_prms)==0) return(FALSE)

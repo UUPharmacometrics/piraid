@@ -6,6 +6,11 @@ test_that("Scale constructor", {
     expect_equal(length(scale$items), 0)
 })
 
+test_that("is.irt_scale", {
+    expect_true(is.irt_scale(myscale))
+    expect_false(is.irt_scale(23))
+})
+
 test_that("List predifined scales", {
     a <- list_predefined_scales()
     expect_true(length(a) >= 1)

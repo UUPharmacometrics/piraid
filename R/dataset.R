@@ -82,6 +82,9 @@ check_data <- function(model_or_data, scale=NULL) UseMethod("check_data")
 #' @rdname check_data
 #' @export
 check_data.data.frame <- function(model_or_data, scale=NULL) {
+    if (!is.null(scale)) {
+        stopifnot(is.irt_scale(scale))
+    }
     mismatch_found <- FALSE
     df <- read_dataset(model_or_data) %>%
         prepare_dataset()
@@ -152,6 +155,7 @@ check_data.irt_model <- function(model_or_data, scale=NULL) {
 #' @param model An irt_model object
 #' @return An updated data.frame
 consolidate_data <- function(df, model) {
+    stopifnot(is.irt_model(model))
     if (length(model$consolidation) == 0) {
         return(df)
     }

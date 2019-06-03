@@ -6,6 +6,7 @@
 #' @return A model object
 #' @export
 irt_model <- function(scale) {
+    stopifnot(is.irt_scale(scale))
     item_parameters <- data.frame(item=numeric(0), parameter=character(0), fix=logical(0), init=numeric(0), ignore=logical(0), stringsAsFactors=FALSE)
     model <- structure(list(scale=scale, simulation=FALSE, consolidation=list(), run_number=1,
         lv_models=list(), item_parameters=item_parameters, use_data_path=TRUE, simulation_options="", estimation_options=""), class="irt_model")
@@ -17,6 +18,15 @@ irt_model <- function(scale) {
         }
     }
     model
+}
+
+#' Check wheter x is an irt_model object
+#' 
+#' @param x An object to test
+#' @return True if x is an irt_model object
+#' @export
+is.irt_model <- function(x) {
+    inherits(x, "irt_model")
 }
 
 #' Print a brief overview of a model
@@ -48,6 +58,8 @@ print.irt_model <- function(x, ...) {
 #' @return The updated model object
 #' @export
 set_scale <- function(model, scale) {
+    stopifnot(is.irt_model(model))
+    stopifnot(is.irt_scale(scale))
     model$scale <- scale
     model
 }
@@ -59,6 +71,7 @@ set_scale <- function(model, scale) {
 #' @param model A model object
 #' @export
 print_model_code <- function(model) {
+    stopifnot(is.irt_model(model))
     cat(str_irt_model(model))
 }
 
@@ -70,6 +83,7 @@ print_model_code <- function(model) {
 #' @param path Path to the created model file
 #' @export
 save_model_code <- function(model, path) {
+    stopifnot(is.irt_model(model))
     str <- str_irt_model(model)
     fp <- file(path)
     writeLines(str, fp)
@@ -180,6 +194,7 @@ str_irt_model <- function(model) {
 #' @return A new model object
 #' @export
 set_dataset <- function(model, path, use_path=TRUE, data_columns = NULL) {
+    stopifnot(is.irt_model(model))
     model$dataset <- path
     model$use_data_path <- use_path
     if(is.null(data_columns)){
@@ -201,6 +216,7 @@ set_dataset <- function(model, path, use_path=TRUE, data_columns = NULL) {
 #' @return A new model object
 #' @export
 add_simulation <- function(model, nsim=1, options="") {
+    stopifnot(is.irt_model(model))
     model$simulation <- TRUE
     model$subproblems <- nsim
     model$simulation_options <- options
@@ -214,6 +230,7 @@ add_simulation <- function(model, nsim=1, options="") {
 #' @return A new model object
 #' @export
 add_estimation_options <- function(model, options) {
+    stopifnot(is.irt_model(model))
     model$estimation_options <- options
     model
 }
@@ -226,6 +243,7 @@ add_estimation_options <- function(model, options) {
 #' @param run_number An integer
 #' @export
 set_run_number <- function(model, run_number) {
+    stopifnot(is.irt_model(model))
     model$run_number <- run_number
     model
 }
@@ -678,6 +696,7 @@ initial_item_thetas <- function(model) {
 #' @return A new irt_model object
 #' @export
 consolidate_levels <- function(model, item_numbers, levels) {
+    stopifnot(is.irt_model(model))
     stopifnot(length(levels) >= 1)
     for (item_number in item_numbers) {
         item <- get_item(model$scale, item_number)
@@ -709,6 +728,7 @@ consolidate_levels <- function(model, item_numbers, levels) {
 #' @return A new irt_model object
 #' @export 
 consolidate_levels_below <- function(model, count) {
+    stopifnot(is.irt_model(model))
     df <- item_level_count(model)
     df <- dplyr::mutate(df, thresh=.data$n <= !!count)
     df
@@ -770,7 +790,7 @@ mdv_string <- function(model) {
 #' @return data.frame with ITEM, DV and count columns
 #' @export
 item_level_count <- function(model_or_data) {
-    if (class(model_or_data) == "irt_model") {
+    if (is.irt_model(model_or_data)) {
         df <- read_dataset(model_or_data$dataset) %>% prepare_dataset()
     } else {
         df <- model_or_data

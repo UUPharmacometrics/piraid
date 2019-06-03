@@ -16,6 +16,7 @@
 #'
 #' @export
 estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
+    stopifnot(is.irt_model(model))
     data_use_strategy <- rlang::arg_match(data_use_strategy, data_use_strategies)
     
     df <- read_dataset(model$dataset) %>% prepare_dataset()
@@ -81,6 +82,7 @@ data_use_strategies <- c("baseline", "visits-as-subjects")
 #'
 #' @export
 estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_estimates(model)){
+    stopifnot(is.irt_model(model))
     df <- read_dataset(model$dataset) %>% prepare_dataset()
     wide_data <- convert_to_wide_data(df)
     

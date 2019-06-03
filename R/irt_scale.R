@@ -6,6 +6,15 @@ irt_scale <- function() {
     structure(list(items=list()), class="irt_scale")
 }
 
+#' Check wheter x is an irt_scale object
+#' 
+#' @param x An object to test
+#' @return True if x is an irt_scale object
+#' @export
+is.irt_scale <- function(x) {
+    inherits(x, "irt_scale")
+}
+
 #' Retrieve a list of all built in scales
 #' 
 #' @return A character vector with the names
@@ -69,6 +78,7 @@ load_scale <- function(path) {
 #' @param path Path to the file to save the scale
 #' @export
 save_scale <- function(scale, path) {
+    stopifnot(is.irt_scale(scale))
     for (i in 1:(length(scale$items))) {
         scale$items[[i]]$levels <- levels_as_string(scale$items[[i]]$levels)
         if (!is.null(scale$items[[i]]$categories)) {
@@ -87,6 +97,7 @@ save_scale <- function(scale, path) {
 #' @return A new irt_scale object
 #' @export
 create_subscale <- function(scale, categories) {
+    stopifnot(is.irt_scale(scale))
     new_scale <- irt_scale()
     for (item in scale$items) {
         if (any(categories %in% item$categories)) {
@@ -204,6 +215,7 @@ print.irt_scale <- function(x, ...) {
 #' @param scale An irt_scale object
 #' @param header Set to print the header (set to FALSE if called from print.irt_model)
 print_scale_info <- function(scale, header=TRUE) {
+    stopifnot(is.irt_scale(scale))
     items <- all_items(scale)
     binary_items <- items_by_type(scale, item_type$binary)
     ordcat_items <- items_by_type(scale, item_type$ordered_categorical)
@@ -296,6 +308,7 @@ add_item <- function(scale, item, replace=FALSE) {
 #' @return A new irt_scale object with the items removed
 #' @export
 remove_items <- function(scale, numbers) {
+    stopifnot(is.irt_scale(scale))
     for (n in numbers) {
         for (i in seq(1, length(scale$items))) {
             if (scale$items[[i]]$number == n) {
@@ -452,4 +465,3 @@ item_name_list <- function(scale) {
     names(item_names) <- numbers
     item_names  
 }
-

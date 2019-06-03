@@ -361,7 +361,16 @@ ordcat_level_arrays <- function(scale) {
             i = i + 1
         }
     }
-    unique(levels)
+
+    unique_levels <- unique(levels)
+
+    # Sort the level arrays so that the shortest comes first
+    new_order <- unique_levels %>%
+        purrr::map(length) %>%
+        purrr::flatten_int() %>%
+        order()
+
+    unique_levels[new_order]
 }
 
 #' A list enumerating all supported item types

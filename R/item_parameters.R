@@ -3,9 +3,8 @@
 #' The initial estimate will be:
 #' 
 #' 1. The user defined value from initial_estimates_item_parameters
-#' 2. 50 if the parameter was consolidated
-#' 3. Taken from the published model in the scale
-#' 4. A fall back value of:
+#' 2. Taken from the published model in the scale
+#' 3. A fall back value of:
 #'       Binary: DIS=1, DIF=0.1, GUE=0.01
 #'       Ordered categorical: DIS=1, DIFn=-3 + 6n/#cats (not lower than 0.1)
 #' 
@@ -18,12 +17,6 @@ initial_estimate <- function(model, item, parameter) {
     par_row <- dplyr::filter(model$item_parameters, item==!!item$number, parameter==!!parameter)
     if (nrow(par_row) != 0 && !is.na(par_row$init)) {
         return(par_row$init)
-    }
-    if (length(model$consolidation) >= item$number) {   # Does item exist in consolidation list
-        consolidated <- model$consolidation[[item$number]]
-        if (!is.null(consolidated) && (item_parameter_index(model, item$number, parameter) - 1) %in% consolidated) {
-            return(50)
-        }
     }
     parameter_index <- item_parameter_index(model, item$number, parameter)
     published <- published_init(model$scale, item$number, parameter_index)

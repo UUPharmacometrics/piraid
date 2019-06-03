@@ -143,13 +143,13 @@ model <- add_simulation(model, nsim=50)
 
 This function also has the optional argument ```options``` that takes a string that will be added verbatim to the $SIMULATION.
 
-### Consolidate levels by fixing parameters
-It is possible to consolidate levels in the upper end of the level range by fixing the corresponding DIF parameter to a high value and keeping the level in the model. The benefit of this is to facilitate using different datasets for the same model by only changing the initial estimates. This is done on the model object:
+### Consolidate levels
+It is possible to consolidate levels in the upper end of the level range by letting multiple levels be treated as being the same lower level. This is done on the model object:
 ```{r, eval=FALSE}
 model <- consolidate_levels(model, 23, c(4))
 ```
 
-This will set the probability of level 4 to 0 by fixing DIF4 to a high value. The item number can be a list of items to consolidate the same levels for.
+This will cause all level 4 answers to item 23 to be treated as level 3. The item number can be a list of items to consolidate the same levels for.
 
 A convenience function to get the count for each item and level is available:
 ```{r, eval=FALSE}
@@ -188,9 +188,8 @@ item_parameter_names(model, 1)
 There are multiple ways of setting the initial estimates for the item parameters in an irt model. This is the order of priority of how the initial estimates are determined:
 
 1. User defined value from ```set_initial_estimates```
-2. 50 if the parameter was consolidated
-3. Taken from the published model in the scale
-4. A fall back value of:
+2. Taken from the published model in the scale
+3. A fall back value of:
        Binary: DIS=1, DIF=0.1, GUE=0.01
        Ordered categorical: DIS=1, DIFn=$-3 + \frac{6n}{n_{cats}}$ (not lower than 0.1)
 

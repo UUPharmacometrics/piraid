@@ -9,7 +9,20 @@ vignette: >
     %\VignetteEncoding{UTF-8}
 ---
 
-A scale definition file is a yaml type file, which contains information of the items of a scale.
+A scale definition file is a yaml type file, which contains information of the items of a scale. The definition of these files is very simple and it is probably easiest to start looking at the predefined scale definition files that come with the package. They can be accessed using
+```{r, eval=FALSE}
+edit(file = system.file("extdata","hra-score.yaml", 
+                             package = "piraid"))
+```
+
+and 
+
+```{r, eval=FALSE}
+edit(file = system.file("extdata","mds-updrs.yaml", 
+                             package = "piraid"))
+```
+
+
 The item definitions is an array under the "items" key:
 
 ```{yaml}

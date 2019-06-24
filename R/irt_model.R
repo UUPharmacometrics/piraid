@@ -248,6 +248,10 @@ set_run_number <- function(model, run_number) {
     model
 }
 
+has_lv_model <- function(model){
+    return(is.null(model$lv_models))
+}
+
 #' Create the $DATA and $INPUT to NONMEM model code
 #' 
 #' @param model A irt_model object
@@ -623,7 +627,11 @@ omegas <- function(model, numomegas) {
     cg <- code_generator()
     cg <- banner_comment(cg, "random effects")
     for (i in seq(1:numomegas)) {
-        cg <- add_line(cg, "$OMEGA 0.1")
+        if(has_lv_model(model)){
+            cg <- add_line(cg, "$OMEGA 0.1")
+        }else{
+            cg <- add_line(cg, "$OMEGA 1 FIX")
+        }
     }
     cg
 }
@@ -657,7 +665,11 @@ initial_thetas <- function(model, numthetas) {
     cg <- code_generator()
     cg <- banner_comment(cg, "latent variable model parameters")
     for (i in seq(1, numthetas)) {
-        cg <- add_line(cg, "0.1")
+        if(has_lv_model(model)){
+            cg <- add_line(cg, "0.1")
+        }else{
+            cg <- add_line(cg, "0 FIX")
+        }
     }
     cg
 }

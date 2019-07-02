@@ -249,7 +249,7 @@ set_run_number <- function(model, run_number) {
 }
 
 has_lv_model <- function(model){
-    return(is.null(model$lv_models))
+    return(length(model$lv_models)>0)
 }
 
 #' Create the $DATA and $INPUT to NONMEM model code

@@ -37,7 +37,8 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
 
     required_levels <- model$scale$items %>% 
         purrr::map("levels") %>% 
-        purrr::imap(~setdiff(.x, purrr::pluck(model$consolidation, .y, .default = c())))
+        purrr::imap(~setdiff(.x, purrr::pluck(model$consolidation, .y, .default = c()))) %>% 
+        purrr::map(as.integer)
 
     # check if all levels are available in the data
     all_equal <- wide_data %>% 

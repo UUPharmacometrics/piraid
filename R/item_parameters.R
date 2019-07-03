@@ -275,6 +275,23 @@ fix_item_parameters <- function(model, items, parameter_names) {
     insert_into_parameter_table(model, new_df, "fix")
 }
 
+#' Fix all item parameters 
+#' 
+#' The function fixes all item parameters in the model
+#'
+#' @param model An irt_model object
+#'
+#' @return An updated irt_model object
+#' @export
+fix_all_item_parameters <- function(model){
+    df_new <- purrr::map_dfr(all_items(model), 
+                   ~tibble::tibble(item = .x, 
+                                   parameter = item_parameter_names(model, .x),
+                                   fix = T)) 
+    model <- update_parameter_table(model, df_new)
+    model
+}
+
 #' Ignore all parameters for some items
 #'
 #' Ignoring an item means to set its parameters to 0 FIX

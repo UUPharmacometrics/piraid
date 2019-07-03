@@ -224,8 +224,8 @@ print_scale_info <- function(scale, header=TRUE) {
         cat("A scale object from ", utils::packageName(), "\n\n", sep="")
     }
     cat("Total number of items: ", length(items), "\n", sep="")
-    cat("    Ordered categorical items: ", format_integers(ordcat_items), "\n", sep="")
-    cat("    Binary items: ", format_integers(binary_items), "\n", sep="")
+    if(length(ordcat_items)>0)  cat("    Ordered categorical items: ", format_integers(ordcat_items), "\n", sep="")
+    if(length(binary_items)>0) cat("    Binary items: ", format_integers(binary_items), "\n", sep="")
 }
 
 #' Print a summary overview of a scale

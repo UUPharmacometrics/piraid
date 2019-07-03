@@ -59,10 +59,10 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
     rlang::inform("Starting item paramter estimation using 'mirt'")
     if(data_use_strategy == 'all-baseref'){
         mirt_group_model <- mirt::multipleGroup(data=wide_data, model = 1, itemtype=types, group = isbaseline, 
-                                          invariance=c('slopes', 'intercepts', 'free_var','free_means'))
+                                          invariance=c('slopes', 'intercepts', 'free_var','free_means'), verbose = interactive())
         mirt_model <- mirt::extract.group(mirt_group_model, 1)
     }else{
-        mirt_model <- mirt::mirt(data=wide_data, model=1, itemtype=types)
+        mirt_model <- mirt::mirt(data=wide_data, model=1, itemtype=types, verbose = interactive())
     }
     rlang::inform("Estimation done")
 
@@ -104,7 +104,7 @@ estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_esti
 
     if(estimate_item_prms){
         rlang::inform("Starting item paramter estimation using 'mirt'")
-        mirt_model <- mirt::mirt(data=item_data_wide, model=1, itemtype=types)
+        mirt_model <- mirt::mirt(data=item_data_wide, model=1, itemtype=types, verbose = interactive())
         rlang::inform("Estimation done")
     }else{
         mirt_prms <- mirt::mirt(data=item_data_wide, model=1, itemtype=types, pars = "values")

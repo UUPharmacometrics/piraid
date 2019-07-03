@@ -3,16 +3,19 @@
 #' This function estimates the item parameters in a model using the \code{mirt} package. The dataset and the item models 
 #' are taken from the provided model object.  
 #' 
-#' The available strategies of how to use the longitudinal data include 'baseline' (the default) and 'visits-as-subjects'.
+#' The available strategies of how to use the longitudinal data include 'baseline' (the default), 'all-pooled' and 'all-baseref'.
 #' 
 #' With the 'baseline' strategy only the baseline data is used for the estimation and all other data is ignored.  
 #' 
-#' The 'visits-as-subjects' strategy uses all available data and treats each visit as a seperate subject during estimation.
+#' The 'all-pooled' strategy uses all available data and treats each visit as a separate subject during estimation.
+#' 
+#' The 'all-baseref' strategy also uses all available data but defines the population at baseline as a reference (mean 0, variance 1). 
+#' Observations from later timepoints are treated as separate subjects.
 #' 
 #' @param model The model
 #' @param data_use_strategy The method of how to use the available longitudinal data
 #' 
-#' @return A dataframe with the estimated item parameters 
+#' @return A data frame with the estimated item parameters 
 #'
 #' @export
 estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
@@ -23,7 +26,7 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
     wide_data <- convert_to_wide_data(df)
     
     if(data_use_strategy == 'baseline') wide_data <- dplyr::group_by(wide_data, .data$ID) %>% dplyr::slice(1) %>% dplyr::ungroup()
-    
+    if(data_use_strategy == 'all-baseref') isbaseline <- factor(duplicated(wide_data$ID), levels = c(T,F)) 
     
     wide_data <- dplyr::select(wide_data, dplyr::starts_with("ITEM"))
     
@@ -54,7 +57,13 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
     rlang::inform(paste("Using data with", ncol(wide_data), "items and", nrow(wide_data), "subjects"))
     types <- prepare_mirt_type_vector(model, wide_data)
     rlang::inform("Starting item paramter estimation using 'mirt'")
-    mirt_model <- mirt::mirt(data=wide_data, model=1, itemtype=types)
+    if(data_use_strategy == 'all-baseref'){
+        mirt_group_model <- mirt::multipleGroup(data=wide_data, model = 1, itemtype=types, group = isbaseline, 
+                                          invariance=c('slopes', 'intercepts', 'free_var','free_means'))
+        mirt_model <- mirt::extract.group(mirt_group_model, 1)
+    }else{
+        mirt_model <- mirt::mirt(data=wide_data, model=1, itemtype=types)
+    }
     rlang::inform("Estimation done")
 
     coef_list <- mirt::coef(mirt_model, IRTpars=TRUE)
@@ -67,7 +76,7 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
 #' @keywords NULL
 #' @eval paste0("@usage data_use_strategies \n#", deparse(data_use_strategies))
 #' @export
-data_use_strategies <- c("baseline", "visits-as-subjects")
+data_use_strategies <- c("baseline", "all-pooled", 'all-baseref')
 
 
 #' Estimate Latent Variable Values

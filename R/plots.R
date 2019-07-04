@@ -28,7 +28,8 @@ graded_response_model <- function(data) {
 #' 
 #' @param df A data.frame from the item_parameters_tab of a model run. ITEM, DV, DIS, DIFn are needed
 #' @param model The model that was used to create the output table
-#' @param items_per_page Default to 8
+#' @param items_per_page The number of items to display on one page (default NULL prints all items)
+#' @param page The page to print
 #' @return A list of pages
 #' @export
 icc_plots <- function(df, model, items_per_page=NULL, page = 1) {
@@ -47,7 +48,7 @@ icc_plots <- function(df, model, items_per_page=NULL, page = 1) {
 
     parameters <- df[!duplicated(df$ITEM),  ] %>%
         dplyr::select(-"PSI")
-    psi_grid <- data.frame(PSI=seq(min(df$PSI), max(df$PSI), by=0.1)) %>%
+    psi_grid <- data.frame(PSI=seq(min(df$PSI)-0.5, max(df$PSI)+0.5, by=0.1)) %>%
         merge(score_combinations) %>%
         dplyr::full_join(parameters, by="ITEM") %>%
         dplyr::mutate(P=graded_response_model(UQ(rlang::sym(".")))) %>%
@@ -59,13 +60,13 @@ icc_plots <- function(df, model, items_per_page=NULL, page = 1) {
 
     plot <- ggplot(full_df, aes(.data$PSI, as.numeric(.data$DV >= .data$CAT))) +
         geom_point() +
-        geom_smooth(method="gam", method.args=list(family="binomial"), formula=y~s(x, bs="cs")) +
+        geom_smooth(method="gam", method.args=list(family="binomial"), formula=y~s(x, bs="cs"), fullrange = T) +
         geom_line(data=psi_grid, aes(.data$PSI, .data$P), size=1, colour="darkred") +
         ggforce::facet_grid_paginate(ITEM~.data$CAT, 
                                      labeller=labeller(ITEM=as_labeller(item_labels), ITEM=label_wrap_gen(20), CAT=as_labeller(score_labels)),
                                      nrow = items_per_page, page = page) +
         theme_bw(base_size=14, base_family="") +
-        labs(x="PSI", y="Y>=score")
+        labs(x="PSI", y="P(Y>=score)")
     
    plot
 }

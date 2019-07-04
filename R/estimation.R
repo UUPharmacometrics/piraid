@@ -126,18 +126,7 @@ estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_esti
 
 }
 
-prepare_mirt_type_vector <- function(model, wide_data){
-    types <- c()
-    for (item_name in colnames(wide_data)) {
-        item <- sub("ITEM_", "", item_name) %>% as.numeric()
-        if (get_item(model$scale, item)$type == item_type$ordered_categorical) {
-            types <- c(types, "graded")
-        } else {
-            types <- c(types, "3PL")    # For binary always use 3PL
-        }
-    }
-    types
-}
+
 
 mirt_to_nmirt_name_map <- c(a = "DIS", b = "DIF", g = "GUE")
 nmirt_to_mirt_name_map <- purrr::set_names(names(mirt_to_nmirt_name_map), mirt_to_nmirt_name_map)

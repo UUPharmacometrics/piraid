@@ -26,7 +26,12 @@ Imports:
     purrr,
     tibble,
     tidyselect
-Suggests: knitr, rmarkdown, testthat, mockery
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat,
+    mockery,
+    xpose
 VignetteBuilder: knitr
 NeedsCompilation: no
 Description: Automatic generation of different types of item response theory (IRT) models.

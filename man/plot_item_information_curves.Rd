@@ -2,13 +2,18 @@
 % Please edit documentation in R/information.R
 \name{plot_item_information_curves}
 \alias{plot_item_information_curves}
-\title{Title}
+\title{Plot item information curves}
 \usage{
-plot_item_information_curves(model)
+plot_item_information_curves(model, psi_range = c(-4, 4))
 }
 \arguments{
-\item{model}{}
+\item{model}{An irt_model object}
+
+\item{psi_range}{A vector of lenght 2 specifying the lower and upper boundary for the latent variable}
+}
+\value{
+A plot object
 }
 \description{
-Title
+The function plots the item information curves for the model specified
 }

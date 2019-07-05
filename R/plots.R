@@ -47,7 +47,7 @@ icc_plots <- function(nmtab, model, resample_psi = FALSE,
         filter_observations() %>%
         consolidate_data(model) 
     
-    pred_df <- data.frame(PSI=seq(min(df$PSI), max(df$PSI), length.out = 20), P = 0)
+    pred_df <- data.frame(PSI=seq(min(nmtab$PSI), max(nmtab$PSI), length.out = 20), P = 0)
     possible_responses <- purrr::imap_dfr(model$scale$items, ~tibble::tibble(ITEM = .y, response = .x$levels[-1]))
  
     grouped_df <- nmtab %>% 

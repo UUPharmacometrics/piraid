@@ -93,7 +93,7 @@ icc_plots <- function(nmtab, model, resample_psi = FALSE,
         )
     close(pb)
     
-    item_prms <- dplyr::filter(df, !duplicated(.data$ITEM)) %>% 
+    item_prms <- dplyr::filter(nmtab, !duplicated(.data$ITEM)) %>% 
         dplyr::select(ITEM, dplyr::matches("^(DIS|DIF\\d*$|GUE$)")) 
     
     icc_fit <- pred_df %>%

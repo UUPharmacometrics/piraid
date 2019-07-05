@@ -57,7 +57,7 @@ icc_plots <- function(nmtab, model, resample_psi = FALSE,
     
     ngroups <- dplyr::n_groups(grouped_df)
     cat("Calculating smoothed GAM ICCs...\n")
-    pb <- utils::txtProgressBar(min = 0, max = ngroups, style = 3)
+    if(interactive())  pb <- utils::txtProgressBar(min = 0, max = ngroups, style = 3)
     df_npar_fit <- grouped_df %>% 
         dplyr::group_map(
             function(group_df, group){
@@ -71,7 +71,7 @@ icc_plots <- function(nmtab, model, resample_psi = FALSE,
                         )
                         predict(fit, newdata = pred_df, type = "response")
                     })
-                    pb$up(pb$getVal()+1)
+                    if(interactive()) pb$up(pb$getVal()+1)
                     quantile_matrix <- apply(p_matrix, 1, quantile, probs = c(0.05,0.95))
                     mean_p <- rowMeans(p_matrix)
                     return(tibble::tibble(PSI = pred_df$PSI, P =  mean_p,
@@ -86,12 +86,12 @@ icc_plots <- function(nmtab, model, resample_psi = FALSE,
                         fit <- mgcv::gam(y~s(PSI), family = binomial(), data = group_df, weights = weights)
                     )
                     pred_df$P <- predict(fit, newdata = pred_df, type = "response")
-                    pb$up(pb$getVal()+1)
+                    if(interactive()) pb$up(pb$getVal()+1)
                     return(pred_df)
                 }
             }
         )
-    close(pb)
+    if(interactive()) close(pb)
     
     item_prms <- dplyr::filter(nmtab, !duplicated(.data$ITEM)) %>% 
         dplyr::select(ITEM, dplyr::matches("^(DIS|DIF\\d*$|GUE$)")) 

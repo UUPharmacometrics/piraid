@@ -588,7 +588,7 @@ estimation_task <- function(model) {
     cg <- add_line(cg, paste0("$ESTIMATION METHOD=COND LAPLACE -2LL MAXEVAL=999999 PRINT=1", msfo, " ", model$estimaton_options))
 
 
-    psi_table_options <- c("$TABLE", "ID", "TIME", "DV", mdv_string(model), "ITEM", "PSI", "PPRED", "PWRES", paste0("FILE=psi_tab", model$run_number), "NOAPPEND", "ONEHEADER", "NOPRINT")
+    psi_table_options <- c("$TABLE", "ID", "TIME", "DV", mdv_string(model), "ITEM", "PSI", "PPRED", "PWRES", "VARCALC=1", paste0("FILE=psi_tab", model$run_number), "NOAPPEND", "ONEHEADER", "NOPRINT")
     cg <- add_line(cg, paste(psi_table_options, collapse=" "))
     item_parameters <- all_parameter_names(model)
     item_parameters <- c(item_parameters, paste0("DIFG", 1:sum(stringr::str_starts(item_parameters, "DIF\\d"))))

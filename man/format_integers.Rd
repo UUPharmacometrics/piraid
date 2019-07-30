@@ -18,6 +18,6 @@ between a and b inclusive. Commas will be used between such groups.
 A lone integer will be written by it self.
 }
 \examples{
-nmIRT:::format_integers(c(1,2,3,5,7,8)) #will return "1-3, 5, 7-8"
+piraid:::format_integers(c(1,2,3,5,7,8)) #will return "1-3, 5, 7-8"
 
 }

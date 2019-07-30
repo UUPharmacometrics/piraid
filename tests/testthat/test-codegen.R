@@ -18,3 +18,10 @@ test_that("Add line", {
     code <- get_code(cg)
     expect_equal(code, "CONTINUE\n")
 })
+
+test_that("join_with_max_length", {
+    expect_equal(join_with_max_length(c("a", "b")), "a b")
+    expect_equal(join_with_max_length(c("a", "b"), max=2), c("a", "b"))
+    expect_equal(join_with_max_length(c("ar", "taj", "er", "trava", "stend", "bleck"), max=6), c("ar taj", "er", "trava", "stend", "bleck"))
+    expect_equal(join_with_max_length(c("ar", "taj", "er", "trava", "stend", "bleck"), max=11), c("ar taj er", "trava stend", "bleck"))
+})

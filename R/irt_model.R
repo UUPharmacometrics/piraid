@@ -6,6 +6,7 @@
 #' @return A model object
 #' @export
 irt_model <- function(scale) {
+    stopifnot(is.irt_scale(scale))
     item_parameters <- data.frame(item=numeric(0), parameter=character(0), fix=logical(0), init=numeric(0), ignore=logical(0), stringsAsFactors=FALSE)
     model <- structure(list(scale=scale, simulation=FALSE, consolidation=list(), run_number=1,
         lv_models=list(), item_parameters=item_parameters, use_data_path=TRUE, simulation_options="", estimation_options=""), class="irt_model")
@@ -17,6 +18,15 @@ irt_model <- function(scale) {
         }
     }
     model
+}
+
+#' Check wheter x is an irt_model object
+#' 
+#' @param x An object to test
+#' @return True if x is an irt_model object
+#' @export
+is.irt_model <- function(x) {
+    inherits(x, "irt_model")
 }
 
 #' Print a brief overview of a model
@@ -48,6 +58,8 @@ print.irt_model <- function(x, ...) {
 #' @return The updated model object
 #' @export
 set_scale <- function(model, scale) {
+    stopifnot(is.irt_model(model))
+    stopifnot(is.irt_scale(scale))
     model$scale <- scale
     model
 }
@@ -59,6 +71,7 @@ set_scale <- function(model, scale) {
 #' @param model A model object
 #' @export
 print_model_code <- function(model) {
+    stopifnot(is.irt_model(model))
     cat(str_irt_model(model))
 }
 
@@ -70,6 +83,7 @@ print_model_code <- function(model) {
 #' @param path Path to the created model file
 #' @export
 save_model_code <- function(model, path) {
+    stopifnot(is.irt_model(model))
     str <- str_irt_model(model)
     fp <- file(path)
     writeLines(str, fp)
@@ -89,6 +103,26 @@ model_complete <- function(model) {
     }
 }
 
+#' Will remove the consolidated levels from the scale of a model
+#' 
+#' @param model irt_model object
+#' @return An irt_model object
+#' @keywords internal
+apply_consolidation <- function(model) {
+    scale <- model$scale
+
+    for (n in seq_along(model$consolidation)) {
+        consolidated <- model$consolidation[[n]]
+        if (is.null(consolidated)) {
+            next
+        }
+        item <- get_item(scale, n)
+        item$levels <- setdiff(item$levels, model$consolidation[[n]])
+        scale <- add_item(scale, item, replace=TRUE)
+    }
+    model$scale <- scale
+    model
+}
 
 #' Create NONMEM model as a string
 #' 
@@ -96,9 +130,10 @@ model_complete <- function(model) {
 #' @return A string with the NONMEM code
 str_irt_model <- function(model) {
     model_complete(model)
+    model <- apply_consolidation(model) # Will remove the consolidated levels from the scale
     next_theta <- 1
     cg <- code_generator()
-    cg <- add_line(cg, "$SIZES LIM6=4000 LTH=-1000")
+    cg <- add_line(cg, "$SIZES LIM6=4000 LTH=-1000 DIMNEW=-10000")
     cg <- add_line(cg, "$PROBLEM")
     cg <- add_code(cg, data_and_input_code(model))
     cg <- add_empty_line(cg)
@@ -126,6 +161,8 @@ str_irt_model <- function(model) {
     cg <- add_empty_line(cg)
     cg <- add_code(cg, data_models_code(model))
     cg <- add_code(cg, response_probability_prediction_code())
+    cg <- add_empty_line(cg)
+    cg <- add_code(cg, undef_item_code())
     cg <- add_empty_line(cg)
     cg <- add_code(cg, simulation_code(model))
     cg <- add_empty_line(cg)
@@ -157,6 +194,7 @@ str_irt_model <- function(model) {
 #' @return A new model object
 #' @export
 set_dataset <- function(model, path, use_path=TRUE, data_columns = NULL) {
+    stopifnot(is.irt_model(model))
     model$dataset <- path
     model$use_data_path <- use_path
     if(is.null(data_columns)){
@@ -178,6 +216,7 @@ set_dataset <- function(model, path, use_path=TRUE, data_columns = NULL) {
 #' @return A new model object
 #' @export
 add_simulation <- function(model, nsim=1, options="") {
+    stopifnot(is.irt_model(model))
     model$simulation <- TRUE
     model$subproblems <- nsim
     model$simulation_options <- options
@@ -191,6 +230,7 @@ add_simulation <- function(model, nsim=1, options="") {
 #' @return A new model object
 #' @export
 add_estimation_options <- function(model, options) {
+    stopifnot(is.irt_model(model))
     model$estimation_options <- options
     model
 }
@@ -203,8 +243,13 @@ add_estimation_options <- function(model, options) {
 #' @param run_number An integer
 #' @export
 set_run_number <- function(model, run_number) {
+    stopifnot(is.irt_model(model))
     model$run_number <- run_number
     model
+}
+
+has_lv_model <- function(model){
+    return(length(model$lv_models)>0)
 }
 
 #' Create the $DATA and $INPUT to NONMEM model code
@@ -228,12 +273,15 @@ data_and_input_code <- function(model, rewind=FALSE) {
         cg <- add_line(cg, paste0("$INPUT ", paste(model$data_columns, collapse=' ')))
         ignored_items <- get_ignored_items(model)
         if (length(ignored_items) > 0) {
-            ignores <- paste0("IGNORE(ITEM.EQN.", ignored_items, ")", collapse=" ")
-            ignores <- paste0(" ", ignores)
-        } else {
-            ignores <- ""
+            ignores <- paste0("IGNORE(ITEM.EQN.", ignored_items, ")")
         }
-        cg <- add_line(cg, paste0("$DATA ", data_path, rewind_code, " IGNORE=@", ignores))
+        cg <- add_line(cg, paste0("$DATA ", data_path, rewind_code, " IGNORE=@"))
+        if (exists("ignores")) {
+            ignore_lines <- join_with_max_length(ignores)
+            cg <- increase_indent(cg)
+            cg <- add_lines(cg, ignore_lines)
+            cg <- decrease_indent(cg)
+        }
     }
     cg
 }
@@ -246,8 +294,8 @@ type_constants <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "constants to select model type")
     levels <- ordcat_level_arrays(model$scale)
-    cg <- add_line(cg, "MODEL=0")
     cg <- add_line(cg, "PSI_MODEL=0")
+    cg <- add_line(cg, "UNDEF=0")
     for (i in 1:length(levels)) {
         cg <- add_line(cg, paste0("OC", i, "=", i, '    ; ordered categorical ', levels_as_string(levels[[i]])))
     }
@@ -350,9 +398,7 @@ irt_item_assignment_code <- function(model, item, next_theta, first) {
 irt_item_assignment_fallthrough <- function(cg, scale) {
     cg <- add_line(cg, "ELSE")
     cg <- increase_indent(cg)
-    cg <- add_line(cg, "; Exit if dataset contains an ITEM that the model cannot handle")
-    cg <- add_line(cg, "EXIT 2")
-    cg <- add_line(cg, "; Unreachable code below. There to silence NM-TRAN warning.")
+    cg <- add_line(cg, "MODEL=UNDEF")
     cg <- add_line(cg, "PPRED=0")
     cg <- add_line(cg, "SDPRED=0")
     cg <- add_line(cg, "P=0")
@@ -389,8 +435,8 @@ binary_data_model_code <- function() {
     cg <- add_line(cg, "P1=GUE+(1-GUE)*EXP(DIS*(PSI-DIF))/(1+EXP(DIS*(PSI-DIF)))")
     cg <- add_line(cg, "P0=1-P1")
     cg <- add_empty_line(cg)
-    cg <- add_line(cg, "PPRED = P1*1")
-    cg <- add_line(cg, "SDPRED = SQRT(P0*(0-PPRED) + P1*(1-PPRED))")
+    cg <- add_line(cg, "PPRED = P1")
+    cg <- add_line(cg, "SDPRED = SQRT(P0*P1)")
     cg <- decrease_indent(cg)
     cg <- add_line(cg, "ENDIF")
     cg <- add_line(cg, "IF(MODEL.EQ.BIN.AND.DV.EQ.0) P=P0")
@@ -482,6 +528,21 @@ response_probability_prediction_code <- function() {
     cg
 }
 
+#' Generate NONMEM code to clear variables for undef item
+#'
+#' @return A code generator object
+undef_item_code <- function() {
+    cg <- code_generator()
+    cg <- add_line(cg, "IF (MODEL.EQ.UNDEF) THEN")
+    cg <- increase_indent(cg)
+    cg <- add_line(cg, "PWRES=0")
+    cg <- add_line(cg, "P=0")
+    cg <- add_line(cg, "Y=0")
+    cg <- decrease_indent(cg)
+    cg <- add_line(cg, "ENDIF")
+    cg
+}
+
 #' Generate NONMEM code for model simulation
 #' 
 #' @param model An irt_model object
@@ -525,15 +586,12 @@ estimation_task <- function(model) {
         msfo <- ""
     }
     cg <- add_line(cg, paste0("$ESTIMATION METHOD=COND LAPLACE -2LL MAXEVAL=999999 PRINT=1", msfo, " ", model$estimaton_options))
-    cg <- add_line(cg, "$COVARIANCE")
 
-    psi_table_options <- c("$TABLE", "ID", "TIME", "DV", mdv_string(model), "ITEM", "PSI", "PPRED", "PWRES", paste0("FILE=psi_tab", model$run_number), "NOAPPEND", "ONEHEADER", "NOPRINT")
-    cg <- add_line(cg, paste(psi_table_options, collapse=" "))
     item_parameters <- all_parameter_names(model)
     item_parameters <- c(item_parameters, paste0("DIFG", 1:sum(stringr::str_starts(item_parameters, "DIF\\d"))))
-    item_table_options <- c("$TABLE", "ID", "TIME", "DV", mdv_string(model), "ITEM", item_parameters)
-    cg <- add_line(cg, paste(item_table_options, collapse=" "))
-    cg <- add_line(cg, paste0("       FILE=item_parameters_tab", model$run_number, " NOAPPEND ONEHEADER NOPRINT"))
+
+    irt_table_options <- c("$TABLE", "ID", "TIME", "DV", mdv_string(model), "ITEM", "PSI", "PPRED", "PWRES", item_parameters, "VARCALC=1", paste0("FILE=irt_tab", model$run_number), "NOAPPEND", "ONEHEADER", "NOPRINT")
+    cg <- add_line(cg, paste(irt_table_options, collapse=" "))
     cg
 }
 
@@ -566,7 +624,11 @@ omegas <- function(model, numomegas) {
     cg <- code_generator()
     cg <- banner_comment(cg, "random effects")
     for (i in seq(1:numomegas)) {
-        cg <- add_line(cg, "$OMEGA 0.1")
+        if(has_lv_model(model)){
+            cg <- add_line(cg, "$OMEGA 0.1")
+        }else{
+            cg <- add_line(cg, "$OMEGA 1 FIX")
+        }
     }
     cg
 }
@@ -600,7 +662,11 @@ initial_thetas <- function(model, numthetas) {
     cg <- code_generator()
     cg <- banner_comment(cg, "latent variable model parameters")
     for (i in seq(1, numthetas)) {
-        cg <- add_line(cg, "0.1")
+        if(has_lv_model(model)){
+            cg <- add_line(cg, "0.1")
+        }else{
+            cg <- add_line(cg, "0 FIX")
+        }
     }
     cg
 }
@@ -624,93 +690,32 @@ initial_item_thetas <- function(model) {
     cg
 }
 
-# Supports filename or data.frame as data
-#' Check dataset for missing items or levels
+
+#' Consolidation of levels in a model
 #' 
-#' The check will check for the following:
-#' 1. Items  present in the dataset but not in the scale
-#' 2. Items present in the scale but not in the dataset
-#' 3. Levels present in the dataset but not in the scale
-#' 4. Levels present in the scale but not in the dataset
-#' The results of the check will be printed to the console
-#' 
-#' @param model_or_data Either a data.frame or a model object from which to take the dataset
-#' @param scale If model_or_data was a data.frame a scale must be supplied otherwise the scale from the model object will be taken
-#' @export
-check_data <- function(model_or_data, scale=NULL) {
-    if (class(model_or_data) == "irt_model") {
-        dataset <- model_or_data$dataset
-        scale <- model_or_data$scale
-    } else {
-        dataset <- model_or_data
-    }
-
-    df <- read_dataset(dataset) %>%
-        prepare_dataset()
-
-    all_dataset_items <- unique(df$ITEM)
-    all_scale_items <- all_items(scale)
-    dataset_in_scale <- all_dataset_items %in% all_scale_items
-    if (!all(dataset_in_scale)) {
-        missing_items <- all_dataset_items[!dataset_in_scale]
-        cat("Items present in dataset but not in scale:", paste(missing_items, collapse=", "), "\n")
-    }
-    scale_in_dataset <- all_scale_items %in% all_dataset_items
-    if (!all(scale_in_dataset)) {
-        missing_items <- all_scale_items[!scale_in_dataset]
-        cat("Items present in scale but not in dataset:", paste(missing_items, collapse=", "), "\n")
-    }
-
-    wide <- wide_item_data(df)
-    missing_items <- c()
-    for (item in scale$items) {
-        n <- as.character(item$number)
-        if (n %in% colnames(wide)) {
-            dataset_levels <- sort(unique(wide[[n]]))
-            scale_levels <- item$levels
-            dataset_in_scale <- dataset_levels %in% scale_levels
-            if (!all(dataset_in_scale)) {
-                missing_levels <- dataset_levels[!dataset_in_scale]
-                cat("Levels present in dataset but not in scale for item", n, ":", paste(missing_levels, collapse=", "), "\n")
-            }
-            scale_in_dataset <- scale_levels %in% dataset_levels
-            if (!all(scale_in_dataset)) {
-                missing_levels <- scale_levels[!scale_in_dataset]
-                cat("Levels present in scale but not in dataset for item", n, ":", paste(missing_levels, collapse=", "), "\n")
-            }
-        }
-    }
-}
-
-#' Consolidation of levels in a model without changing the scale
-#' 
-#' When consolidating levels in the higher end of the levels it is possible to 
-#' do it without altering the scale or the model. It is done by setting the inital
-#' estimate of the DIF thetas to a high fixed number. This will make the probability
-#' of the level to become zero. The benefit of doing this is that the same model can
-#' be used for different datasets and different consolidations can be done simply by
-#' changing the initial estimates.
+#' The consolidated levels will be treated as being equal to the nearest lower level.
 #' 
 #' @param model An irt_model object
-#' @param item_numbers A vector of item numbers to do the same consolidation for
+#' @param item_numbers A vector of item numbers to consolidate
 #' @param levels A vector of levels to consolidate, i.e. merging into the nearest lower level.
 #' @return A new irt_model object
 #' @export
 consolidate_levels <- function(model, item_numbers, levels) {
+    stopifnot(is.irt_model(model))
     stopifnot(length(levels) >= 1)
     for (item_number in item_numbers) {
         item <- get_item(model$scale, item_number)
-        run <- rle(item$levels %in% levels)$values      # Check that consolidated levels are at an edge of the available levels and consecutive
+        run <- rle(item$levels %in% levels)$values      # Check that consolidated levels are at the upper edge of the available levels and consecutive
         if (length(run) == 2) {
             high <- all(run == c(FALSE, TRUE))
             if (high) {
                 levels_to_consolidate <- sort(levels)
                 model$consolidation[[item_number]] <- levels_to_consolidate 
             } else {
-                stop("Can only consolidate using initial estimates in the upper end of the level range")   
+                stop("Can only consolidate levels at the high end of the level range")
             }
         } else {
-            stop("Could only consolidate levels at the low or high end of the level range")
+            stop("Can only consolidate levels at the high end of the level range")
         }
     }
     model
@@ -728,6 +733,7 @@ consolidate_levels <- function(model, item_numbers, levels) {
 #' @return A new irt_model object
 #' @export 
 consolidate_levels_below <- function(model, count) {
+    stopifnot(is.irt_model(model))
     df <- item_level_count(model)
     df <- dplyr::mutate(df, thresh=.data$n <= !!count)
     df
@@ -789,7 +795,7 @@ mdv_string <- function(model) {
 #' @return data.frame with ITEM, DV and count columns
 #' @export
 item_level_count <- function(model_or_data) {
-    if (class(model_or_data) == "irt_model") {
+    if (is.irt_model(model_or_data)) {
         df <- read_dataset(model_or_data$dataset) %>% prepare_dataset()
     } else {
         df <- model_or_data

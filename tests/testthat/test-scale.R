@@ -6,6 +6,11 @@ test_that("Scale constructor", {
     expect_equal(length(scale$items), 0)
 })
 
+test_that("is.irt_scale", {
+    expect_true(is.irt_scale(myscale))
+    expect_false(is.irt_scale(23))
+})
+
 test_that("List predifined scales", {
     a <- list_predefined_scales()
     expect_true(length(a) >= 1)
@@ -20,7 +25,7 @@ test_that("Predefined scale", {
 })
 
 test_that("Load scale", {
-    path <- system.file("extdata", "mds-updrs.yaml", package="nmIRT")
+    path <- system.file("extdata", "mds-updrs.yaml", package="piraid")
     scale <- load_scale(path)
     item <- get_item(scale, 14)
     expect_equal(item$levels, c(0, 1, 2, 3, 4))
@@ -78,7 +83,7 @@ test_that("Scale from df",{
 })
 
 test_that("Scale from csv", {
-  scale <- create_scale_from_csv(file = system.file("extdata","hra-score-data.csv", package = "nmIRT"))
+  scale <- create_scale_from_csv(file = system.file("extdata","hra-score-data.csv", package = "piraid"))
   # item 100 should be ignored (MDV=1)
   expect_null(get_item(scale, 100))
   for(i in 1:7){ 

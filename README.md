@@ -1,4 +1,4 @@
-# nmIRT
+# piraid
 An R package for item response theory modelling
 
 ## Installation
@@ -6,5 +6,5 @@ An R package for item response theory modelling
 Install with
 
 ```r
-devtools::install_github("sebastianueckert/nmIRT", build_vignettes=TRUE)
+devtools::install_github("sebastianueckert/piraid", build_vignettes=TRUE)
 ```

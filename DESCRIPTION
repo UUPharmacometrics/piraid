@@ -1,9 +1,8 @@
-Package: nmIRT
+Package: piraid
 Encoding: UTF-8
-Version: 0.2
+Version: 0.3
 Date: 2019-03-28
 Title: An aid for development and diagnosis of pharmacometric 'IRT' models
-Author: Rikard Nordgren <rikard.nordgren@farmbio.uu.se>
 Authors@R: c(person("Rikard", "Nordgren", role=c("aut", "cre", "cph"), email="rikard.nordgren@farmbio.uu.se"),
              person("Sebastian", "Ueckert", role=c("aut", "cph")),
              person("Mats O.", "Karlsson", role=c("aut", "cph")),
@@ -26,13 +25,19 @@ Imports:
     purrr,
     tibble,
     tidyselect
-Suggests: knitr, rmarkdown, testthat, mockery
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat,
+    mockery,
+    xpose,
+    mgcv
 VignetteBuilder: knitr
 NeedsCompilation: no
 Description: Automatic generation of different types of item response theory (IRT) models.
     Diagnostic tools for IRT modelling.
-URL: https://github.com/UUPharmacometrics/nmIRT
-BugReports: https://github.com/UUPharmacometrics/nmIRT/issues
+URL: https://github.com/UUPharmacometrics/piraid
+BugReports: https://github.com/UUPharmacometrics/piraid/issues
 License: LGPL (>= 2)
 Copyright: 2018 Rikard Nordgren, Sebastian Ueckert and Mats O. Karlsson
 RoxygenNote: 6.1.1

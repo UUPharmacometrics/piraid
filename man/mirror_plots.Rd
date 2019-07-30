@@ -4,12 +4,12 @@
 \alias{mirror_plots}
 \title{Mirror plots for comparison of original data and simulated data}
 \usage{
-mirror_plots(origdata, scale, simdata = NULL, nrow = 4, ncol = 5)
+mirror_plots(origdata, model, simdata = NULL, nrow = 4, ncol = 5)
 }
 \arguments{
 \item{origdata}{The original dataset}
 
-\item{scale}{A scale object}
+\item{model}{The model used to generate the data}
 
 \item{simdata}{The simulated data. Will plot only original data if this is missing}
 

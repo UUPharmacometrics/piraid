@@ -14,6 +14,7 @@
 #' @export
 #' @md
 add_custom_lv_model <- function(model, lv_model_code, items = all_items(model)) {
+    stopifnot(is.irt_model(model))
     for (lv_model in model$lv_models) {
         if (any(items %in% lv_model$items)) {
             stop("A model for this item has already been specified. Please use reset_lv_models to start over.")
@@ -62,7 +63,9 @@ lv_model_types <- c("constant", "linear")
 #' @return A new irt_model object
 #' @export
 reset_lv_models <- function(model) {
+    stopifnot(is.irt_model(model))
     model$lv_models <- list()
+    model
 }
 
 #' Get number of THETAs and ETAs used in a vector of code lines

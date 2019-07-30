@@ -18,7 +18,7 @@ If a string is input it will be parsed to get a list of all levels it describes
 Allowed formats are [a,b] for an interval and (1,2,3,4) to explicitly write all possible levels
 }
 \examples{
-levels <- nmIRT:::item_levels("[1,3]")   # levels will be 1, 2 and 3.
-levels <- nmIRT:::item_levels("(0,1,2,3,4)")
+levels <- piraid:::item_levels("[1,3]")   # levels will be 1, 2 and 3.
+levels <- piraid:::item_levels("(0,1,2,3,4)")
 }
 \keyword{internal}

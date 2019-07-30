@@ -1,4 +1,4 @@
-#' nmIRT: a package for creating and diagnosing IRT models for NONMEM
+#' pidaid: An aid for development and diagnosis of pharmacometric IRT models
 #' @import methods
 #' @import ggplot2
 #' @import rlang

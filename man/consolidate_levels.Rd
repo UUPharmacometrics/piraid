@@ -2,14 +2,14 @@
 % Please edit documentation in R/irt_model.R
 \name{consolidate_levels}
 \alias{consolidate_levels}
-\title{Consolidation of levels in a model without changing the scale}
+\title{Consolidation of levels in a model}
 \usage{
 consolidate_levels(model, item_numbers, levels)
 }
 \arguments{
 \item{model}{An irt_model object}
 
-\item{item_numbers}{A vector of item numbers to do the same consolidation for}
+\item{item_numbers}{A vector of item numbers to consolidate}
 
 \item{levels}{A vector of levels to consolidate, i.e. merging into the nearest lower level.}
 }
@@ -17,10 +17,5 @@ consolidate_levels(model, item_numbers, levels)
 A new irt_model object
 }
 \description{
-When consolidating levels in the higher end of the levels it is possible to 
-do it without altering the scale or the model. It is done by setting the inital
-estimate of the DIF thetas to a high fixed number. This will make the probability
-of the level to become zero. The benefit of doing this is that the same model can
-be used for different datasets and different consolidations can be done simply by
-changing the initial estimates.
+The consolidated levels will be treated as being equal to the nearest lower level.
 }

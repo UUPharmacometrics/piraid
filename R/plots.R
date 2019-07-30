@@ -18,66 +18,115 @@ graded_response_model <- function(data) {
     exp(data$DIS * (data$PSI - w)) / (1 + exp(data$DIS * (data$PSI - w)))
 }
 
-#' Plot item characteristic curves
+
+#' Plot item characteristic curves diagnostic
 #' 
 #' MDV and EVID will be used to filter out non-observations before plotting
+#' Consolidation is handled by moving consolidated levels into the closest level blow.
 #' 
 #' @section Warning:
 #' Binary items are not handled well.
 #' 
-#' @param df A data.frame from the item_parameters_tab of a model run. ITEM, DV, DIS, DIFn are needed
-#' @param scale The corresponding scale object
-#' @param items_per_page Default to 8
+#' @param nmtab A data.frame from the item_parameters_tab of a model run. PSI, ITEM, DV, DIS, DIFn are needed
+#' @param model The model that was used to create the output table
+#' @param resample_psi Whether to use the resampling based diagnostic
+#' @param items_per_page The number of items to display on one page (default NULL prints all items)
+#' @param samples The number of samples to use when resample_psi = T
 #' @return A list of pages
 #' @export
-icc_plots <- function(df, scale, items_per_page=8) {
-    df <- filter_observations(df)
-    max_levels <- df %>%
-        dplyr::group_by(.data$ITEM) %>%
-        dplyr::summarise(max_level=max(.data$DV))
-    global_max_level <- max(max_levels$max_level)
-    unique_items <- sort(unique(df$ITEM))
-    score_combinations <- expand.grid(CAT=1:global_max_level, ITEM=unique_items)
-    score_labels <- paste0("score:", 1:global_max_level)
-    names(score_labels) <- seq(1:global_max_level)
-
-    parameters <- df[!duplicated(df$ITEM),  ]
-    psi_grid <- data.frame(PSI=seq(min(df$PSI), max(df$PSI), by=0.1)) %>%
-        merge(score_combinations) %>%
-        dplyr::full_join(parameters, by="ITEM") %>%
-        dplyr::mutate(P=graded_response_model(UQ(sym(".")))) %>%
-        dplyr::select("ITEM", "CAT", "PSI", "P")
-
-    full_df <- dplyr::full_join(df, score_combinations, by="ITEM")
-
-    item_labels <- item_name_list(scale)
-
-    k <- 1
-    plot_list <- list()
-    for (i in seq(1, length(unique_items), by=items_per_page)) {
-        if (length(unique_items) - i + 1 < items_per_page) {
-            # This is the final iteration
-            current_items <- unique_items[i:length(unique_items)]
-        } else {
-            # Next chunk of items
-            current_items <- unique_items[i:(i + items_per_page - 1)]
-        }
-        # FIXME: We could do away with this by using nrows and page options to facet_grid_paginate
-        partial_df <- dplyr::filter(full_df, .data$ITEM %in% current_items)
-        partial_psi_grid <- dplyr::filter(psi_grid, .data$ITEM %in% current_items)
-
-        plot <- ggplot(partial_df, aes(.data$PSI, as.numeric(.data$DV >= .data$CAT))) +
-            geom_point() +
-            geom_smooth(method="gam", method.args=list(family="binomial"), formula=y~s(x, bs="cs")) +
-            geom_line(data=partial_psi_grid, aes(.data$PSI, .data$P), size=1, colour="darkred") +
-            ggforce::facet_grid_paginate(ITEM~.data$CAT, labeller=
-                labeller(ITEM=as_labeller(item_labels), ITEM=label_wrap_gen(20), CAT=as_labeller(score_labels))) +
-            theme_bw(base_size=14, base_family="") +
-            labs(x="PSI", y="Y>=score")
-        plot_list[[k]] <- plot
-        k <- k + 1
+icc_plots <- function(nmtab, model, resample_psi = FALSE, 
+                       items_per_page=NULL, samples = 50){
+    if(!require("mgcv", quietly = T)) stop("The 'mgcv' package needs to be installed to use this function.")
+    required_columns <- c("ITEM", "DV", "PSI") 
+    is_present <- required_columns  %in% colnames(nmtab)
+    if(!all(is_present)) stop("Column(s) ", paste(required_columns[!is_present], sep = " "), " are required but not present in the data frame.", call. = F) 
+    if(!"PSI_SE" %in% colnames(nmtab) && resample_psi) stop("The column PSI_SE is required for resamples=TRUE.", call. = F)
+    if(!"PSI_SE" %in% colnames(nmtab)) rlang::warn("No standard error column (PSI_SE) was provided, the diagnostic might be affected by shrinkage.")
+    
+    nmtab <- nmtab %>%
+        filter_observations() %>%
+        consolidate_data(model) 
+    
+    pred_df <- data.frame(PSI=seq(min(nmtab$PSI), max(nmtab$PSI), length.out = 20), P = 0)
+    possible_responses <- purrr::imap_dfr(model$scale$items, ~tibble::tibble(ITEM = .y, response = .x$levels[-1]))
+ 
+    grouped_df <- nmtab %>% 
+        dplyr::right_join(possible_responses, by = "ITEM") %>% 
+        dplyr::mutate(y = as.integer(.data$DV>=.data$response)) %>% 
+        dplyr::group_by(.data$ITEM, .data$response)
+    
+    ngroups <- dplyr::n_groups(grouped_df)
+    if(interactive()) cat("Calculating smoothed GAM ICCs...\n")
+    if(interactive())  pb <- utils::txtProgressBar(min = 0, max = ngroups, style = 3)
+    df_npar_fit <- grouped_df %>% 
+        dplyr::group_split() %>% 
+        purrr::map_dfr(
+            function(group_df){
+                if(resample_psi) {
+                    psi_samples <- mapply(stats::rnorm, samples, group_df$PSI, group_df$PSI_SE)
+                    p_matrix <- apply(psi_samples, 1, function(psi){
+                        fit_df <- group_df
+                        fit_df$PSI <- psi
+                        suppressWarnings(
+                            fit <- mgcv::gam(y~s(PSI), family = stats::binomial(), data = fit_df)
+                        )
+                        stats::predict(fit, newdata = pred_df, type = "response")
+                    })
+                    if(interactive()) pb$up(pb$getVal()+1)
+                    quantile_matrix <- apply(p_matrix, 1, stats::quantile, probs = c(0.05,0.95))
+                    mean_p <- rowMeans(p_matrix)
+                    return(tibble::tibble(ITEM = group_df$ITEM[1], response = group_df$response[1],
+                                          PSI = pred_df$PSI, P =  mean_p,
+                                   lower = quantile_matrix[1,], upper = quantile_matrix[2, ]))
+                }else{
+                    if(!"PSI_SE" %in% colnames(group_df)) {
+                        weights <- NULL
+                    }else{
+                        weights <- (1/group_df$PSI_SE)/sum((1/group_df$PSI_SE))
+                    }
+                    suppressWarnings(
+                        fit <- mgcv::gam(y~s(PSI), family = stats::binomial(), data = group_df, weights = weights)
+                    )
+                    pred_df$P <- stats::predict(fit, newdata = pred_df, type = "response")
+                    pred_df$ITEM <- group_df$ITEM[1] 
+                    pred_df$response <-  group_df$response[1]
+                    
+                    if(interactive()) pb$up(pb$getVal()+1)
+                    return(pred_df)
+                }
+            }
+        )
+    if(interactive()) close(pb)
+    
+    item_prms <- dplyr::filter(nmtab, !duplicated(.data$ITEM)) %>% 
+        dplyr::select("ITEM", dplyr::matches("^(DIS|DIF\\d*$|GUE$)")) 
+    
+    icc_fit <- pred_df %>%
+        merge(possible_responses) %>%
+        dplyr::full_join(item_prms, by="ITEM") %>%
+        dplyr::mutate(CAT=.data$response) %>% 
+        dplyr::mutate(P=graded_response_model(UQ(rlang::sym(".")))) %>%
+        dplyr::select("ITEM", "response", "PSI", "P")
+    
+    item_labels <- item_name_list(model$scale)
+    score_labels <- sort(unique(icc_fit$response)) %>% 
+        {set_names(paste0("score: ", .), .)}
+    if(is.null(items_per_page)){
+        n_pages <- 1
+    }else{
+        n_pages <- ceiling(length(item_labels)/items_per_page)
     }
-    plot_list
+    purrr::map(seq_len(n_pages),
+     ~ggplot()+
+        {if(resample_psi) geom_ribbon(data = df_npar_fit, mapping = aes(PSI,ymin = lower, ymax=upper), alpha = 0.6)}+
+        geom_line(data = df_npar_fit, mapping = aes(PSI, P))+
+        geom_line(data = icc_fit, mapping = aes(PSI, P),  color = "darkred")+
+        ggforce::facet_grid_paginate(ITEM~response, 
+                                     labeller=labeller(ITEM=as_labeller(item_labels), ITEM=label_wrap_gen(20), 
+                                                       response=as_labeller(score_labels)),
+                                     nrow = items_per_page, ncol = length(score_labels), page = .x, byrow = F) +
+        theme_bw(base_size=14, base_family="") +
+        labs(x="PSI", y="P(Y>=score)"))
 }
 
 #' Mirror plots for comparison of original data and simulated data
@@ -85,17 +134,20 @@ icc_plots <- function(df, scale, items_per_page=8) {
 #' MDV and EVID will be used to filter out non-observations before plotting
 #'
 #' @param origdata The original dataset
-#' @param scale A scale object
+#' @param model The model used to generate the data
 #' @param simdata The simulated data. Will plot only original data if this is missing
 #' @param nrow The number of rows per page to use for the matrix of plots
 #' @param ncol The number of columns per page to use for the matrix of plots
 #' @return A list of plots. One page per item.
 #' @export
-mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
+mirror_plots <- function(origdata, model, simdata=NULL, nrow=4, ncol=5) {
+    scale <- model$scale
     unique_items <- sort(unique(origdata$ITEM))
     item_labels <- item_name_list(scale)
 
-    origdata <- filter_observations(origdata)
+    origdata <- origdata %>%
+        filter_observations() %>%
+        consolidate_data(model)
     origdata <- dplyr::select(origdata, "DV", "ITEM")
     origdata$type <- "observed"
 
@@ -128,6 +180,12 @@ mirror_plots <- function(origdata, scale, simdata=NULL, nrow=4, ncol=5) {
 
 
 #' Item response correlation plot
+#' 
+#' Visualizes the correlation of residuals between items as a correlation coefficients heatmap. 
+#' 
+#' The residuals need to be available as PWRES in the data and are assumed to be standard Pearson residuals (i.e., difference between 
+#' observed and expected devided by the expected standard devition). Models that are generated with this package will include the 
+#' proper calculation of PWRES by default.
 #'
 #' @param df A data.frame from the item_parameters_tab of a model run. ID, ITEM, TIME and PWRES will be used.
 #' @return A plot object

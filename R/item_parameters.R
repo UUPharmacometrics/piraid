@@ -3,11 +3,10 @@
 #' The initial estimate will be:
 #' 
 #' 1. The user defined value from initial_estimates_item_parameters
-#' 2. 50 if the parameter was consolidated
-#' 3. Taken from the published model in the scale
-#' 4. A fall back value of:
+#' 2. Taken from the published model in the scale
+#' 3. A fall back value of:
 #'       Binary: DIS=1, DIF=0.1, GUE=0.01
-#'       Ordered categorical: DIS=1, DIFn=-3 + 6n/#cats
+#'       Ordered categorical: DIS=1, DIFn=-3 + 6n/#cats (not lower than 0.1)
 #' 
 #' @param model An irt_model object
 #' @param item An irt_item object
@@ -18,12 +17,6 @@ initial_estimate <- function(model, item, parameter) {
     par_row <- dplyr::filter(model$item_parameters, item==!!item$number, parameter==!!parameter)
     if (nrow(par_row) != 0 && !is.na(par_row$init)) {
         return(par_row$init)
-    }
-    if (length(model$consolidation) >= item$number) {   # Does item exist in consolidation list
-        consolidated <- model$consolidation[[item$number]]
-        if (!is.null(consolidated) && (item_parameter_index(model, item$number, parameter) - 1) %in% consolidated) {
-            return(50)
-        }
     }
     parameter_index <- item_parameter_index(model, item$number, parameter)
     published <- published_init(model$scale, item$number, parameter_index)
@@ -38,7 +31,12 @@ initial_estimate <- function(model, item, parameter) {
         0.1
     } else {
         index <- as.numeric(stringr::str_extract(parameter, '\\d+'))
-        -3 + (6 * index) / length(item$levels)
+        init <- -3 + (6 * index) / length(item$levels)
+        if (init <= 0) {
+            0.1
+        } else {
+            init
+        }
     }
 }
 
@@ -49,6 +47,7 @@ initial_estimate <- function(model, item, parameter) {
 #' @return A character vector of parameter names
 #' @export
 item_parameter_names <- function(model, item_number) {
+    stopifnot(is.irt_model(model))
     scale <- model$scale
     item <- get_item(scale, item_number)
     if (item$type == item_type$ordered_categorical) {
@@ -186,7 +185,7 @@ theta_string_init_part <- function(model, item, parameter) {
             theta_init(init, lower=0, upper=50)
         }
     } else if (parameter == "GUE") {
-        init
+        theta_init(init, lower=0, upper=1)
     } else {
         stop("Unknown parameter")
     }
@@ -276,6 +275,23 @@ fix_item_parameters <- function(model, items, parameter_names) {
     insert_into_parameter_table(model, new_df, "fix")
 }
 
+#' Fix all item parameters 
+#' 
+#' The function fixes all item parameters in the model
+#'
+#' @param model An irt_model object
+#'
+#' @return An updated irt_model object
+#' @export
+fix_all_item_parameters <- function(model){
+    df_new <- purrr::map_dfr(all_items(model), 
+                   ~tibble::tibble(item = .x, 
+                                   parameter = item_parameter_names(model, .x),
+                                   fix = T)) 
+    model <- update_parameter_table(model, df_new)
+    model
+}
+
 #' Ignore all parameters for some items
 #'
 #' Ignoring an item means to set its parameters to 0 FIX
@@ -286,11 +302,21 @@ fix_item_parameters <- function(model, items, parameter_names) {
 #' @return A new irt_model objet
 #' @export
 ignore_items <- function(model, items) {
+    new_df <- NULL
     for (i in items) {
         parameters <- item_parameter_names(model, i)
-        new_df <- data.frame(item=i, parameter=parameters, fix=as.logical(NA), ignore=TRUE, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
-        model <- insert_into_parameter_table(model, new_df, "ignore")
+        new_df <- dplyr::bind_rows(
+            new_df,
+            data.frame(
+                item = i,
+                parameter = parameters,
+                ignore = TRUE,
+                stringsAsFactors = FALSE,
+                KEEP.OUT.ATTRS = FALSE
+            )
+        )
     }
+    model <- update_parameter_table(model, new_df)
     model
 }
 
@@ -316,6 +342,7 @@ get_ignored_items <- function(model) {
 #' @return A new irt_model object
 #' @export
 set_initial_estimates <- function(model, items, parameters, inits){
+    stopifnot(is.irt_model(model))
     stopifnot(length(inits) == 1 || length(parameters) == length(inits))
     df <- expand.grid(parameter=parameters, item=items, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
     df$init <- inits    # Broadcast hence order of parameters and item columns
@@ -326,6 +353,7 @@ set_initial_estimates <- function(model, items, parameters, inits){
 #' @param df A data.frame with columns 'item', 'parameter', 'init'/'value'
 #' @export
 set_initial_estimates_table <- function(model, df){
+    stopifnot(is.irt_model(model))
     if(!all(c("item", "parameter") %in% colnames(df))) rlang::abort("The columns 'item' and 'parameter' are required")
     if("value" %in% colnames(df)) {
         df <- dplyr::rename(df, init=.data$value)
@@ -341,6 +369,7 @@ set_initial_estimates_table <- function(model, df){
 #' @return A data frame with columns item, parameter, fix and init for all items and parameters
 #' @export
 list_initial_estimates <- function(model) {
+    stopifnot(is.irt_model(model))
     # First generate table over keys (item, parameters)
     table <- data.frame(item=numeric(0), parameter=character(0))
     for (item in model$scale$items) {
@@ -382,6 +411,7 @@ all_parameter_names <- function(model) {
 #' @return TRUE if an initial value is given for all item parameters in the model, otherwise FALSE 
 #' @export 
 has_all_initial_estimates <- function(model){
+    stopifnot(is.irt_model(model))
     for (item in model$scale$items) {
         item_prms <- dplyr::filter(model$item_parameters, .data$item==!!item$number)
         if(nrow(item_prms)==0) return(FALSE)

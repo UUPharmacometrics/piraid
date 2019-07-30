@@ -2,22 +2,28 @@
 % Please edit documentation in R/plots.R
 \name{icc_plots}
 \alias{icc_plots}
-\title{Plot item characteristic curves}
+\title{Plot item characteristic curves diagnostic}
 \usage{
-icc_plots(df, scale, items_per_page = 8)
+icc_plots(nmtab, model, resample_psi = FALSE, items_per_page = NULL,
+  samples = 50)
 }
 \arguments{
-\item{df}{A data.frame from the item_parameters_tab of a model run. ITEM, DV, DIS, DIFn are needed}
+\item{nmtab}{A data.frame from the item_parameters_tab of a model run. PSI, ITEM, DV, DIS, DIFn are needed}
 
-\item{scale}{The corresponding scale object}
+\item{model}{The model that was used to create the output table}
 
-\item{items_per_page}{Default to 8}
+\item{resample_psi}{Whether to use the resampling based diagnostic}
+
+\item{items_per_page}{The number of items to display on one page (default NULL prints all items)}
+
+\item{samples}{The number of samples to use when resample_psi = T}
 }
 \value{
 A list of pages
 }
 \description{
 MDV and EVID will be used to filter out non-observations before plotting
+Consolidation is handled by moving consolidated levels into the closest level blow.
 }
 \section{Warning}{
 

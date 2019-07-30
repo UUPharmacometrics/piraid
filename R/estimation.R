@@ -3,32 +3,67 @@
 #' This function estimates the item parameters in a model using the \code{mirt} package. The dataset and the item models 
 #' are taken from the provided model object.  
 #' 
-#' The available strategies of how to use the longitudinal data include 'baseline' (the default) and 'visits-as-subjects'.
+#' The available strategies of how to use the longitudinal data include 'baseline' (the default), 'all-pooled' and 'all-baseref'.
 #' 
 #' With the 'baseline' strategy only the baseline data is used for the estimation and all other data is ignored.  
 #' 
-#' The 'visits-as-subjects' strategy uses all available data and treats each visit as a seperate subject during estimation.
+#' The 'all-pooled' strategy uses all available data and treats each visit as a separate subject during estimation.
+#' 
+#' The 'all-baseref' strategy also uses all available data but defines the population at baseline as a reference (mean 0, variance 1). 
+#' Observations from later timepoints are treated as separate subjects.
 #' 
 #' @param model The model
 #' @param data_use_strategy The method of how to use the available longitudinal data
 #' 
-#' @return A dataframe with the estimated item parameters 
+#' @return A data frame with the estimated item parameters 
 #'
 #' @export
 estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
+    stopifnot(is.irt_model(model))
     data_use_strategy <- rlang::arg_match(data_use_strategy, data_use_strategies)
     
     df <- read_dataset(model$dataset) %>% prepare_dataset()
     wide_data <- convert_to_wide_data(df)
     
     if(data_use_strategy == 'baseline') wide_data <- dplyr::group_by(wide_data, .data$ID) %>% dplyr::slice(1) %>% dplyr::ungroup()
-    
+    if(data_use_strategy == 'all-baseref') isbaseline <- factor(duplicated(wide_data$ID), levels = c(T,F)) 
     
     wide_data <- dplyr::select(wide_data, dplyr::starts_with("ITEM"))
+    
+    #consolidate levels in data as specified by model
+    for (i in seq_along(model$consolidation)) {
+        if(!is.null(model$consolidation[[i]])){
+            new_value <- min(model$consolidation[[i]]) - 1 
+            wide_data[[i]] <- ifelse(wide_data[[i]] %in% model$consolidation[[i]], new_value, wide_data[[i]])
+        }
+    }
+
+    required_levels <- model$scale$items %>% 
+        purrr::map("levels") %>% 
+        purrr::imap(~setdiff(.x, purrr::pluck(model$consolidation, .y, .default = c()))) %>% 
+        purrr::map(as.integer)
+
+    # check if all levels are available in the data
+    all_equal <- wide_data %>% 
+        dplyr::summarise_all(~list(unique(.))) %>% 
+        purrr::transpose() %>% 
+        purrr::flatten() %>% 
+        purrr::map(stats::na.exclude) %>% 
+        purrr::map(sort) %>% 
+        purrr::map(as.integer) %>% 
+        purrr::map2(required_levels, ~identical(.x,.y)) %>% 
+        purrr::reduce(.init = TRUE, `&`)
+    if(!all_equal) stop("The data provided does not contain all levels of the scale. Can not estimate item parameters.", call. = F)
     rlang::inform(paste("Using data with", ncol(wide_data), "items and", nrow(wide_data), "subjects"))
     types <- prepare_mirt_type_vector(model, wide_data)
     rlang::inform("Starting item paramter estimation using 'mirt'")
-    mirt_model <- mirt::mirt(data=wide_data, model=1, itemtype=types)
+    if(data_use_strategy == 'all-baseref'){
+        mirt_group_model <- mirt::multipleGroup(data=wide_data, model = 1, itemtype=types, group = isbaseline, 
+                                          invariance=c('slopes', 'intercepts', 'free_var','free_means'), verbose = interactive())
+        mirt_model <- mirt::extract.group(mirt_group_model, 1)
+    }else{
+        mirt_model <- mirt::mirt(data=wide_data, model=1, itemtype=types, verbose = interactive())
+    }
     rlang::inform("Estimation done")
 
     coef_list <- mirt::coef(mirt_model, IRTpars=TRUE)
@@ -41,7 +76,7 @@ estimate_item_parameters <- function(model, data_use_strategy = "baseline"){
 #' @keywords NULL
 #' @eval paste0("@usage data_use_strategies \n#", deparse(data_use_strategies))
 #' @export
-data_use_strategies <- c("baseline", "visits-as-subjects")
+data_use_strategies <- c("baseline", "all-pooled", 'all-baseref')
 
 
 #' Estimate Latent Variable Values
@@ -57,6 +92,7 @@ data_use_strategies <- c("baseline", "visits-as-subjects")
 #'
 #' @export
 estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_estimates(model)){
+    stopifnot(is.irt_model(model))
     df <- read_dataset(model$dataset) %>% prepare_dataset()
     wide_data <- convert_to_wide_data(df)
     
@@ -68,7 +104,7 @@ estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_esti
 
     if(estimate_item_prms){
         rlang::inform("Starting item paramter estimation using 'mirt'")
-        mirt_model <- mirt::mirt(data=item_data_wide, model=1, itemtype=types)
+        mirt_model <- mirt::mirt(data=item_data_wide, model=1, itemtype=types, verbose = interactive())
         rlang::inform("Estimation done")
     }else{
         mirt_prms <- mirt::mirt(data=item_data_wide, model=1, itemtype=types, pars = "values")
@@ -90,18 +126,7 @@ estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_esti
 
 }
 
-prepare_mirt_type_vector <- function(model, wide_data){
-    types <- c()
-    for (item_name in colnames(wide_data)) {
-        item <- sub("ITEM_", "", item_name) %>% as.numeric()
-        if (get_item(model$scale, item)$type == item_type$ordered_categorical) {
-            types <- c(types, "graded")
-        } else {
-            types <- c(types, "3PL")    # For binary always use 3PL
-        }
-    }
-    types
-}
+
 
 mirt_to_nmirt_name_map <- c(a = "DIS", b = "DIF", g = "GUE")
 nmirt_to_mirt_name_map <- purrr::set_names(names(mirt_to_nmirt_name_map), mirt_to_nmirt_name_map)

@@ -6,13 +6,22 @@ irt_scale <- function() {
     structure(list(items=list()), class="irt_scale")
 }
 
+#' Check wheter x is an irt_scale object
+#' 
+#' @param x An object to test
+#' @return True if x is an irt_scale object
+#' @export
+is.irt_scale <- function(x) {
+    inherits(x, "irt_scale")
+}
+
 #' Retrieve a list of all built in scales
 #' 
 #' @return A character vector with the names
 #' @export
 list_predefined_scales <- function() {
-    dir <- system.file("extdata", package="nmIRT")
-    files <- tools::file_path_sans_ext(list.files(dir))
+    dir <- system.file("extdata", package="piraid")
+    files <- tools::file_path_sans_ext(list.files(dir, pattern = "\\.yaml$"))
     return(files)
 }
 
@@ -26,7 +35,7 @@ list_predefined_scales <- function() {
 #' @export
 load_predefined_scale <- function(scale_name) {
     scale_name <- tolower(scale_name)
-    path <- system.file("extdata", paste0(scale_name, ".yaml"), package="nmIRT")
+    path <- system.file("extdata", paste0(scale_name, ".yaml"), package="piraid")
     if (path == "") {
         stop("Error: No such predefined scale. Available scale is MDS-UPDRS")
     }
@@ -69,6 +78,7 @@ load_scale <- function(path) {
 #' @param path Path to the file to save the scale
 #' @export
 save_scale <- function(scale, path) {
+    stopifnot(is.irt_scale(scale))
     for (i in 1:(length(scale$items))) {
         scale$items[[i]]$levels <- levels_as_string(scale$items[[i]]$levels)
         if (!is.null(scale$items[[i]]$categories)) {
@@ -87,6 +97,7 @@ save_scale <- function(scale, path) {
 #' @return A new irt_scale object
 #' @export
 create_subscale <- function(scale, categories) {
+    stopifnot(is.irt_scale(scale))
     new_scale <- irt_scale()
     for (item in scale$items) {
         if (any(categories %in% item$categories)) {
@@ -103,7 +114,8 @@ create_subscale <- function(scale, categories) {
 #' 
 #' In order for the automatic inference to work, the dataset needs to contain the columns ITEM and DV. The function will then use the observed levels for each 
 #' item to determine the item type (binary or ordered categorical) while taking MDV and EVID columns into account (records with MDV or EVID not equal to 0 are
-#' ignored) . The automatic recognition can be over-written by providing a type column which can specify the item type using the keywords 'ordcat' and 'binary'. 
+#' ignored) . The automatic recognition can be over-written by providing a type column which can specify the item type using the keywords 'ordcat' and 'binary'.
+#' These keywords are available through the item_type list, i.e. \code{item_type$ordered_categorical} and \code{item_type$binary}.
 #' Additionally, a label for each item can be provided through the column name.
 #' 
 #' 
@@ -112,7 +124,7 @@ create_subscale <- function(scale, categories) {
 #' @param item Name of the item columns. Default is \code{ITEM}
 #' @param dv Name of the dv column. Default is \code{DV}
 #' @param name Name of an optional name column. Each item can be given a name (mainly for plotting) through this column. Only the first row of a new item will be used for the name.
-#' @param type Name of an optional type column. Each item can be given a type (either ordcat or binary) through this column. If the type option isn't used the type is 
+#' @param type Name of an optional type column. Each item can be given a type (either \code{item_type$ordered_categorical} or \code{item_type$binary}) through this column. If the type option isn't used the type is 
 #' inferred from the number of distinct DV values
 #' @return An irt_scale object
 #' @export
@@ -171,7 +183,7 @@ create_scale_from_csv <- function(file, item='ITEM', dv='DV', name=NULL, type=NU
 #' A lone integer will be written by it self.
 #' 
 #' @examples
-#' nmIRT:::format_integers(c(1,2,3,5,7,8)) #will return "1-3, 5, 7-8"
+#' piraid:::format_integers(c(1,2,3,5,7,8)) #will return "1-3, 5, 7-8"
 #' 
 #' @param x A vector containing integers
 #' @return A readable string
@@ -203,6 +215,7 @@ print.irt_scale <- function(x, ...) {
 #' @param scale An irt_scale object
 #' @param header Set to print the header (set to FALSE if called from print.irt_model)
 print_scale_info <- function(scale, header=TRUE) {
+    stopifnot(is.irt_scale(scale))
     items <- all_items(scale)
     binary_items <- items_by_type(scale, item_type$binary)
     ordcat_items <- items_by_type(scale, item_type$ordered_categorical)
@@ -211,8 +224,8 @@ print_scale_info <- function(scale, header=TRUE) {
         cat("A scale object from ", utils::packageName(), "\n\n", sep="")
     }
     cat("Total number of items: ", length(items), "\n", sep="")
-    cat("    Ordered categorical items: ", format_integers(ordcat_items), "\n", sep="")
-    cat("    Binary items: ", format_integers(binary_items), "\n", sep="")
+    if(length(ordcat_items)>0)  cat("    Ordered categorical items: ", format_integers(ordcat_items), "\n", sep="")
+    if(length(binary_items)>0) cat("    Binary items: ", format_integers(binary_items), "\n", sep="")
 }
 
 #' Print a summary overview of a scale
@@ -259,19 +272,25 @@ get_item <- function(scale, number) {
     NULL
 }
 
-#' Add an item to a scale
+#' Add or replace an item to a scale
 #'
 #' \code{add_item} returns a new scale with item added
 #' Will not add items with less than 2 levels and warn instead.
-#' Will not add items with the same number as item already in scale
+#' Will not add items with the same number as item already in scale unless replace is set to TRUE
 #'
 #' @param scale An irt_scale object
 #' @param item An irt_item to add to scale
+#' @param replace Set to overwrite an already existing item
 #' @return A new scale with the item added
 #' @keywords internal
-add_item <- function(scale, item, overwrite=FALSE) {
+add_item <- function(scale, item, replace=FALSE) {
     if (!is.null(get_item(scale, item$number))) {
-        warning(paste0("Item ", item$number, " is already present in the scale and will not be added."))
+        if (!replace) {
+            warning(paste0("Item ", item$number, " is already present in the scale and will not be added."))
+        } else {
+            i <- get_item_index(scale, item$number)
+            scale$items[[i]] <- item
+        }
     } else if (length(item$levels) < 2) {
         warning(paste0("Item ", item$number, " has only 1 level and will not be added to the scale."))
     } else if (length(item$levels) != 2 && item$type == item_type$binary) {
@@ -289,6 +308,7 @@ add_item <- function(scale, item, overwrite=FALSE) {
 #' @return A new irt_scale object with the items removed
 #' @export
 remove_items <- function(scale, numbers) {
+    stopifnot(is.irt_scale(scale))
     for (n in numbers) {
         for (i in seq(1, length(scale$items))) {
             if (scale$items[[i]]$number == n) {
@@ -341,7 +361,16 @@ ordcat_level_arrays <- function(scale) {
             i = i + 1
         }
     }
-    unique(levels)
+
+    unique_levels <- unique(levels)
+
+    # Sort the level arrays so that the shortest comes first
+    new_order <- unique_levels %>%
+        purrr::map(length) %>%
+        purrr::flatten_int() %>%
+        order()
+
+    unique_levels[new_order]
 }
 
 #' A list enumerating all supported item types
@@ -373,8 +402,8 @@ irt_item <- function(number, name, levels, type, categories=NULL, inits=NULL) {
 #' If a string is input it will be parsed to get a list of all levels it describes
 #' Allowed formats are [a,b] for an interval and (1,2,3,4) to explicitly write all possible levels
 #' @examples 
-#' levels <- nmIRT:::item_levels("[1,3]")   # levels will be 1, 2 and 3.
-#' levels <- nmIRT:::item_levels("(0,1,2,3,4)")
+#' levels <- piraid:::item_levels("[1,3]")   # levels will be 1, 2 and 3.
+#' levels <- piraid:::item_levels("(0,1,2,3,4)")
 #' @param x Can either be a string or an array of levels
 #' @return A sorted array of levels
 #' @keywords internal
@@ -445,4 +474,3 @@ item_name_list <- function(scale) {
     names(item_names) <- numbers
     item_names  
 }
-

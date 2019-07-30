@@ -56,7 +56,7 @@ icc_plots <- function(nmtab, model, resample_psi = FALSE,
         dplyr::group_by(.data$ITEM, .data$response)
     
     ngroups <- dplyr::n_groups(grouped_df)
-    cat("Calculating smoothed GAM ICCs...\n")
+    if(interactive()) cat("Calculating smoothed GAM ICCs...\n")
     if(interactive())  pb <- utils::txtProgressBar(min = 0, max = ngroups, style = 3)
     df_npar_fit <- grouped_df %>% 
         dplyr::group_split() %>% 

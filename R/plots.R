@@ -38,7 +38,7 @@ icc_plots <- function(nmtab, model, resample_psi = FALSE,
                        items_per_page=NULL, samples = 50){
     required_columns <- c("ITEM", "DV", "PSI") 
     is_present <- required_columns  %in% colnames(nmtab)
-    if(!all(is_present)) stop("Column(s) ", required_columns[!is_present], " are required but not present in the data frame.", call. = F) 
+    if(!all(is_present)) stop("Column(s) ", paste(required_columns[!is_present], sep = " "), " are required but not present in the data frame.", call. = F) 
     if(!"PSI_SE" %in% colnames(nmtab) && resample_psi) stop("The column PSI_SE is required for resamples=TRUE.", call. = F)
     if(!"PSI_SE" %in% colnames(nmtab)) rlang::warn("No standard error column (PSI_SE) was provided, the diagnostic might be affected by shrinkage.")
     

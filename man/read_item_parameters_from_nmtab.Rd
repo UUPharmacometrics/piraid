@@ -9,7 +9,7 @@ read_item_parameters_from_nmtab(model, nmtab_file)
 \arguments{
 \item{model}{An irt_model object}
 
-\item{lst_file}{path to the table file}
+\item{nmtab_file}{path to the table file}
 }
 \value{
 A data frame with item parameters

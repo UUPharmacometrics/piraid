@@ -17,7 +17,7 @@ calculate_item_information_curves <- function(model, psi_range = c(-4,4)){
         purrr::map(~mirt::extract.item(mirt_fit, .x)) %>% 
         purrr::set_names(nm = item_names) %>% 
         purrr::map_dfr(~mirt::iteminfo(.x, theta) %>% tibble::tibble(information = ., psi = theta), .id = "item") %>% 
-        dplyr::mutate(item = factor(item, levels = item_names)) 
+        dplyr::mutate(item = factor(.data$item, levels = item_names)) 
     return(df)
     
 }
@@ -26,11 +26,11 @@ calculate_item_information_curves <- function(model, psi_range = c(-4,4)){
 #' @rdname calculate_item_information_curves
 plot_item_information_curves <- function(model, psi_range = c(-4,4)){
     p <- calculate_item_information_curves(model, psi_range =  psi_range) %>% 
-        ggplot2::ggplot(ggplot2::aes(psi, information))+
+        ggplot2::ggplot(ggplot2::aes_string("psi", "information"))+
         ggplot2::geom_line()+
         ggplot2::xlab("PSI")+
         ggplot2::ylab("Information")+
-        ggplot2::facet_wrap(vars(item))
+        ggplot2::facet_wrap(~item)
     return(p)
 }
 
@@ -64,7 +64,7 @@ calculate_population_item_information <- function(model, mean = 0, var = 1){
 #' @export
 plot_population_item_information <- function(model, mean = 0, var = 1){
     p <- calculate_population_item_information(model, mean, var) %>% 
-        ggplot2::ggplot(ggplot2::aes(item, information))+
+        ggplot2::ggplot(ggplot2::aes_string("item", "information"))+
         ggplot2::geom_col()+
         ggplot2::xlab("")+
         ggplot2::ylab("Information")

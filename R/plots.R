@@ -63,17 +63,17 @@ icc_plots <- function(nmtab, model, resample_psi = FALSE,
         purrr::map_dfr(
             function(group_df){
                 if(resample_psi) {
-                    psi_samples <- mapply(rnorm, samples, group_df$PSI, group_df$PSI_SE)
+                    psi_samples <- mapply(stats::rnorm, samples, group_df$PSI, group_df$PSI_SE)
                     p_matrix <- apply(psi_samples, 1, function(psi){
                         fit_df <- group_df
                         fit_df$PSI <- psi
                         suppressWarnings(
-                            fit <- mgcv::gam(y~s(PSI), family = binomial(), data = fit_df)
+                            fit <- mgcv::gam(y~s(PSI), family = stats::binomial(), data = fit_df)
                         )
-                        predict(fit, newdata = pred_df, type = "response")
+                        stats::predict(fit, newdata = pred_df, type = "response")
                     })
                     if(interactive()) pb$up(pb$getVal()+1)
-                    quantile_matrix <- apply(p_matrix, 1, quantile, probs = c(0.05,0.95))
+                    quantile_matrix <- apply(p_matrix, 1, stats::quantile, probs = c(0.05,0.95))
                     mean_p <- rowMeans(p_matrix)
                     return(tibble::tibble(ITEM = group_df$ITEM[1], response = group_df$response[1],
                                           PSI = pred_df$PSI, P =  mean_p,
@@ -85,9 +85,9 @@ icc_plots <- function(nmtab, model, resample_psi = FALSE,
                         weights <- (1/group_df$PSI_SE)/sum((1/group_df$PSI_SE))
                     }
                     suppressWarnings(
-                        fit <- mgcv::gam(y~s(PSI), family = binomial(), data = group_df, weights = weights)
+                        fit <- mgcv::gam(y~s(PSI), family = stats::binomial(), data = group_df, weights = weights)
                     )
-                    pred_df$P <- predict(fit, newdata = pred_df, type = "response")
+                    pred_df$P <- stats::predict(fit, newdata = pred_df, type = "response")
                     pred_df$ITEM <- group_df$ITEM[1] 
                     pred_df$response <-  group_df$response[1]
                     
@@ -99,12 +99,12 @@ icc_plots <- function(nmtab, model, resample_psi = FALSE,
     if(interactive()) close(pb)
     
     item_prms <- dplyr::filter(nmtab, !duplicated(.data$ITEM)) %>% 
-        dplyr::select(ITEM, dplyr::matches("^(DIS|DIF\\d*$|GUE$)")) 
+        dplyr::select("ITEM", dplyr::matches("^(DIS|DIF\\d*$|GUE$)")) 
     
     icc_fit <- pred_df %>%
         merge(possible_responses) %>%
         dplyr::full_join(item_prms, by="ITEM") %>%
-        dplyr::mutate(CAT=response) %>% 
+        dplyr::mutate(CAT=.data$response) %>% 
         dplyr::mutate(P=graded_response_model(UQ(rlang::sym(".")))) %>%
         dplyr::select("ITEM", "response", "PSI", "P")
     

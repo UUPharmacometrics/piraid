@@ -30,7 +30,8 @@ Suggests:
     rmarkdown,
     testthat,
     mockery,
-    xpose
+    xpose,
+    mgcv
 VignetteBuilder: knitr
 NeedsCompilation: no
 Description: Automatic generation of different types of item response theory (IRT) models.

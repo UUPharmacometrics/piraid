@@ -31,12 +31,11 @@ graded_response_model <- function(data) {
 #' @param model The model that was used to create the output table
 #' @param resample_psi Whether to use the resampling based diagnostic
 #' @param items_per_page The number of items to display on one page (default NULL prints all items)
-#' @param page The page to print
 #' @param samples The number of samples to use when resample_psi = T
 #' @return A list of pages
 #' @export
 icc_plots <- function(nmtab, model, resample_psi = FALSE, 
-                       items_per_page=NULL, page = 1, samples = 50){
+                       items_per_page=NULL, samples = 50){
     required_columns <- c("ITEM", "DV", "PSI") 
     is_present <- required_columns  %in% colnames(nmtab)
     if(!all(is_present)) stop("Column(s) ", required_columns[!is_present], " are required but not present in the data frame.", call. = F) 
@@ -110,18 +109,23 @@ icc_plots <- function(nmtab, model, resample_psi = FALSE,
     
     item_labels <- item_name_list(model$scale)
     score_labels <- sort(unique(icc_fit$response)) %>% 
-        {set_names(paste0("score: ", .), .)} 
-    p <- ggplot()+
+        {set_names(paste0("score: ", .), .)}
+    if(is.null(items_per_page)){
+        n_pages <- 1
+    }else{
+        n_pages <- ceiling(length(item_labels)/items_per_page)
+    }
+    purrr::map(seq_len(n_pages),
+     ~ggplot()+
         {if(resample_psi) geom_ribbon(data = df_npar_fit, mapping = aes(PSI,ymin = lower, ymax=upper), alpha = 0.6)}+
         geom_line(data = df_npar_fit, mapping = aes(PSI, P))+
         geom_line(data = icc_fit, mapping = aes(PSI, P),  color = "darkred")+
-        ggforce::facet_grid_paginate(response~ITEM, 
+        ggforce::facet_grid_paginate(ITEM~response, 
                                      labeller=labeller(ITEM=as_labeller(item_labels), ITEM=label_wrap_gen(20), 
                                                        response=as_labeller(score_labels)),
-                                     ncol = items_per_page, nrow = length(score_labels), page = page, byrow = F) +
+                                     nrow = items_per_page, ncol = length(score_labels), page = .x, byrow = F) +
         theme_bw(base_size=14, base_family="") +
-        labs(x="PSI", y="P(Y>=score)")
-    return(p)
+        labs(x="PSI", y="P(Y>=score)"))
 }
 
 #' Mirror plots for comparison of original data and simulated data

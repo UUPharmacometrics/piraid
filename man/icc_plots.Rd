@@ -5,7 +5,7 @@
 \title{Plot item characteristic curves diagnostic}
 \usage{
 icc_plots(nmtab, model, resample_psi = FALSE, items_per_page = NULL,
-  page = 1, samples = 50)
+  samples = 50)
 }
 \arguments{
 \item{nmtab}{A data.frame from the item_parameters_tab of a model run. PSI, ITEM, DV, DIS, DIFn are needed}
@@ -15,8 +15,6 @@ icc_plots(nmtab, model, resample_psi = FALSE, items_per_page = NULL,
 \item{resample_psi}{Whether to use the resampling based diagnostic}
 
 \item{items_per_page}{The number of items to display on one page (default NULL prints all items)}
-
-\item{page}{The page to print}
 
 \item{samples}{The number of samples to use when resample_psi = T}
 }

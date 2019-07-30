@@ -1,7 +1,7 @@
 Package: piraid
 Encoding: UTF-8
 Version: 0.3
-Date: 2019-03-28
+Date: 2019-07-30
 Title: An aid for development and diagnosis of pharmacometric 'IRT' models
 Authors@R: c(person("Rikard", "Nordgren", role=c("aut", "cre", "cph"), email="rikard.nordgren@farmbio.uu.se"),
              person("Sebastian", "Ueckert", role=c("aut", "cph")),
@@ -39,5 +39,5 @@ Description: Automatic generation of different types of item response theory (IR
 URL: https://github.com/UUPharmacometrics/piraid
 BugReports: https://github.com/UUPharmacometrics/piraid/issues
 License: LGPL (>= 2)
-Copyright: 2018 Rikard Nordgren, Sebastian Ueckert and Mats O. Karlsson
+Copyright: 2019 Rikard Nordgren, Sebastian Ueckert and Mats O. Karlsson
 RoxygenNote: 6.1.1

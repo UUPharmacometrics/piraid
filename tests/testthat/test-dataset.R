@@ -6,7 +6,6 @@ test_that("consolidate_data", {
     model <- consolidate_levels(model, 2, c(4, 5))
     data <- data.frame(ITEM=c(1,1,2,2,1,1,1), DV=c(4,3,4,1,5,1,2))
     res <- consolidate_data(data, model)
-    print(res)
     expect_equal(res, data.frame(ITEM=c(1,1,2,2,1,1,1), DV=c(4,3,3,1,5,1,2)))
     
     model <- consolidate_levels(model, 1, 5)

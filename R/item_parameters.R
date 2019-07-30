@@ -185,7 +185,7 @@ theta_string_init_part <- function(model, item, parameter) {
             theta_init(init, lower=0, upper=50)
         }
     } else if (parameter == "GUE") {
-        init
+        theta_init(init, lower=0, upper=1)
     } else {
         stop("Unknown parameter")
     }

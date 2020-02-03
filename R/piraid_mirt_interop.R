@@ -61,3 +61,29 @@ piraid_estimates_to_mirt_format <- function(prm_df){
         ) %>% 
         tidyr::unnest()
 }
+
+
+#' Convert data from wide to long format
+#' 
+#' This functionc converts a data.frame in wide format to the long format.
+#'
+#' @param data A data.frame or matrix where each column corresponds to an item and each row
+#' to a subject
+#'
+#' @return A data.frame with one row per subject and item 
+#' @export
+convert_to_long_nmdata <- function(data){
+    item_map <- seq_len(ncol(data)) %>% 
+        purrr::set_names(colnames(data))
+    tibble::as_data_frame(data) %>% 
+        tibble::rownames_to_column("ID") %>%
+        dplyr::mutate(
+            ID = as.integer(factor(ID))
+        ) %>% 
+        tidyr::gather("ITEM", "DV", -.data$ID) %>% 
+        dplyr::arrange(.data$ID) %>%
+        dplyr::mutate(
+            ITEM = item_map[ITEM], 
+            TIME = 0
+        )
+}

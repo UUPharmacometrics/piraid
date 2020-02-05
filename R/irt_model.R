@@ -296,7 +296,7 @@ type_constants <- function(model) {
     levels <- ordcat_level_arrays(model$scale)
     cg <- add_line(cg, "PSI_MODEL=0")
     cg <- add_line(cg, "UNDEF=0")
-    for (i in 1:length(levels)) {
+    for (i in seq_along(levels)) {
         cg <- add_line(cg, paste0("OC", i, "=", i, '    ; ordered categorical ', levels_as_string(levels[[i]])))
     }
     i = i + 1

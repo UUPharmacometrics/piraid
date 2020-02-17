@@ -299,10 +299,10 @@ type_constants <- function(model) {
     levels <- ordcat_level_arrays(model$scale)
     cg <- add_line(cg, "PSI_MODEL=0")
     cg <- add_line(cg, "UNDEF=0")
-    for (i in 1:length(levels)) {
+    for (i in seq_len(levels)) {
         cg <- add_line(cg, paste0("OC", i, "=", i, '    ; ordered categorical ', levels_as_string(levels[[i]])))
     }
-    i = i + 1
+    i <- length(levels) + 1
     for (item in model$scale$items) {
         if (item$type == item_type$binary) {
             cg <- add_line(cg, paste0("BIN=", i, '    ; binary ', levels_as_string(item$levels)))

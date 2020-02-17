@@ -203,3 +203,7 @@ test_that("Items in categories", {
     items <- items_in_categories(myscale, c("motor", "tremor"))
     expect_equal(items, 14:65)
 })
+
+test_that("number of levels", {
+    expect_equal(number_of_levels(myscale), 335)
+})

@@ -474,3 +474,16 @@ item_name_list <- function(scale) {
     names(item_names) <- numbers
     item_names  
 }
+
+#' Calculate the total number of levels for a scale
+#' 
+#' @param scale An irt_scale object
+#' @return The total number of scale levels
+#' @export
+number_of_levels <- function(scale) {
+    n <- 0
+    for (item in scale$items) {
+        n <- n + length(item$levels)
+    }
+    n
+}

@@ -8,8 +8,11 @@
 irt_model <- function(scale) {
     stopifnot(is.irt_scale(scale))
     item_parameters <- data.frame(item=numeric(0), parameter=character(0), fix=logical(0), init=numeric(0), ignore=logical(0), stringsAsFactors=FALSE)
-    model <- structure(list(scale=scale, simulation=FALSE, consolidation=list(), run_number=1,
-        lv_models=list(), item_parameters=item_parameters, use_data_path=TRUE, simulation_options="", estimation_options=""), class="irt_model")
+    model <- base_model(subclass="irt_model")
+    model$scale = scale
+    model$consolidation = list()
+    model$lv_models = list()
+    model$item_parameters = item_parameters
     if(!is.null(scale$source_file)) {
         if(!file.exists(scale$source_file)) {
             warning("The file that was used to generate the scale does not exist and couldn't be added to the model.")
@@ -296,7 +299,7 @@ type_constants <- function(model) {
     levels <- ordcat_level_arrays(model$scale)
     cg <- add_line(cg, "PSI_MODEL=0")
     cg <- add_line(cg, "UNDEF=0")
-    for (i in seq_along(levels)) {
+    for (i in 1:length(levels)) {
         cg <- add_line(cg, paste0("OC", i, "=", i, '    ; ordered categorical ', levels_as_string(levels[[i]])))
     }
     i = i + 1
@@ -674,7 +677,7 @@ initial_thetas <- function(model, numthetas) {
 #' Generate NONMEM code for initial estimates of thetas
 #' 
 #' Will use the initial estimates of the scale
-#' @param model An irt_model object 
+#' @param model An irt_model object
 #' @return A code generator object
 initial_item_thetas <- function(model) {
     cg <- code_generator()

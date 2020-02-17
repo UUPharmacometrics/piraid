@@ -83,7 +83,7 @@ convert_to_long_nmdata <- function(data){
         tidyr::gather("ITEM", "DV", -.data$ID) %>% 
         dplyr::arrange(.data$ID) %>%
         dplyr::mutate(
-            ITEM = item_map[UQ(sym("ITEM"))], 
+            ITEM = item_map[.data$ITEM],
             TIME = 0
         )
 }

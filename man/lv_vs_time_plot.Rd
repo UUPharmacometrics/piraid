@@ -4,8 +4,13 @@
 \alias{lv_vs_time_plot}
 \title{Plot latent variable versus time}
 \usage{
-lv_vs_time_plot(lv_dataset, lv_col = "PSI", time_col = "TIME",
-  se_col = "SE_PSI", grouping_col = NULL)
+lv_vs_time_plot(
+  lv_dataset,
+  lv_col = "PSI",
+  time_col = "TIME",
+  se_col = "SE_PSI",
+  grouping_col = NULL
+)
 }
 \arguments{
 \item{lv_dataset}{A dataframe}

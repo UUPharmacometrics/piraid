@@ -36,7 +36,6 @@ graded_response_model <- function(data) {
 #' @export
 icc_plots <- function(nmtab, model, resample_psi = FALSE, 
                        items_per_page=NULL, samples = 50){
-    if(!require("mgcv", quietly = T)) stop("The 'mgcv' package needs to be installed to use this function.")
     required_columns <- c("ITEM", "DV", "PSI") 
     is_present <- required_columns  %in% colnames(nmtab)
     if(!all(is_present)) stop("Column(s) ", paste(required_columns[!is_present], sep = " "), " are required but not present in the data frame.", call. = F) 

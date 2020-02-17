@@ -4,8 +4,12 @@
 \alias{prepare_lv_analysis}
 \title{Prepare latent variable analysis}
 \usage{
-prepare_lv_analysis(lv_dataset, output_directory,
-  model_filename = "lv_run1.mod", data_filename = "lv_data.csv")
+prepare_lv_analysis(
+  lv_dataset,
+  output_directory,
+  model_filename = "lv_run1.mod",
+  data_filename = "lv_data.csv"
+)
 }
 \arguments{
 \item{lv_dataset}{The dataset with the latent variable (stored in column PSI) as well as its associated standard error (in column SE_PSI)}

@@ -5,11 +5,9 @@
 \alias{create_scale_from_csv}
 \title{Infer a scale from a dataset}
 \usage{
-create_scale_from_df(df, item = "ITEM", dv = "DV", name = NULL,
-  type = NULL)
+create_scale_from_df(df, item = "ITEM", dv = "DV", name = NULL, type = NULL)
 
-create_scale_from_csv(file, item = "ITEM", dv = "DV", name = NULL,
-  type = NULL)
+create_scale_from_csv(file, item = "ITEM", dv = "DV", name = NULL, type = NULL)
 }
 \arguments{
 \item{df}{A data.frame}

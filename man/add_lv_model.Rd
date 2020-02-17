@@ -5,8 +5,7 @@
 \alias{lv_model_types}
 \title{Add a pre-defined latent variable model}
 \usage{
-add_lv_model(model, lv_model_type = "constant",
-  items = all_items(model))
+add_lv_model(model, lv_model_type = "constant", items = all_items(model))
 
 lv_model_types 
 #c("constant", "linear")

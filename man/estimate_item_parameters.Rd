@@ -25,7 +25,7 @@ are taken from the provided model object.
 \details{
 The available strategies of how to use the longitudinal data include 'baseline' (the default), 'all-pooled' and 'all-baseref'.
 
-With the 'baseline' strategy only the baseline data is used for the estimation and all other data is ignored.
+With the 'baseline' strategy only the baseline data is used for the estimation and all other data is ignored.  
 
 The 'all-pooled' strategy uses all available data and treats each visit as a separate subject during estimation.
 

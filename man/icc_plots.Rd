@@ -4,8 +4,13 @@
 \alias{icc_plots}
 \title{Plot item characteristic curves diagnostic}
 \usage{
-icc_plots(nmtab, model, resample_psi = FALSE, items_per_page = NULL,
-  samples = 50)
+icc_plots(
+  nmtab,
+  model,
+  resample_psi = FALSE,
+  items_per_page = NULL,
+  samples = 50
+)
 }
 \arguments{
 \item{nmtab}{A data.frame from the item_parameters_tab of a model run. PSI, ITEM, DV, DIS, DIFn are needed}

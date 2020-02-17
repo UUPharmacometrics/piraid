@@ -4,8 +4,10 @@
 \alias{estimate_lv_values}
 \title{Estimate Latent Variable Values}
 \usage{
-estimate_lv_values(model,
-  estimate_item_prms = !has_all_initial_estimates(model))
+estimate_lv_values(
+  model,
+  estimate_item_prms = !has_all_initial_estimates(model)
+)
 }
 \arguments{
 \item{model}{The model}

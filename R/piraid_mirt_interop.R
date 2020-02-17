@@ -78,12 +78,12 @@ convert_to_long_nmdata <- function(data){
     tibble::as_data_frame(data) %>% 
         tibble::rownames_to_column("ID") %>%
         dplyr::mutate(
-            ID = as.integer(factor(ID))
+            ID = as.integer(factor(.data$ID))
         ) %>% 
         tidyr::gather("ITEM", "DV", -.data$ID) %>% 
         dplyr::arrange(.data$ID) %>%
         dplyr::mutate(
-            ITEM = item_map[ITEM], 
+            ITEM = item_map[UQ(sym("ITEM"))], 
             TIME = 0
         )
 }

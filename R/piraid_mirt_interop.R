@@ -84,6 +84,7 @@ convert_to_long_nmdata <- function(data){
         dplyr::arrange(.data$ID) %>%
         dplyr::mutate(
             ITEM = item_map[.data$ITEM],
-            TIME = 0
+            TIME = 0,
+            MDV = is.na(DV)
         )
 }

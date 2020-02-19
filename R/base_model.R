@@ -19,6 +19,32 @@ is.base_model <- function(x) {
 #' @export
 model_code <- function(model) UseMethod("model_code")
 
+#' Print NONMEM code
+#' 
+#' Output the NONMEM code of a model object to the console
+#' 
+#' @param model A model object
+#' @export
+print_model_code <- function(model) {
+    stopifnot(is.base_model(model))
+    cat(model_code(model))
+}
+
+#' Save NONMEM code
+#' 
+#' Saves the NONMEM code of a model object to a file
+#' 
+#' @param model A model object
+#' @param path Path to the created model file
+#' @export
+save_model_code <- function(model, path) {
+    stopifnot(is.base_model(model))
+    str <- model_code(model)
+    fp <- file(path)
+    writeLines(str, fp)
+    close(fp)
+}
+
 #' Set dataset
 #' 
 #' This function sets the dataset of a model (i.e., $DATA) as well as the data columns in $INPUT.

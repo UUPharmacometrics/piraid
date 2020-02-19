@@ -67,32 +67,6 @@ set_scale <- function(model, scale) {
     model
 }
 
-#' Print NONMEM code
-#' 
-#' Output the NONMEM code of a model object to the console
-#' 
-#' @param model A model object
-#' @export
-print_model_code <- function(model) {
-    stopifnot(is.irt_model(model))
-    cat(str_irt_model(model))
-}
-
-#' Save NONMEM code
-#' 
-#' Saves the NONMEM code of a model object to a file
-#' 
-#' @param model A model object
-#' @param path Path to the created model file
-#' @export
-save_model_code <- function(model, path) {
-    stopifnot(is.irt_model(model))
-    str <- str_irt_model(model)
-    fp <- file(path)
-    writeLines(str, fp)
-    close(fp)
-}
-
 #' Check if all mandatory components has been added to a model
 #'
 #' Currently the scale and the dataset are mandatory.
@@ -131,7 +105,7 @@ apply_consolidation <- function(model) {
 #' 
 #' @param model A model object
 #' @return A string with the NONMEM code
-str_irt_model <- function(model) {
+model_code.irt_model <- function(model) {
     model_complete(model)
     model <- apply_consolidation(model) # Will remove the consolidated levels from the scale
     next_theta <- 1

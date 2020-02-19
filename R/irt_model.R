@@ -105,6 +105,7 @@ apply_consolidation <- function(model) {
 #' 
 #' @param model A model object
 #' @return A string with the NONMEM code
+#' @export
 model_code.irt_model <- function(model) {
     model_complete(model)
     model <- apply_consolidation(model) # Will remove the consolidated levels from the scale

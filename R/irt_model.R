@@ -138,7 +138,7 @@ str_irt_model <- function(model) {
     cg <- code_generator()
     cg <- add_line(cg, "$SIZES LIM6=4000 LTH=-1000 DIMNEW=-10000")
     cg <- add_line(cg, "$PROBLEM")
-    cg <- add_code(cg, data_and_input_code(model))
+    cg <- add_code(cg, irt_data_and_input_code(model))
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$PRED")
     cg <- add_code(cg, type_constants(model))
@@ -192,31 +192,15 @@ has_lv_model <- function(model){
 #' @param model A irt_model object
 #' @param rewind If the dataset should be rewound or not
 #' @return A code generator object
-data_and_input_code <- function(model, rewind=FALSE) {
-    cg <- code_generator()
-    if (rewind) {
-        rewind_code = " REWIND"
-    } else {
-        rewind_code = ""
-    }
-    if (!is.null(model$dataset)) {
-        if (model$use_data_path) {
-            data_path <- normalizePath(model$dataset)
-        } else {
-            data_path <- basename(model$dataset)    # Only use filename
-        }
-        cg <- add_line(cg, paste0("$INPUT ", paste(model$data_columns, collapse=' ')))
-        ignored_items <- get_ignored_items(model)
-        if (length(ignored_items) > 0) {
-            ignores <- paste0("IGNORE(ITEM.EQN.", ignored_items, ")")
-        }
-        cg <- add_line(cg, paste0("$DATA ", data_path, rewind_code, " IGNORE=@"))
-        if (exists("ignores")) {
-            ignore_lines <- join_with_max_length(ignores)
-            cg <- increase_indent(cg)
-            cg <- add_lines(cg, ignore_lines)
-            cg <- decrease_indent(cg)
-        }
+irt_data_and_input_code <- function(model, rewind=FALSE) {
+    cg <- data_and_input_code(model)
+    ignored_items <- get_ignored_items(model)
+    if (length(ignored_items) > 0) {
+        ignores <- paste0("IGNORE(ITEM.EQN.", ignored_items, ")")
+        ignore_lines <- join_with_max_length(ignores)
+        cg <- increase_indent(cg)
+        cg <- add_lines(cg, ignore_lines)
+        cg <- decrease_indent(cg)
     }
     cg
 }
@@ -410,8 +394,8 @@ ordered_categorical_data_model_code <- function(scale, levels) {
     }
     cg <- add_line(cg, paste0("P", levels[length(levels)], "=PGE", i + 1))
     cg <- add_empty_line(cg)
-    cg <- add_line(cg, paste0("PPRED=", item_probability_sum(levels)))
-    cg <- add_line(cg, paste0("SDPRED=", item_standard_deviation(levels)))
+    cg <- add_line(cg, ppred_code(levels))
+    cg <- add_line(cg, sdpred_code(levels))
     cg <- decrease_indent(cg)
     cg <- add_line(cg, "ENDIF")
     cg <- add_empty_line(cg)
@@ -425,31 +409,6 @@ ordered_categorical_data_model_code <- function(scale, levels) {
     cg
 }
 
-#' Generate a NONMEM code string with a sum of probabilities
-#' 
-#' @param levels A vector of levels
-#' @return A string with NONMEM code for 
-item_probability_sum <- function(levels) {
-    levels <- levels[levels!=0]
-    term_func <- function(level) {
-        paste0("P", level, "*", level)
-    }
-    terms <- sapply(levels, term_func)
-    paste(terms, collapse=" + ")
-}
-
-#' Generate a NONMEM code string with an stdev calculation
-#' 
-#' @param levels A vector of levels
-#' @return A NONMEM code string with sum P1*(1-PPRED)**2 etc
-item_standard_deviation <- function(levels) {
-    term_func <- function(level) {
-        paste0("P", level, "*(", level, "-PPRED)**2")
-    }
-    terms <- sapply(levels, term_func)
-    paste0("SQRT(", paste(terms, collapse=" + "), ")")
-}
-
 #' Generate NONMEM code for response probability and residual
 #' 
 #' @return A code generator object
@@ -459,7 +418,7 @@ response_probability_prediction_code <- function() {
     cg <- add_line(cg, "IF(P.LT.1E-16) P=1E-16  ; To protect for P->0")
     cg <- add_line(cg, "IF(P.GT.(1-1E-16)) P=1-1E-16  ; To protect for P->1")
     cg <- add_line(cg, "Y=-2*LOG(P)")
-    cg <- add_line(cg, "PWRES=(DV-PPRED)/SDPRED")
+    cg <- add_line(cg, pwres_code())
     cg
 }
 
@@ -540,7 +499,7 @@ simulation_task <- function(model) {
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$PROBLEM Simulation")
     cg <- add_empty_line(cg)
-    cg <- add_code(cg, data_and_input_code(model, rewind=TRUE))
+    cg <- add_code(cg, irt_data_and_input_code(model, rewind=TRUE))
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$MSFI msf4")
     cg <- add_empty_line(cg)

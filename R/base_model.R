@@ -85,3 +85,64 @@ set_run_number <- function(model, run_number) {
     model$run_number <- run_number
     model
 }
+
+#' Generate a NONMEM code string with a sum of probabilities
+#' 
+#' @param levels A vector of levels
+#' @return A string with NONMEM code for the sum 
+item_probability_sum <- function(levels) {
+    levels <- levels[levels!=0]
+    term_func <- function(level) {
+        paste0("P", level, "*", level)
+    }
+    terms <- sapply(levels, term_func)
+    paste(terms, collapse=" + ")
+}
+
+#' Generate a NONMEM code string with an stdev calculation
+#' 
+#' @param levels A vector of levels
+#' @return A NONMEM code string with sum P1*(1-PPRED)**2 etc
+item_standard_deviation <- function(levels) {
+    term_func <- function(level) {
+        paste0("P", level, "*(", level, "-PPRED)**2")
+    }
+    terms <- sapply(levels, term_func)
+    paste0("SQRT(", paste(terms, collapse=" + "), ")")
+}
+
+ppred_code <- function(levels) {
+    paste0("PPRED=", item_probability_sum(levels))
+}
+
+sdpred_code <- function(levels) {
+    paste0("SDPRED=", item_standard_deviation(levels))
+}
+
+pwres_code <- function() {
+    "PWRES = (DV - PPRED) / SDPRED"
+}
+
+#' Create the $DATA and $INPUT to NONMEM model code
+#' 
+#' @param model A irt_model object
+#' @param rewind If the dataset should be rewound or not
+#' @return A code generator object
+data_and_input_code <- function(model, rewind=FALSE) {
+    cg <- code_generator()
+    if (rewind) {
+        rewind_code = " REWIND"
+    } else {
+        rewind_code = ""
+    }
+    if (!is.null(model$dataset)) {
+        if (model$use_data_path) {
+            data_path <- normalizePath(model$dataset)
+        } else {
+            data_path <- basename(model$dataset)    # Only use filename
+        }
+        cg <- add_line(cg, paste0("$INPUT ", paste(model$data_columns, collapse=' ')))
+        cg <- add_line(cg, paste0("$DATA ", data_path, rewind_code, " IGNORE=@"))
+    }
+    cg
+}

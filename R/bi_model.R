@@ -38,6 +38,8 @@ model_code.bi_model <- function(model) {
     cg <- add_line(cg, sdpred_code(model$min:model$max))
     cg <- add_line(cg, pwres_code())
     cg <- add_empty_line(cg)
+    cg <- add_code(cg, bi_simulation_code(model))
+    cg <- add_empty_line(cg)
     cg <- add_code(cg, default_bi_parameters())
     cg <- add_empty_line(cg)
     cg <- add_code(cg, bi_estimation(model))
@@ -99,6 +101,31 @@ default_bi_parameters <- function() {
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVBASE")
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLOPE")
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVSD")
+    cg
+}
+
+bi_simulation_code <- function(model) {
+    cg <- code_generator()
+    cg <- banner_comment(cg, "Simulation code")
+    cg <- add_line(cg, "IF(ICALL.EQ.4) THEN")
+    cg <- increase_indent(cg)
+    cg <- add_line(cg, paste0("PLE", model$min, " = P", model$min))
+    ples <- (model$min + 1):(model$max - 1)
+    cg <- add_lines(cg, paste0("PLE", ples, " = PLE", ples - 1, " + P", ples))
+    cg <- add_line(cg, "CALL RANDOM(2, R)")
+    for (i in seq(model$min, model$max - 1)) {
+        cg <- add_line(cg, paste0("IF(R.LE.PLE", i, ") THEN"))
+        cg <- increase_indent(cg)
+        cg <- add_line(cg, paste0("DV = ", i))
+        cg <- decrease_indent(cg)
+    }
+    cg <- add_line(cg, "ELSE")
+    cg <- increase_indent(cg)
+    cg <- add_line(cg, paste0("DV = ", model$max))
+    cg <- decrease_indent(cg)
+    cg <- add_line(cg, "ENDIF")
+    cg <- decrease_indent(cg)
+    cg <- add_line(cg, "ENDIF")
     cg
 }
 

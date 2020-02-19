@@ -26,6 +26,7 @@ model_code.ts_model <- function(model) {
     cg <- code_generator()
     cg <- add_line(cg, "$PROBLEM")
     cg <- add_code(cg, data_and_input_code(model))
+    cg <- add_empty_line(cg)
     cg <- add_code(cg, default_ts_model())
     cg <- add_empty_line(cg)
     cg <- add_code(cg, default_ts_parameters(model))
@@ -40,8 +41,7 @@ default_ts_model <- function() {
     cg <- add_line(cg, "BASE = THETA(1) * EXP(ETA(1))")
     cg <- add_line(cg, "SLOPE = THETA(2) * EXP(ETA(2))")
     cg <- add_line(cg, "IPRED = BASE + SLOPE*TIME")
-    cg <- add_line(cg, "SD = THETA(3) * EXP(ETA(3)) * EPS(1)")
-    cg <- add_line(cg, "Y = IPRED + SD")
+    cg <- add_line(cg, "Y = IPRED + EPS(1) * EXP(ETA(3))")
     cg
 }
 
@@ -49,13 +49,12 @@ default_ts_parameters <- function(model) {
     cg <- code_generator()
     cg <- add_line(cg, paste0("$THETA (", model$min, ",", (model$max + model$min) / 2, ",", model$max, ")  ; TVBASE"))
     cg <- add_line(cg, "$THETA 0.01  ; TVSLOPE")
-    cg <- add_line(cg, "$THETA (0,0.01) ; TVSD")
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVBASE")
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLOPE")
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVSD")
     cg <- add_empty_line(cg)
-    cg <- add_line(cg, "$SIGMA 1 FIX")
+    cg <- add_line(cg, "$SIGMA 1")
     cg
 }
 

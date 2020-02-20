@@ -107,7 +107,7 @@ default_bi_parameters <- function() {
 bi_simulation_code <- function(model) {
     cg <- code_generator()
     cg <- banner_comment(cg, "Simulation code")
-    cg <- add_line(cg, "IF(ICALL.EQ.4) THEN")
+    cg <- add_line(cg, "IF (ICALL.EQ.4) THEN")
     cg <- increase_indent(cg)
     cg <- add_line(cg, paste0("PLE", model$min, " = P", model$min))
     ples <- (model$min + 1):(model$max - 1)

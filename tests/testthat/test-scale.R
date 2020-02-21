@@ -205,5 +205,5 @@ test_that("Items in categories", {
 })
 
 test_that("number of levels", {
-    expect_equal(number_of_levels(myscale), 335)
+    expect_equal(total_score_range(myscale), c(0, 267)) # Are we missing levels? Total score should be 272?
 })

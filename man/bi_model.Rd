@@ -4,10 +4,12 @@
 \alias{bi_model}
 \title{Create a bounded integer model object}
 \usage{
-bi_model(scale_or_levels)
+bi_model(scale_or_min, max = NULL)
 }
 \arguments{
-\item{scale_or_levels}{A scale object or a total number of levels}
+\item{scale_or_min}{A scale object or a minimum total score}
+
+\item{max}{A maximum total score}
 }
 \value{
 A model object

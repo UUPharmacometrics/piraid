@@ -475,15 +475,17 @@ item_name_list <- function(scale) {
     item_names  
 }
 
-#' Calculate the total number of levels for a scale
+#' Calculate the minimum and maximum total score for a scale
 #' 
 #' @param scale An irt_scale object
-#' @return The total number of scale levels
+#' @return Vector of min and max total score
 #' @export
-number_of_levels <- function(scale) {
-    n <- 0
+total_score_range <- function(scale) {
+    lower <- 0
+    upper <- 0
     for (item in scale$items) {
-        n <- n + length(item$levels)
+        lower <- lower + min(item$levels)
+        upper <- upper + max(item$levels)
     }
-    n
+    c(lower, upper)
 }

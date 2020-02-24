@@ -1,0 +1,642 @@
+description: >
+  Aberrant Behavior Checklist (ABC)
+  Aman MG, Singh NN, Stewart AW, Field CJ (1985) The aberrant behavior checklist: a behavior rating scale for the assessment of treatment effects. American journal of mental deficiency
+items:
+  - number: 1
+    name: "Excessively active on ward"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 1.09
+          - -1.30
+          - 1.83
+          - 1.83
+  - number: 2
+    name: "Injures self"
+    levels: '[0,3]'
+    type: ordcat 
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 1.99
+          - -0.09
+          - 1.47
+          - 1.47
+  - number: 3
+    name: "Listless, sluggish, inactive"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 0.99
+          - -0.72
+          - 1.93
+          - 1.93
+  - number: 4
+    name: "Aggressive to other children or adults"
+    levels: '[0,3]'
+    type: ordcat 
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 1.54
+          - -0.58
+          - 1.55
+          - 1.55
+  - number: 5
+    name: "Seeks isolation from others"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 2.40
+          - -0.07
+          - 1.47
+          - 1.47
+  - number: 6
+    name: "meaningless, recurring body movement"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Stereotypic,Behavior
+    inits:
+        values:
+          - 2.04
+          - -0.19
+          - 1.44
+          - 1.44
+  - number: 7
+    name: "Boisterous (inappropriately noisy and rough)"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 1.48
+          - -0.66
+          - 1.64
+          - 1.64
+  - number: 8
+    name: "Screams inappropriately"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 1.58
+          - -0.19
+          - 1.60
+          - 1.60
+  - number: 9
+    names: "Talks excessively"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Inappropriate_speech 
+    inits:
+        values:
+          - 2.25
+          - 0.46
+          - 0.73
+          - 0.73
+  - number: 10
+    name: "Temper tantrums" 
+    levels: '[0,3]'
+    type: ordcat
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 1.17
+          - -1.09
+          - 1.82
+          - 1.82
+  - number: 11
+    name: "Stereotyped, repetitive movements"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Stereotypic,Behavior
+    inits:
+        values:
+          - 2.25
+          - -0.20
+          - 1.22
+          - 1.22
+  - number: 12
+    name: "Preoccupied, stares into space"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 1.32
+          - 0.04
+          - 1.75
+          - 1.75
+  - number: 13
+    name: "Impulsive (acts without thinking)"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 1.17
+          - -1.52
+          - 2.38
+          - 2.38
+  - number: 14
+    name: "Irritable and whiny"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 1.39
+          - -0.81
+          - 2.03
+          - 2.03          
+  - number: 15
+    name: "Restless, unable to sit still"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 1.76
+          - -0.80
+          - 1.75
+          - 1.75
+  - number: 16
+    name: "Withdrawn; prefers solitary activities"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 2.28
+          - -0.16
+          - 1.57
+          - 1.57
+  - number: 17
+    name: "Odd, bizarre in behavior"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Stereotypic,Behavior
+    inits:
+        values:
+          - 1.13
+          - -0.53
+          - 2.14
+          - 2.14
+  - number: 18
+    name: "Disobedient, difficult to control"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 1.57
+          - -1.12
+          - 1.81
+          - 1.81
+  - number: 19
+    name: "Yells at inappropriate times"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          -  1.65
+          - -0.12
+          - 1.76
+          - 1.76
+  - number: 20
+    name: "Fixed facial expression; lacks emotional responsiveness"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 1.71
+          - -0.60
+          - 1.88
+          - 1.88
+  - number: 21
+    name: "Disturbs others"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 1.85
+          - -0.88
+          - 1.90
+          - 1.90
+  - number: 22
+    names: "Repetitive speech"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Inappropriate_speech 
+    inits:
+        values:
+          - 2.78
+          - 0.33
+          - 1.10
+          - 1.10
+  - number: 23
+    name: "Does nothing but sit and watch others"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 2.41
+          - 0.12
+          - 1.57
+          - 1.57
+  - number: 24
+    name: "Uncooperative"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 1.28
+          - -1.31
+          - 1.85
+          - 1.85
+  - number: 25
+    name: "Depressed mood"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 0.76
+          - 0.65
+          - 2.73
+          - 2.73
+  - number: 26
+    name: "Resists any form of physical contact"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 2.00
+          - -0.16
+          - 1.53
+          - 1.53
+  - number: 27
+    name: "Moves or rolls head back and forth"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Stereotypic,Behavior
+    inits:
+        values:
+          - 1.77
+          - 0.06
+          - 0.95
+          - 0.95
+  - number: 28
+    names: "Does not pay attention to instruction"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 1.73
+          - -1.13
+          - 1.66
+          - 1.66
+  - number: 29
+    name: "Demands must be met immediately"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 1.24
+          - 0.32
+          - 2.27
+          - 2.27
+  - number: 30
+    name: "Isolates himself/herself from other patients"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 1.75
+          - -0.48
+          - 1.65
+          - 1.65
+  - number: 31
+    name: "Disrupts group activities"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 1.60
+          - -0.66
+          - 1.67
+          - 1.67
+  - number: 32
+    name: "Sits or stands in one position for a long time"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 2.06
+          - 0.35
+          - 1.08
+          - 1.08
+  - number: 33
+    name: "Talks to self loudly"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Inappropriate_speech 
+    inits:
+        values:
+          - 2.57
+          - 0.56
+          - 0.95
+          - 0.95
+  - number: 34
+    name: "Cries over minor"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 2.13
+          - -0.19
+          - 1.73
+          - 1.73
+  - number: 35
+    name: "Repetitive hand, body or head movement"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Stereotypic,Behavior
+    inits:
+        values:
+          - 2.05
+          - 0.17
+          - 0.91
+          - 0.91
+  - number: 36
+    name: "Mood changes quickly"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 1.89
+          - -0.16
+          - 1.49
+          - 1.49
+  - number: 37
+    name: "Unresponsive to ward activities (does not react)"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 1.64
+          - -0.24
+          - 1.41
+          - 1.41
+  - number: 38
+    name: "Does not stay in seat during lesion period"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 2.21
+          - -0.78
+          - 1.49
+          - 1.49
+  - number: 39
+    name: "Will not sit still for any length of time"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 2.35
+          - -0.48
+          - 1.43
+          - 1.43
+  - number: 40
+    name: "Is difficult to reach or contact"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 1.77
+          - -0.54
+          - 1.53
+          - 1.53
+  - number: 41
+    name: "Cries and screams inappropriately"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 1.88
+          - -0.24
+          - 1.98
+          - 1.98
+  - number: 42
+    name: "Prefers to be alone"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 1.98
+          - 0.07
+          - 1.20
+          - 1.20
+  - number: 43
+    name: "Does not try to communicate by words or gestures"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 1.04
+          - -0.76
+          - 2.08
+          - 2.08
+  - number: 44
+    name: "Easily distractible"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 1.25
+          - -1.64
+          - 1.93
+          - 1.93
+  - number: 45
+    name: "Waves or shakes the extremities repeatedly"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Stereotypic,Behavior
+    inits:
+        values:
+          - 1.83
+          - 0.16
+          - 1.01
+          - 1.01
+  - number: 46
+    name: "Repeats a word or phrase over and over"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Inappropriate_speech 
+    inits:
+        values:
+          - 1.62
+          - 0.52
+          - 1.47
+          - 1.47
+  - number: 47
+    name: "Stamps feet or bangs objects or slams doors" 
+    levels: '[0,3]'
+    type: ordcat
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 2.65
+          - 0.04
+          - 1.41
+          - 1.41
+  - number: 48
+    names: "Constantly runs or jumps around the room"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 1.51
+          - -0.24
+          - 1.51
+          - 1.51
+  - number: 49
+    name: "Rocks body back and forth"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Stereotypic,Behavior
+    inits:
+        values:
+          - 2.12
+          - 0.27
+          - 0.84
+          - 0.84
+  - number: 50
+    name: "Deliberately hurts himself/herself"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 1.84
+          - -0.16
+          - 1.70
+          - 1.70
+  - number: 51
+    name: "Pays no attention when spoken to"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance
+    inits:
+        values:
+          - 1.03
+          - -1.82
+          - 2.12
+          - 2.12
+  - number: 52
+    name: "Does physical violence to self"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 1.78
+          - -0.33
+          - 1.73
+          - 1.73
+  - number: 53
+    name: "Inactive, never moves spontaneously"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 2.23
+          - 0.18
+          - 1.24
+          - 1.24
+  - number: 54
+    names: "Tends to be excessively active"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 1.49
+          - -0.17
+          - 1.61
+          - 1.61
+  - number: 55
+    name: "Responds negatively to affection"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 1.38
+          - -0.10
+          - 2.14
+          - 2.14
+  - number: 56
+    names: "Deliberately ignores directions"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Hyperactivity,Noncompliance 
+    inits:
+        values:
+          - 1.57
+          - -0.94
+          - 2.18
+          - 2.18
+  - number: 57
+    name: "Throws temper tantrums when he/she does not get own way"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Irritability,Agitation,Crying
+    inits:
+        values:
+          - 1.48
+          - -0.85
+          - 1.80
+          - 1.80
+  - number: 58
+    name: "Shows few social reactions to others"
+    levels: '[0,3]'
+    type: ordcat
+    categories: Lethargy,Social_withdrawal
+    inits:
+        values:
+          - 1.18
+          - -1.22
+          - 2.03
+          - 2.03

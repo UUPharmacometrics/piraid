@@ -1,8 +1,19 @@
 # Abstract base class for all types of Models
 
 #' @keywords internal
-base_model <- function(subclass=NULL) {
-    structure(list(simulation=FALSE, run_number=1, use_data_path=TRUE, simulation_options="", estimation_options=""), class=c(subclass, "base_model"))
+base_model <- function(subclass = NULL) {
+    structure(
+        list(
+            scale = NULL,
+            simulation = FALSE,
+            run_number = 1,
+            ignore_statements = c(),
+            use_data_path = TRUE,
+            simulation_options = "",
+            estimation_options = ""
+        ),
+        class = c(subclass, "base_model")
+    )
 }
 
 #' Check wheter x is a base_model object
@@ -169,6 +180,9 @@ data_and_input_code <- function(model, rewind=FALSE) {
         }
         cg <- add_line(cg, paste0("$INPUT ", paste(model$data_columns, collapse=' ')))
         cg <- add_line(cg, paste0("$DATA ", data_path, rewind_code, " IGNORE=@"))
+        if(!rlang::is_empty(model$ignore_statements)){
+            cg <- add_line(cg, paste(model$ignore_statements))    
+        }
     }
     cg
 }

@@ -14,6 +14,7 @@ bi_model <- function(scale_or_min, max=NULL) {
         model$max <- max
     } else {
         stopifnot(is.irt_scale(scale_or_min))
+        model$scale <- scale_or_min
         min_max <- total_score_range(scale_or_min)
         model$min <- min_max[1]
         model$max <- min_max[2]

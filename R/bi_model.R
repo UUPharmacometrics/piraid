@@ -24,6 +24,7 @@ bi_model <- function(scale_or_min, max=NULL) {
 #' @export
 model_code.bi_model <- function(model) {
     cg <- code_generator()
+    cg <- add_line(cg, "$SIZES DIMNEW=10000")
     cg <- add_line(cg, "$PROBLEM")
     cg <- add_code(cg, data_and_input_code(model))
     cg <- add_code(cg, default_bi_model())

@@ -126,7 +126,7 @@ bi_simulation_code <- function(model) {
     cg <- add_lines(cg, paste0("PLE", ples, " = PLE", ples - 1, " + P", ples))
     cg <- add_line(cg, "CALL RANDOM(2, R)")
     cg <- add_line(cg, paste0("DV = ", model$max))
-    for (i in seq(model$min, model$max - 1)) {
+    for (i in rev(seq(model$min, model$max - 1))) {
         cg <- add_line(cg, paste0("IF(R.LE.PLE", i, ") DV = ", i))
     }
     cg <- decrease_indent(cg)

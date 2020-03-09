@@ -88,7 +88,7 @@ default_bi_model <- function() {
     cg <- add_line(cg, "BASE = THETA(1) + ETA(1)")
     cg <- add_line(cg, "SLOPE = THETA(2) + ETA(2)")
     cg <- add_line(cg, "IPRED = BASE + SLOPE*TIME")
-    cg <- add_line(cg, "SD = THETA(3) * EXP(ETA(3))")
+    cg <- add_line(cg, "SD = THETA(3)")
     cg
 }
 
@@ -100,7 +100,6 @@ default_bi_parameters <- function() {
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVBASE")
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLOPE")
-    cg <- add_line(cg, "$OMEGA 0.1  ; IIVSD")
     cg
 }
 

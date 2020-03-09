@@ -454,7 +454,11 @@ estimation_task <- function(model) {
     } else {
         msfo <- ""
     }
-    cg <- add_line(cg, paste0("$ESTIMATION METHOD=COND LAPLACE -2LL MAXEVAL=999999 PRINT=1", msfo, " ", model$estimaton_options))
+    cg <- cg %>% 
+        add_line(";Sim_start for VPC") %>% 
+        add_line("$ESTIMATION METHOD=COND LAPLACE LIKE MAXEVAL=999999 PRINT=1", msfo, " ", model$estimaton_options) %>% 
+        add_line(";$SIMULATION (", sample.int(2147483647, 1),") (", sample.int(2147483647, 1)," UNI) ONLYSIM NOPRED") %>% 
+        add_line(";Sim_end for VPC")
 
     item_parameters <- all_parameter_names(model)
     if(any(grepl("DIF\\d", item_parameters))) {

@@ -134,8 +134,12 @@ bi_simulation_code <- function(model) {
     cg
 }
 
+
 bi_estimation <- function(model) {
-    cg <- code_generator()
-    cg <- add_line(cg, paste0("$ESTIMATION METHOD=COND LAPLACE LIKE MAXEVAL=999999 PRINT=1", " ", model$estimaton_options))
+    cg <- code_generator() %>% 
+        add_line(";Sim_start for VPC") %>% 
+        add_line("$ESTIMATION METHOD=COND LAPLACE LIKE MAXEVAL=999999 PRINT=1", " ", model$estimaton_options) %>% 
+        add_line(";$SIMULATION (", sample.int(2147483647, 1),") (", sample.int(2147483647, 1)," UNI) ONLYSIM NOPRED") %>% 
+        add_line(";Sim_end for VPC")
     cg
 }

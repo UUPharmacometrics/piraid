@@ -109,7 +109,7 @@ default_bi_parameters <- function() {
     cg <- code_generator()
     cg <- add_line(cg, "$THETA 0.01  ; TVBASE")
     cg <- add_line(cg, "$THETA 0.01  ; TVSLOPE")
-    cg <- add_line(cg, "$THETA (0,0.01) ; TVSD")
+    cg <- add_line(cg, "$THETA (0,1) ; SD")
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVBASE")
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLOPE")

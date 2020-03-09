@@ -69,7 +69,10 @@ save_model_code <- function(model, path) {
 #' @param data_columns Optional character vector of data columns for $INPUT to use instead of the dataset header
 #' @return A new model object
 #' @export
-set_dataset <- function(model, path, use_path=TRUE, data_columns=NULL) {
+set_dataset <- function(model, path, use_path=TRUE, data_columns=NULL) UseMethod("set_dataset")
+
+#' @export
+set_dataset.default <- function(model, path, use_path=TRUE, data_columns=NULL) {
     stopifnot(is.base_model(model))
     model$dataset <- path
     model$use_data_path <- use_path

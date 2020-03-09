@@ -23,6 +23,17 @@ ts_model <- function(scale_or_min, max=NULL) {
 }
 
 #' @export
+set_dataset.ts_model <- function(model, path, use_path=TRUE, data_columns=NULL) {
+    model <- NextMethod()
+    if("ITEM" %in% model$data_columns && !is.null(model$scale)){
+        message("Note: IGNORE statements were added to filter item-level entries in total score model.")
+        stms <- purrr::map(all_items(model$scale), ~sprintf("IGNORE=(ITEM.EQN.%i)", .x))
+        model$ignore_statements <- c(model$ignore_statements, stms) 
+    }
+    return(model)
+}
+
+#' @export
 model_code.ts_model <- function(model) {
     cg <- code_generator()
     cg <- add_line(cg, "$PROBLEM")

@@ -1,13 +1,13 @@
-#' Create a total score model object
+#' Create a continuous variable model object
 #' 
-#' \code{ts_model} returns a newly created model object
+#' \code{cv_model} returns a newly created model object
 #'
 #' @param scale_or_min A scale object or a minimum total score
 #' @param max A maximum total score
 #' @return A model object
 #' @export
-ts_model <- function(scale_or_min, max=NULL) {
-    model <- base_model(subclass="ts_model")
+cv_model <- function(scale_or_min, max=NULL) {
+    model <- base_model(subclass="cv_model")
     if (is.numeric(scale_or_min)) {
         model$min <- scale_or_min
         stopifnot(is.numeric(max))
@@ -23,7 +23,7 @@ ts_model <- function(scale_or_min, max=NULL) {
 }
 
 #' @export
-set_dataset.ts_model <- function(model, path, use_path=TRUE, data_columns=NULL, mdv_column) {
+set_dataset.cv_model <- function(model, path, use_path=TRUE, data_columns=NULL, mdv_column) {
     model <- NextMethod()
     if("ITEM" %in% model$data_columns && !is.null(model$scale)){
         message("Note: IGNORE statements were added to filter item-level entries in total score model.")
@@ -34,20 +34,20 @@ set_dataset.ts_model <- function(model, path, use_path=TRUE, data_columns=NULL, 
 }
 
 #' @export
-model_code.ts_model <- function(model) {
+model_code.cv_model <- function(model) {
     cg <- code_generator()
     cg <- add_line(cg, "$PROBLEM")
     cg <- add_code(cg, data_and_input_code(model))
     cg <- add_empty_line(cg)
-    cg <- add_code(cg, default_ts_model())
+    cg <- add_code(cg, default_cv_model())
     cg <- add_empty_line(cg)
-    cg <- add_code(cg, default_ts_parameters(model))
+    cg <- add_code(cg, default_cv_parameters(model))
     cg <- add_empty_line(cg)
-    cg <- add_code(cg, ts_estimation(model))
+    cg <- add_code(cg, cv_estimation(model))
     get_code(cg)
 }
 
-default_ts_model <- function() {
+default_cv_model <- function() {
     cg <- code_generator()
     cg <- add_line(cg, "$PRED")
     cg <- add_line(cg, "BASE = THETA(1) * EXP(ETA(1))")
@@ -57,7 +57,7 @@ default_ts_model <- function() {
     cg
 }
 
-default_ts_parameters <- function(model) {
+default_cv_parameters <- function(model) {
     cg <- code_generator()
     cg <- add_line(cg, paste0("$THETA (", model$min, ",", (model$max + model$min) / 2, ",", model$max, ")  ; TVBASE"))
     cg <- add_line(cg, "$THETA 0.01  ; TVSLOPE")
@@ -69,7 +69,7 @@ default_ts_parameters <- function(model) {
     cg
 }
 
-ts_estimation <- function(model) {
+cv_estimation <- function(model) {
     cg <- code_generator()
     cg <- add_line(cg, paste0("$ESTIMATION METHOD=COND MAXEVAL=999999 PRINT=1", " ", model$estimaton_options))
     cg

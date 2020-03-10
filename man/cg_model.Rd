@@ -8,7 +8,7 @@
 cg_model(scale_or_min, max = NULL, grid_type = "default")
 
 cg_grid_types 
-#c("default", "probit-like")
+#c("default", "czado", "probit-like")
 }
 \arguments{
 \item{scale_or_min}{A scale object or a minimum total score}

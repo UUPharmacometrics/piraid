@@ -30,7 +30,7 @@ cg_model <- function(scale_or_min, max=NULL, grid_type = "default") {
 #' @keywords NULL
 #' @eval paste0("@usage cg_grid_types \n#", deparse(cg_grid_types))
 #' @export
-cg_grid_types <- c("default", "probit-like")
+cg_grid_types <- c("default", "czado", "probit-like")
 
 
 #' @export
@@ -51,7 +51,7 @@ model_code.cg_model <- function(model) {
     cg <- add_code(cg, data_and_input_code(model))
     cg <- add_line(cg, "$ABBR DECLARE DOWHILE I")
     cg <- add_empty_line(cg)
-    cg <- add_code(cg, default_cg_model())
+    cg <- add_code(cg, default_cg_model(model))
     cg <- add_empty_line(cg)
     cg <- add_code(cg, cg_likelihood_model(model))
     cg <- add_empty_line(cg)
@@ -63,14 +63,20 @@ model_code.cg_model <- function(model) {
     get_code(cg)
 }
 
-default_cg_model <- function() {
+default_cg_model <- function(model) {
     cg <- code_generator() %>% 
         add_line("$PRED") %>%
         add_line("MU_1 = THETA(1)") %>% 
         add_line("MU_2 = THETA(2)") %>% 
         add_line("BASE = THETA(1) + ETA(1)") %>% 
         add_line("SLP = THETA(2) + ETA(2)") %>% 
-        add_line("SIG = THETA(3)") %>% 
+        add_line("SIG = THETA(3)") 
+    if(model$grid_type == "czado"){
+        cg <- cg %>% 
+            add_line("LAM1 = THETA(4)") %>% 
+            add_line("LAM2 = THETA(5)")
+    }
+    cg <- cg %>% 
         add_line("ZPRED = BASE + SLP*TIME")
     cg
 }
@@ -81,7 +87,7 @@ cg_likelihood_model <- function(model) {
     cg <- add_line(cg, paste0("KMAX = ", model$max))
     cg <- add_line(cg, "K = DV - KMIN   ; Shift so min=0")
     cg <- add_empty_line(cg)
-    if(model$grid_type == "default"){
+    if(model$grid_type %in% c("default", "czado")){
         cg <- add_line(cg, "AKL = (K - 0.5) / (KMAX - KMIN)")
         cg <- add_line(cg, "AKU = (K + 0.5) / (KMAX - KMIN)")
     }else if(model$grid_type == "probit-like"){
@@ -91,12 +97,21 @@ cg_likelihood_model <- function(model) {
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "ZKL = 0")
     cg <- add_line(cg, "ZKU = 0")
-    if(model$grid_type == "default"){
+    if(model$grid_type %in% c("default", "czado")){
         cg <- add_line(cg, "IF (AKL.GT.0) ZKL = LOG(AKL/(1-AKL))")
         cg <- add_line(cg, "IF (AKU.LT.1) ZKU = LOG(AKU/(1-AKU))")
     }else if(model$grid_type == "probit-like"){
         cg <- add_line(cg, "IF (AKL.GT.0) ZKL = 0.6266571*LOG(AKL/(1-AKL))")
         cg <- add_line(cg, "IF (AKU.LT.1) ZKU = 0.6266571*LOG(AKU/(1-AKU))")
+    }
+    
+    if(model$grid_type == "czado"){
+        cg <- cg %>% 
+            add_empty_line() %>% 
+            add_line("IF(ZKL.GE.0) ZKL = ((ZKL+1)**LAM1-1)/LAM1") %>% 
+            add_line("IF(ZKL.LT.0) ZKL = -((-ZKL+1)**LAM2-1)/LAM2") %>% 
+            add_line("IF(ZKU.GE.0) ZKU = ((ZKU+1)**LAM1-1)/LAM1") %>% 
+            add_line("IF(ZKU.LT.0) ZKU = -((-ZKU+1)**LAM2-1)/LAM2")
     }
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "P = 0")
@@ -118,12 +133,17 @@ cg_simulation <- function(model) {
     cg <- add_line(cg, "I = 0")
     cg <- add_line(cg, "DOWHILE (I.LT.(KMAX - KMIN).AND.DONE.EQ.0)")
     cg <- increase_indent(cg)
-    if(model$grid_type == "default"){
+    if(model$grid_type %in% c("default", "czado")){
         cg <- add_line(cg, "AKU = (I + 0.5) / (KMAX - KMIN)")
         cg <- add_line(cg, "ZKU = LOG(AKU/(1-AKU))")
     }else if(model$grid_type == "probit-like"){
         cg <- add_line(cg, "AKU = (I + 1) / (KMAX - KMIN)")
         cg <- add_line(cg, "ZKU = 0.6266571*LOG(AKU/(1-AKU))")
+    }
+    if(model$grid_type == "czado"){
+        cg <- cg %>% 
+            add_line("IF(ZKU.GE.0) ZKU = ((ZKU+1)**LAM1-1)/LAM1") %>% 
+            add_line("IF(ZKU.LT.0) ZKU = -((-ZKU+1)**LAM2-1)/LAM2")
     }
     cg <- add_line(cg, "P = PHI((ZKU-ZPRED)/SIG)")
     cg <- add_line(cg, "IF (R.LE.P) DONE = 1")
@@ -142,6 +162,11 @@ default_cg_parameters <- function(model) {
     cg <- add_line(cg, "$THETA 0.1  ; TVBASE")
     cg <- add_line(cg, "$THETA 0.1  ; TVSLP")
     cg <- add_line(cg, "$THETA (0,1)  ; SIG")
+    if(model$grid_type == "czado"){
+        cg <- cg %>% 
+            add_line("$THETA (0,1)  ; LAM1") %>% 
+            add_line("$THETA (0,1)  ; LAM2")
+    }
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVBASE")
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLP")

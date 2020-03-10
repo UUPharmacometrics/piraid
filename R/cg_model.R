@@ -43,9 +43,10 @@ model_code.cg_model <- function(model) {
 default_cg_model <- function() {
     cg <- code_generator()
     cg <- add_line(cg, "$PRED")
-    cg <- add_line(cg, "SIG = THETA(1)")
-    cg <- add_line(cg, "BASE = THETA(2) * ETA(1)")
-    cg <- add_line(cg, "ZPRED = BASE")
+    cg <- add_line(cg, "BASE = THETA(1) + ETA(1)")
+    cg <- add_line(cg, "SLP = THETA(2) + ETA(2)")
+    cg <- add_line(cg, "SIG = THETA(3)")
+    cg <- add_line(cg, "ZPRED = BASE + SLP*TIME")
     cg
 }
 
@@ -98,10 +99,12 @@ cg_simulation <- function(model) {
 
 default_cg_parameters <- function(model) {
     cg <- code_generator()
+    cg <- add_line(cg, "$THETA 0.1  ; TVBASE")
+    cg <- add_line(cg, "$THETA 0.1  ; TVSLP")
     cg <- add_line(cg, "$THETA (0,1)  ; SIG")
-    cg <- add_line(cg, "$THETA 1  ; TVBASE")
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVBASE")
+    cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLP")
     cg
 }
 

@@ -14,11 +14,23 @@ cg_model <- function(scale_or_min, max=NULL) {
         model$max <- max
     } else {
         stopifnot(is.irt_scale(scale_or_min))
+        model$scale <- scale_or_min
         min_max <- total_score_range(scale_or_min)
         model$min <- min_max[1]
         model$max <- min_max[2]
     }
     model
+}
+
+#' @export
+set_dataset.cg_model <- function(model, path, use_path=TRUE, data_columns=NULL, mdv_column) {
+    model <- NextMethod()
+    if("ITEM" %in% model$data_columns && !is.null(model$scale)){
+        message("Note: IGNORE statements were added to filter item-level entries in total score model.")
+        stms <- purrr::map(all_items(model$scale), ~sprintf("IGNORE=(ITEM.EQN.%i)", .x))
+        model$ignore_statements <- c(model$ignore_statements, stms) 
+    }
+    return(model)
 }
 
 #' @export

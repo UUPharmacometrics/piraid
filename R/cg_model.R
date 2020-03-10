@@ -41,12 +41,14 @@ model_code.cg_model <- function(model) {
 }
 
 default_cg_model <- function() {
-    cg <- code_generator()
-    cg <- add_line(cg, "$PRED")
-    cg <- add_line(cg, "BASE = THETA(1) + ETA(1)")
-    cg <- add_line(cg, "SLP = THETA(2) + ETA(2)")
-    cg <- add_line(cg, "SIG = THETA(3)")
-    cg <- add_line(cg, "ZPRED = BASE + SLP*TIME")
+    cg <- code_generator() %>% 
+        add_line("$PRED") %>%
+        add_line("MU_1 = THETA(1)") %>% 
+        add_line("MU_2 = THETA(2)") %>% 
+        add_line("BASE = THETA(1) + ETA(1)") %>% 
+        add_line("SLP = THETA(2) + ETA(2)") %>% 
+        add_line("SIG = THETA(3)") %>% 
+        add_line("ZPRED = BASE + SLP*TIME")
     cg
 }
 

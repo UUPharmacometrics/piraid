@@ -489,3 +489,17 @@ total_score_range <- function(scale) {
     }
     c(lower, upper)
 }
+
+max_level <- function(scale) {
+    levels <- ordcat_level_arrays(scale)
+    max <- 1
+    for (level_array in levels) {
+        if (length(level_array) - 1 > max) {
+            max <- length(level_array) - 1
+        }
+        if (max(level_array) > max) {
+            max <- max(level_array)
+        }
+    }
+    max
+}

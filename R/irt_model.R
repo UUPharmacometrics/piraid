@@ -297,16 +297,8 @@ irt_item_assignment_fallthrough <- function(cg, scale) {
     cg <- add_line(cg, "SDPRED=0")
     cg <- add_line(cg, "P=0")
     cg <- add_line(cg, "P0=0")
-    levels <- ordcat_level_arrays(scale)
-    max <- 1
-    for (level_array in levels) {
-        if (length(level_array) - 1 > max) {
-            max <- length(level_array) - 1
-        }
-        if (max(level_array) > max) {
-            max <- max(level_array)
-        }
-    }
+    max <- max_level(scale)
+
     for (i in 1:max) {
         cg <- add_line(cg, paste0("P", i, "=0"))
     }
@@ -467,6 +459,8 @@ estimation_task <- function(model) {
 
     irt_table_options <- c("$TABLE", "ID", "TIME", "DV", mdv_string(model), "ITEM", "PSI", "PPRED", "PWRES", item_parameters, "VARCALC=1", paste0("FILE=irt_tab", model$run_number), "NOAPPEND", "ONEHEADER", "NOPRINT")
     cg <- add_line(cg, paste(irt_table_options, collapse=" "))
+    prob_table_options <- c("$TABLE", "ID", "TIME", "DV", mdv_string(model), "ITEM", paste0("P", 0:max_level(model$scale)), paste0("FILE=prob_tab", model$run_number), "NOAPPEND", "ONEHEADER", "NOPRINT")
+    cg <- add_line(cg, paste(prob_table_options, collapse=" "))
     cg
 }
 

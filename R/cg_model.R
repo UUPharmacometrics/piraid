@@ -4,10 +4,12 @@
 #'
 #' @param scale_or_min A scale object or a minimum total score
 #' @param max A maximum total score
+#' @param grid_type The latent variable grid type to use in the model
 #' @return A model object
 #' @export
-cg_model <- function(scale_or_min, max=NULL) {
+cg_model <- function(scale_or_min, max=NULL, grid_type = "default") {
     model <- base_model(subclass="cg_model")
+    model$grid_type <- rlang::arg_match(grid_type, cg_grid_types)
     if (is.numeric(scale_or_min)) {
         model$min <- scale_or_min
         stopifnot(is.numeric(max))
@@ -21,6 +23,15 @@ cg_model <- function(scale_or_min, max=NULL) {
     }
     model
 }
+
+#' @rdname cg_model
+#' @format NULL
+#' @docType NULL
+#' @keywords NULL
+#' @eval paste0("@usage cg_grid_types \n#", deparse(cg_grid_types))
+#' @export
+cg_grid_types <- c("default", "probit-like")
+
 
 #' @export
 set_dataset.cg_model <- function(model, path, use_path=TRUE, data_columns=NULL, mdv_column) {
@@ -70,13 +81,23 @@ cg_likelihood_model <- function(model) {
     cg <- add_line(cg, paste0("KMAX = ", model$max))
     cg <- add_line(cg, "K = DV - KMIN   ; Shift so min=0")
     cg <- add_empty_line(cg)
-    cg <- add_line(cg, "AKL = (K - 0.5) / (KMAX - KMIN)")
-    cg <- add_line(cg, "AKU = (K + 0.5) / (KMAX - KMIN)")
+    if(model$grid_type == "default"){
+        cg <- add_line(cg, "AKL = (K - 0.5) / (KMAX - KMIN)")
+        cg <- add_line(cg, "AKU = (K + 0.5) / (KMAX - KMIN)")
+    }else if(model$grid_type == "probit-like"){
+        cg <- add_line(cg, "AKL = K / (KMAX - KMIN + 1)")
+        cg <- add_line(cg, "AKU = (K + 1) / (KMAX - KMIN + 1)")
+    }
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "ZKL = 0")
     cg <- add_line(cg, "ZKU = 0")
-    cg <- add_line(cg, "IF (AKL.GT.0) ZKL = LOG(AKL/(1-AKL))")
-    cg <- add_line(cg, "IF (AKU.LT.1) ZKU = LOG(AKU/(1-AKU))")
+    if(model$grid_type == "default"){
+        cg <- add_line(cg, "IF (AKL.GT.0) ZKL = LOG(AKL/(1-AKL))")
+        cg <- add_line(cg, "IF (AKU.LT.1) ZKU = LOG(AKU/(1-AKU))")
+    }else if(model$grid_type == "probit-like"){
+        cg <- add_line(cg, "IF (AKL.GT.0) ZKL = 0.6266571*LOG(AKL/(1-AKL))")
+        cg <- add_line(cg, "IF (AKU.LT.1) ZKU = 0.6266571*LOG(AKU/(1-AKU))")
+    }
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "P = 0")
     cg <- add_line(cg, "IF (K.EQ.0) P = PHI((ZKU - ZPRED) / SIG)")
@@ -97,8 +118,13 @@ cg_simulation <- function(model) {
     cg <- add_line(cg, "I = 0")
     cg <- add_line(cg, "DOWHILE (I.LT.(KMAX - KMIN).AND.DONE.EQ.0)")
     cg <- increase_indent(cg)
-    cg <- add_line(cg, "AKU = (I + 0.5) / (KMAX - KMIN)")
-    cg <- add_line(cg, "ZKU = LOG(AKU/(1-AKU))")
+    if(model$grid_type == "default"){
+        cg <- add_line(cg, "AKU = (I + 0.5) / (KMAX - KMIN)")
+        cg <- add_line(cg, "ZKU = LOG(AKU/(1-AKU))")
+    }else if(model$grid_type == "probit-like"){
+        cg <- add_line(cg, "AKU = (I + 1) / (KMAX - KMIN)")
+        cg <- add_line(cg, "ZKU = 0.6266571*LOG(AKU/(1-AKU))")
+    }
     cg <- add_line(cg, "P = PHI((ZKU-ZPRED)/SIG)")
     cg <- add_line(cg, "IF (R.LE.P) DONE = 1")
     cg <- add_line(cg, "I = I + 1")

@@ -98,6 +98,8 @@ set_predictions <- function(bi_model) {
 default_bi_model <- function() {
     cg <- code_generator()
     cg <- add_line(cg, "$PRED")
+    cg <- add_line(cg, "MU_1 = THETA(1)")
+    cg <- add_line(cg, "MU_2 = THETA(2)")
     cg <- add_line(cg, "BASE = THETA(1) + ETA(1)")
     cg <- add_line(cg, "SLOPE = THETA(2) + ETA(2)")
     cg <- add_line(cg, "IPRED = BASE + SLOPE*TIME")
@@ -138,7 +140,7 @@ bi_simulation_code <- function(model) {
 bi_estimation <- function(model) {
     cg <- code_generator() %>% 
         add_line(";Sim_start for VPC") %>% 
-        add_line("$ESTIMATION METHOD=COND LAPLACE LIKE MAXEVAL=999999 PRINT=1", " ", model$estimaton_options) %>% 
+        add_line("$ESTIMATION METHOD=IMP LAPLACE LIKE AUTO=1 PRINT=1", " ", model$estimaton_options) %>% 
         add_line(";$SIMULATION (", sample.int(2147483647, 1),") (", sample.int(2147483647, 1)," UNI) ONLYSIM NOPRED") %>% 
         add_line(";Sim_end for VPC")
     cg

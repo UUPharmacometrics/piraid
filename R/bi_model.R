@@ -23,7 +23,7 @@ bi_model <- function(scale_or_min, max=NULL) {
 }
 
 #' @export
-set_dataset.bi_model <- function(model, path, use_path=TRUE, data_columns=NULL) {
+set_dataset.bi_model <- function(model, path, use_path=TRUE, data_columns=NULL, mdv_column) {
     model <- NextMethod()
     if("ITEM" %in% model$data_columns && !is.null(model$scale)){
         message("Note: IGNORE statements were added to filter item-level entries in total score model.")

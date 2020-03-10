@@ -67,21 +67,31 @@ save_model_code <- function(model, path) {
 #' @param path Path to a dataset file
 #' @param use_path Should the path be put in $DATA or not? If FALSE only the filename will go into $DATA
 #' @param data_columns Optional character vector of data columns for $INPUT to use instead of the dataset header
+#' @param mdv_column Name of the column in the dataset to use a missing dependent variable indicator (MDV)
 #' @return A new model object
 #' @export
-set_dataset <- function(model, path, use_path=TRUE, data_columns=NULL) UseMethod("set_dataset")
+set_dataset <- function(model, path, use_path=TRUE, data_columns=NULL, mdv_column = NULL) UseMethod("set_dataset")
 
 #' @export
-set_dataset.default <- function(model, path, use_path=TRUE, data_columns=NULL) {
+set_dataset.default <- function(model, path, use_path=TRUE, data_columns=NULL, mdv_column = NULL) {
     stopifnot(is.base_model(model))
     model$dataset <- path
     model$use_data_path <- use_path
     if(is.null(data_columns)){
         df <- utils::read.csv(model$dataset, nrows=0)
-        model$data_columns <- colnames(df)
-    }else{
-        model$data_columns <- data_columns
+        data_columns <- colnames(df)
+    }   
+    if(!is.null(mdv_column)){
+        stopifnot(mdv_column %in% data_columns)
+        if("MDV" %in% data_columns && mdv_column!="MDV"){
+            new_name <- "OMDV"
+            while(new_name %in% data_columns) new_name <- paste0("O", new_name)
+            message("Note: The MDV column in the dataset was renamed to ", new_name)
+            data_columns[data_columns=="MDV"] <- new_name
+        }
+        data_columns[data_columns==mdv_column] <- "MDV"                
     }
+    model$data_columns <- data_columns
     model
 }
 

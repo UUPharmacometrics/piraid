@@ -4,7 +4,13 @@
 \alias{set_dataset}
 \title{Set dataset}
 \usage{
-set_dataset(model, path, use_path = TRUE, data_columns = NULL)
+set_dataset(
+  model,
+  path,
+  use_path = TRUE,
+  data_columns = NULL,
+  mdv_column = NULL
+)
 }
 \arguments{
 \item{model}{A model object}
@@ -14,6 +20,8 @@ set_dataset(model, path, use_path = TRUE, data_columns = NULL)
 \item{use_path}{Should the path be put in $DATA or not? If FALSE only the filename will go into $DATA}
 
 \item{data_columns}{Optional character vector of data columns for $INPUT to use instead of the dataset header}
+
+\item{mdv_column}{Name of the column in the dataset to use a missing dependent variable indicator (MDV)}
 }
 \value{
 A new model object

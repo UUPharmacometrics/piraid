@@ -14,6 +14,7 @@ bi_model <- function(scale_or_min, max=NULL) {
         model$max <- max
     } else {
         stopifnot(is.irt_scale(scale_or_min))
+        model$scale <- scale_or_min
         min_max <- total_score_range(scale_or_min)
         model$min <- min_max[1]
         model$max <- min_max[2]
@@ -22,8 +23,20 @@ bi_model <- function(scale_or_min, max=NULL) {
 }
 
 #' @export
+set_dataset.bi_model <- function(model, path, use_path=TRUE, data_columns=NULL, mdv_column) {
+    model <- NextMethod()
+    if("ITEM" %in% model$data_columns && !is.null(model$scale)){
+        message("Note: IGNORE statements were added to filter item-level entries in total score model.")
+        stms <- purrr::map(all_items(model$scale), ~sprintf("IGNORE=(ITEM.EQN.%i)", .x))
+        model$ignore_statements <- c(model$ignore_statements, stms) 
+    }
+    return(model)
+}
+
+#' @export
 model_code.bi_model <- function(model) {
     cg <- code_generator()
+    cg <- add_line(cg, "$SIZES DIMNEW=10000")
     cg <- add_line(cg, "$PROBLEM")
     cg <- add_code(cg, data_and_input_code(model))
     cg <- add_code(cg, default_bi_model())
@@ -85,10 +98,12 @@ set_predictions <- function(bi_model) {
 default_bi_model <- function() {
     cg <- code_generator()
     cg <- add_line(cg, "$PRED")
+    cg <- add_line(cg, "MU_1 = THETA(1)")
+    cg <- add_line(cg, "MU_2 = THETA(2)")
     cg <- add_line(cg, "BASE = THETA(1) + ETA(1)")
     cg <- add_line(cg, "SLOPE = THETA(2) + ETA(2)")
     cg <- add_line(cg, "IPRED = BASE + SLOPE*TIME")
-    cg <- add_line(cg, "SD = THETA(3) * EXP(ETA(3))")
+    cg <- add_line(cg, "SD = THETA(3)")
     cg
 }
 
@@ -96,11 +111,10 @@ default_bi_parameters <- function() {
     cg <- code_generator()
     cg <- add_line(cg, "$THETA 0.01  ; TVBASE")
     cg <- add_line(cg, "$THETA 0.01  ; TVSLOPE")
-    cg <- add_line(cg, "$THETA (0,0.01) ; TVSD")
+    cg <- add_line(cg, "$THETA (0,1) ; SD")
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVBASE")
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLOPE")
-    cg <- add_line(cg, "$OMEGA 0.1  ; IIVSD")
     cg
 }
 
@@ -114,7 +128,7 @@ bi_simulation_code <- function(model) {
     cg <- add_lines(cg, paste0("PLE", ples, " = PLE", ples - 1, " + P", ples))
     cg <- add_line(cg, "CALL RANDOM(2, R)")
     cg <- add_line(cg, paste0("DV = ", model$max))
-    for (i in seq(model$min, model$max - 1)) {
+    for (i in rev(seq(model$min, model$max - 1))) {
         cg <- add_line(cg, paste0("IF(R.LE.PLE", i, ") DV = ", i))
     }
     cg <- decrease_indent(cg)
@@ -122,8 +136,12 @@ bi_simulation_code <- function(model) {
     cg
 }
 
+
 bi_estimation <- function(model) {
-    cg <- code_generator()
-    cg <- add_line(cg, paste0("$ESTIMATION METHOD=COND LAPLACE LIKE MAXEVAL=999999 PRINT=1", " ", model$estimaton_options))
+    cg <- code_generator() %>% 
+        add_line(";Sim_start for VPC") %>% 
+        add_line("$ESTIMATION METHOD=IMP LAPLACE LIKE AUTO=1 PRINT=1", " ", model$estimaton_options) %>% 
+        add_line(";$SIMULATION (", sample.int(2147483647, 1),") (", sample.int(2147483647, 1)," UNI) ONLYSIM NOPRED") %>% 
+        add_line(";Sim_end for VPC")
     cg
 }

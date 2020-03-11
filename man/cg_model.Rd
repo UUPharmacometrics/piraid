@@ -2,14 +2,20 @@
 % Please edit documentation in R/cg_model.R
 \name{cg_model}
 \alias{cg_model}
+\alias{cg_grid_types}
 \title{Create a coursened grid model object}
 \usage{
-cg_model(scale_or_min, max = NULL)
+cg_model(scale_or_min, max = NULL, grid_type = "default")
+
+cg_grid_types 
+#c("default", "czado", "probit-like")
 }
 \arguments{
 \item{scale_or_min}{A scale object or a minimum total score}
 
 \item{max}{A maximum total score}
+
+\item{grid_type}{The latent variable grid type to use in the model}
 }
 \value{
 A model object

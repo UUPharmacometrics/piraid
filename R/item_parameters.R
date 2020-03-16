@@ -31,12 +31,12 @@ initial_estimate <- function(model, item, parameter) {
         0.1
     } else {
         index <- as.numeric(stringr::str_extract(parameter, '\\d+'))
-        init <- -3 + (6 * index) / length(item$levels)
-        if (init <= 0) {
-            0.1
-        } else {
-            init
+        if(index==1){
+            init <- -2
+        }else{
+            init <- 4/(length(item$levels)-2)
         }
+        return(init)
     }
 }
 

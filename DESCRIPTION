@@ -40,4 +40,4 @@ URL: https://github.com/UUPharmacometrics/piraid
 BugReports: https://github.com/UUPharmacometrics/piraid/issues
 License: LGPL (>= 2)
 Copyright: 2019-2020 Rikard Nordgren, Sebastian Ueckert and Mats O. Karlsson
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0

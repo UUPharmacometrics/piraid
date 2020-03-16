@@ -40,10 +40,41 @@ evaluate_mirt_model <- function(model){
     return(mirt_model)
 }
 
+#' Convert piraid model to mirt model
+#' 
+#' This function converts a piraid irt_model to an mirt SingleGroupClass to allow the subsequent use of mirt functions 
+#'
+#' @param model A piraid irt_model
+#'
+#' @return An mirt SingleGroupClass
+
+make_mirt_model <- function(model){
+    item_names <- purrr::map_int(model$scale$items, "number") %>% 
+        paste0("ITEM_",.)
+    
+    pseudo_data <- purrr::map(model$scale$items, "levels") %>% 
+        purrr::set_names(item_names) %>% 
+        rlang::invoke(data.frame, .args = .)
+    
+    # get item models
+    types <- prepare_mirt_type_vector(model, pseudo_data)
+    # get required prms
+    mirt_prms <- mirt::mirt(data=pseudo_data, model=1, itemtype=types, pars = "values")
+    # convert piraid prms to mirt
+    item_prms <-  piraid_estimates_to_mirt_format(model$item_parameters) 
+    # update prms 
+    mirt_prms <- dplyr::left_join(mirt_prms, item_prms, by = c("item","name"), suffix = c("", "_new")) %>% 
+        dplyr::mutate(value = ifelse(is.na(.data$value_new), .data$value, .data$value_new)) %>% 
+        dplyr::select(-.data$value_new)
+    # evaluate model
+    mirt_model <- mirt::mirt(data=pseudo_data, model=1, itemtype = types, pars = mirt_prms, TOL = NA)
+    return(mirt_model)
+}
+
 piraid_estimates_to_mirt_format <- function(prm_df){
     prm_df %>% 
-        dplyr::select(.data$item, .data$parameter, .data$init) %>% 
-        tidyr::nest(-.data$item) %>% 
+        dplyr::select("item", "parameter", "init") %>% 
+        tidyr::nest(data = c("parameter", "init")) %>% 
         dplyr::mutate(
             item = paste0("ITEM_", .data$item),
             # convert to named vector with MIRT prm names
@@ -59,7 +90,7 @@ piraid_estimates_to_mirt_format <- function(prm_df){
                 purrr::map(~mirt::traditional2mirt(.x, mirt_model_from_prms(.x), ncat_from_prms(.x))) %>% 
                 purrr::map(~tibble::enframe(.x))
         ) %>% 
-        tidyr::unnest()
+        tidyr::unnest(cols = "data")
 }
 
 

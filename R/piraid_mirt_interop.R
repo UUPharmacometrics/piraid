@@ -48,20 +48,21 @@ evaluate_mirt_model <- function(model){
 #'
 #' @return An mirt SingleGroupClass
 
-make_mirt_model <- function(model){
+as_mirt_model <- function(model){
+    stopifnot(is.irt_model(model))
     item_names <- purrr::map_int(model$scale$items, "number") %>% 
         paste0("ITEM_",.)
     
     pseudo_data <- purrr::map(model$scale$items, "levels") %>% 
         purrr::set_names(item_names) %>% 
-        rlang::invoke(data.frame, .args = .)
+        do.call(data.frame, args = .)
     
     # get item models
     types <- prepare_mirt_type_vector(model, pseudo_data)
     # get required prms
     mirt_prms <- mirt::mirt(data=pseudo_data, model=1, itemtype=types, pars = "values")
     # convert piraid prms to mirt
-    item_prms <-  piraid_estimates_to_mirt_format(model$item_parameters) 
+    item_prms <-  piraid_estimates_to_mirt_format(list_initial_estimates(model)) 
     # update prms 
     mirt_prms <- dplyr::left_join(mirt_prms, item_prms, by = c("item","name"), suffix = c("", "_new")) %>% 
         dplyr::mutate(value = ifelse(is.na(.data$value_new), .data$value, .data$value_new)) %>% 

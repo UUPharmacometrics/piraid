@@ -40,6 +40,43 @@ evaluate_mirt_model <- function(model){
     return(mirt_model)
 }
 
+#' Get mirt names for all items in model
+#'
+#' @param model An irt_model
+#'
+#' @return Vector of names for all items in model
+get_mirt_names <- function(model){
+    stopifnot(is.irt_model(model))
+    purrr::map_int(model$scale$items, "number") %>% 
+        paste0("ITEM_",.)
+}
+
+#' Get mirt types for all items in model
+#'
+#' @param model An irt_model
+#'
+#' @return Vector of mirt itemtypes
+get_mirt_types <- function(model){
+    stopifnot(is.irt_model(model))
+    item_names <- get_mirt_names(model)
+    type_map <- c(ordcat = "graded", binary = "3PL")
+    type_map[purrr::map_chr(model$scale$items, "type")] %>% 
+        set_names(item_names)
+}
+
+#' Create dataset with all necessary responses
+#'
+#' @param model An irt_model
+#'
+#' @return data.frame 
+create_mirt_pseudo_data <- function(model){
+    stopifnot(is.irt_model(model))
+    item_names <- get_mirt_names(model)
+    purrr::map(model$scale$items, "levels") %>% 
+        purrr::set_names(item_names) %>% 
+        do.call(data.frame, args = .)
+}
+
 #' Convert piraid model to mirt model
 #' 
 #' This function converts a piraid irt_model to an mirt SingleGroupClass to allow the subsequent use of mirt functions 
@@ -47,18 +84,12 @@ evaluate_mirt_model <- function(model){
 #' @param model A piraid irt_model
 #'
 #' @return An mirt SingleGroupClass
-
 as_mirt_model <- function(model){
     stopifnot(is.irt_model(model))
-    item_names <- purrr::map_int(model$scale$items, "number") %>% 
-        paste0("ITEM_",.)
     
-    pseudo_data <- purrr::map(model$scale$items, "levels") %>% 
-        purrr::set_names(item_names) %>% 
-        do.call(data.frame, args = .)
-    
+    pseudo_data <- create_mirt_pseudo_data(model)
     # get item models
-    types <- prepare_mirt_type_vector(model, pseudo_data)
+    types <- get_mirt_types(model)
     # get required prms
     mirt_prms <- mirt::mirt(data=pseudo_data, model=1, itemtype=types, pars = "values")
     # convert piraid prms to mirt

@@ -25,7 +25,8 @@ Imports:
     purrr,
     tibble,
     tidyselect,
-    pracma
+    pracma,
+    glue
 Suggests: 
     knitr,
     rmarkdown,

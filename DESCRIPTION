@@ -24,7 +24,8 @@ Imports:
     mirt,
     purrr,
     tibble,
-    tidyselect
+    tidyselect,
+    pracma
 Suggests: 
     knitr,
     rmarkdown,

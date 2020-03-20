@@ -72,9 +72,10 @@ get_mirt_types <- function(model){
 create_mirt_pseudo_data <- function(model){
     stopifnot(is.irt_model(model))
     item_names <- get_mirt_names(model)
-    purrr::map(model$scale$items, "levels") %>% 
-        purrr::set_names(item_names) %>% 
-        do.call(data.frame, args = .)
+    values <- purrr::map(model$scale$items, "levels") %>% 
+        purrr::set_names(item_names) 
+    max_length <- max(purrr::map_int(values, length))
+    purrr::map_dfc(values, ~c(.x, rep(NA, max_length-length(.x))))
 }
 
 #' Convert piraid model to mirt model

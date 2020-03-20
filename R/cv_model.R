@@ -47,7 +47,11 @@ model_code.cv_model <- function(model) {
         cg <- add_code(cg, default_cv_model())
     }
     cg <- add_empty_line(cg)
-    cg <- add_code(cg, default_cv_parameters(model))
+    if(!is.null(model$cv_irt_link)){
+        cg <- add_code(cg, default_irt_based_cv_parameters(model))
+    }else{
+        cg <- add_code(cg, default_cv_parameters(model))
+    }
     cg <- add_empty_line(cg)
     cg <- add_code(cg, cv_estimation(model))
     get_code(cg)
@@ -56,8 +60,10 @@ model_code.cv_model <- function(model) {
 default_irt_based_cv_model <- function(model){
     cg <- code_generator()
     cg <- add_line(cg, "$PRED")
-    cg <- add_line(cg, "BASE = THETA(1) * ETA(1)")
-    cg <- add_line(cg, "SLOPE = THETA(2) * ETA(2)")
+    cg <- add_line(cg, "BASE = THETA(1) + ETA(1)")
+    cg <- add_line(cg, "SLOPE = THETA(2) + ETA(2)")
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, "LV = BASE + SLOPE*TIME")
     cg <- add_empty_line(cg)
     cg <- add_code(cg, get_nm_cv_irt_link(model$cv_irt_link))
     cg
@@ -70,6 +76,18 @@ default_cv_model <- function() {
     cg <- add_line(cg, "SLOPE = THETA(2) * EXP(ETA(2))")
     cg <- add_line(cg, "IPRED = BASE + SLOPE*TIME")
     cg <- add_line(cg, "Y = IPRED + EPS(1)")
+    cg
+}
+
+default_irt_based_cv_parameters <- function(model) {
+    cg <- code_generator()
+    cg <- add_line(cg, "$THETA 0.1  ; TVBASE")
+    cg <- add_line(cg, "$THETA 0.01  ; TVSLOPE")
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, "$OMEGA 1  ; IIVBASE")
+    cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLOPE")
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, "$SIGMA 1 FIX")
     cg
 }
 

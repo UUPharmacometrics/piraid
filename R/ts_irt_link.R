@@ -95,16 +95,18 @@ calculate_cv_irt_link <- function(model,
             sqrt
         return(sd_score)
     }
-    # determine psi range for approximation
-    max_range <- total_score_range(model$scale)
-    if(!is.finite(score_range[1])) score_range[1] <- max_range[1]
-    if(!is.finite(score_range[2])) score_range[2] <- max_range[2]
-    psi_interval <- c(-10, 10)
-    # solve score_min+range_tol = f_mean(psi) using root finder
-    sol_min <- uniroot(function(psi) f_mean(psi) - score_range[1] - range_tol, psi_interval)
-    # solve score_max-range_tol = f_mean(psi) using root finder
-    sol_max <- uniroot(function(psi) f_mean(psi) - score_range[2] + range_tol, psi_interval)
-    psi_range <- c(sol_min$root, sol_max$root)
+    if(is.null(psi_range)){
+        # determine psi range for approximation
+        max_range <- total_score_range(model$scale)
+        if(!is.finite(score_range[1])) score_range[1] <- max_range[1]
+        if(!is.finite(score_range[2])) score_range[2] <- max_range[2]
+        psi_interval <- c(-50, 50)
+        # solve score_min+range_tol = f_mean(psi) using root finder
+        sol_min <- uniroot(function(psi) f_mean(psi) - score_range[1] - range_tol, psi_interval)
+        # solve score_max-range_tol = f_mean(psi) using root finder
+        sol_max <- uniroot(function(psi) f_mean(psi) - score_range[2] + range_tol, psi_interval)
+        psi_range <- c(sol_min$root, sol_max$root)
+    }
     # determine the polynomial degree necessary to approx mean fun with requested tol
     degree <- 0
     psi_grid <- seq(psi_range[1], psi_range[2], length.out = 100)

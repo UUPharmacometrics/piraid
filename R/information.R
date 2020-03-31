@@ -10,7 +10,7 @@
 #' @return A data.frame or a plot 
 #' @export
 calculate_item_information_curves <- function(model, psi_range = c(-4,4)){
-    mirt_fit <- evaluate_mirt_model(model)
+    mirt_fit <- as_mirt_model(model)
     item_names <- item_name_list(model$scale)
     theta <- seq(psi_range[1], psi_range[2], length.out = 100)
     df <- seq_along(item_names) %>% 

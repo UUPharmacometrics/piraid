@@ -74,7 +74,8 @@ calculate_cv_irt_link <- function(model,
                                   score_range = c(-Inf, Inf),
                                   range_tol = 0.3,
                                   approx_tol_mean = 0.1,
-                                  approx_tol_sd  = 0.01){
+                                  approx_tol_sd  = 0.01, 
+                                  max_degree = 100){
     mirt_model <- as_mirt_model(model)
     result <- list()
     # function calculatingirt_ts the mean score
@@ -116,7 +117,7 @@ calculate_cv_irt_link <- function(model,
         degree <- degree+1
         f_approx <- pracma::chebApprox(psi_grid, f_mean, psi_range[1], psi_range[2], degree)
         error <- max(abs(f_true-f_approx))  
-        if(error < approx_tol_mean || degree>20 ) {
+        if(error < approx_tol_mean || degree>max_degree ) {
             break
         }
     }
@@ -137,7 +138,7 @@ calculate_cv_irt_link <- function(model,
         degree <- degree+1
         f_approx <- pracma::chebApprox(psi_grid, f_sd, psi_range[1], psi_range[2], degree)
         error <- max(abs(f_true-f_approx))  
-        if(error < approx_tol_sd || degree>20 ) {
+        if(error < approx_tol_sd || degree>max_degree ) {
             break
         }
     }
@@ -151,25 +152,61 @@ calculate_cv_irt_link <- function(model,
                       true = f_true, 
                       approx = f_approx, 
                       coefficients = coef)
+    # determine approximation quality of the derivatives
+    poly_mu <- rev(result$mean$coefficients)
+    poly_sigma <- rev(result$sd$coefficients)
+    poly_dmu_dpsi <- pracma::polyder(poly_mu)
+    poly_dsigma_dpsi <- pracma::polyder(poly_sigma)
+    psi_t  <-  (2*psi_grid-(psi_range[2]+psi_range[1]))/(psi_range[2]-psi_range[1])
+    result$mean$deriv_approx <- pracma::polyval(poly_dmu_dpsi, psi_t)*2/(psi_range[2]-psi_range[1])
+    result$mean$deriv_true <- pracma::fderiv(f_mean, psi_grid)
+    result$sd$deriv_approx <- pracma::polyval(poly_dsigma_dpsi, psi_t)*2/(psi_range[2]-psi_range[1])
+    result$sd$deriv_true <- pracma::fderiv(f_sd, psi_grid)
     return(result)
 }
 
 
 #' @export
 #' @rdname calculate_cv_irt_link
-plot_cv_irt_link <- function(res){
+plot_cv_irt_link <- function(res, plot_derivatives=FALSE){
     df <- res[c("mean","sd")] %>% 
         purrr::map(`[`, c("approx","true","psi")) %>% 
         purrr::map_dfr(tibble::as_tibble, 
                        .id = "stat") %>% 
         tidyr::pivot_longer(cols = c("true", "approx"))
     
-    ggplot2::ggplot(df, aes(psi, value, color = name)) +
-        ggplot2::geom_line() +
+    if(plot_derivatives){
+        df_deriv <- res[c("mean","sd")] %>% 
+            purrr::map(`[`, c("deriv_approx","deriv_true","psi")) %>% 
+            purrr::map_dfr(tibble::as_tibble, 
+                           .id = "stat") %>% 
+            dplyr::rename(approx = "deriv_approx", true = "deriv_true") %>% 
+            tidyr::pivot_longer(cols = c("approx", "true")) 
+        
+        df <- dplyr::bind_rows(
+            `function` = df,
+            `derivative` = df_deriv,
+            .id = "type"
+        ) %>% 
+            dplyr::mutate(
+                type = factor(.data$type, levels = c("function", "derivative"))
+            )
+    }
+    df <- df %>% dplyr::mutate(name = factor(.data$name, levels = c("true", "approx")))
+    
+    p <- ggplot2::ggplot(df, aes(psi, value, color = name, linetype = name)) +
+        ggplot2::geom_line(size = 1) +
+        ggplot2::scale_linetype_manual("", values = c(true = "solid", approx = 'dashed'))+
         ggplot2::scale_color_discrete("") +
-        ggplot2::facet_wrap(ggplot2::vars(stat), scales = "free_y") +
         ggplot2::theme(legend.position = "top")
-            
+    if(plot_derivatives){
+        p <- p + 
+            ggplot2::facet_grid(rows = ggplot2::vars(stat), cols = ggplot2::vars(type), scales = "free")
+    }else{
+        p <- p + 
+            ggplot2::facet_wrap(ggplot2::vars(stat), scales = "free")
+    }
+    p
 }
 
 
@@ -192,3 +229,28 @@ get_nm_cv_irt_link <- function(res, digits = 6){
         add_line("Y = SCORE+SDSCORE*EPS(1)")
     return(cg)
 }
+
+calculate_cv_irt_information <- function(res, psi_range = c(-4, 4)){
+    # polynomials for mean and SD
+    poly_mu <- rev(res$mean$coefficients)
+    poly_sigma <- rev(res$sd$coefficients)
+    # polynomials for derivatives of mean and SD
+    poly_dmu_dpsi <- pracma::polyder(poly_mu)
+    poly_dsigma_dpsi <- pracma::polyder(poly_sigma)
+    f_information <- function(psi) {
+        psi_t <- (2*psi-(res$range[2]+res$range[1]))/(res$range[2]-res$range[1])
+        sigma <- pracma::polyval(poly_sigma, psi_t)
+        sigma2 <- sigma^2
+        # derivative of mu w.r.t. ps
+        d_mu_dpsi <- pracma::polyval(poly_dmu_dpsi, psi_t)*2/(res$range[2]-res$range[1])
+        d_sigma_dpsi <- pracma::polyval(poly_dsigma_dpsi, psi_t)*2/(res$range[2]-res$range[1])
+        d_sigma2_dpsi <- 2*sigma*d_sigma_dpsi
+        d_mu_dpsi^2/sigma2+0.5*d_sigma2_dpsi^2/sigma2^2    
+    }
+    tibble::tibble(
+        psi = seq(psi_range[1], psi_range[2], length.out = 100),
+        information = f_information(psi)
+    )
+}
+
+

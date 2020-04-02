@@ -64,7 +64,7 @@ load_scale <- function(path) {
             name <- ""
         }
         new_irt_item <- irt_item(number=item$number, name=name, levels=item_levels(item$levels),
-            type=item$type, categories=categories, inits=item$inits$values)
+            type=item$type, categories=categories, inits=as.numeric(item$inits$values))
         scale <- add_item(scale, new_irt_item)
     }
     scale

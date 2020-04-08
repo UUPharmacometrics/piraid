@@ -2,8 +2,9 @@
 % Please edit documentation in R/ts_irt_link.R
 \name{calculate_cv_irt_link}
 \alias{calculate_cv_irt_link}
-\alias{plot_cv_irt_link}
-\title{Determine IRT-based mean and SD link for CV model}
+\alias{calculate_bi_irt_link}
+\alias{plot_irt_link}
+\title{Determine IRT-based links for CV or BI models}
 \usage{
 calculate_cv_irt_link(
   model,
@@ -11,10 +12,20 @@ calculate_cv_irt_link(
   score_range = c(-Inf, Inf),
   range_tol = 0.3,
   approx_tol_mean = 0.1,
-  approx_tol_sd = 0.01
+  approx_tol_sd = 0.01,
+  max_degree = 100
 )
 
-plot_cv_irt_link(res)
+calculate_bi_irt_link(
+  model,
+  psi_range = NULL,
+  score_range = c(-Inf, Inf),
+  range_tol = 0.3,
+  approx_tol_sd = 0.01,
+  max_degree = 100
+)
+
+plot_irt_link(res, plot_derivatives = FALSE)
 }
 \arguments{
 \item{model}{}
@@ -33,5 +44,5 @@ plot_cv_irt_link(res)
 
 }
 \description{
-Determine IRT-based mean and SD link for CV model
+Determine IRT-based links for CV or BI models
 }

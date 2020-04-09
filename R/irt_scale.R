@@ -451,7 +451,7 @@ levels_as_string <- function(levels) {
 #' @keywords internal
 published_init <- function(scale, item_number, parameter_index) {
     item <- get_item(scale, item_number)
-    if ("inits" %in% names(item)) {
+    if (!rlang::is_empty(item$inits)) {
         if (!is.na(parameter_index)) {
             return(item$inits[parameter_index])
         }

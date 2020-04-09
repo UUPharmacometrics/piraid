@@ -40,11 +40,11 @@ test_that("creation of pseudo data", {
         data.frame(
             ITEM_1 = 0:5,
             ITEM_2 = 0:5,
-            ITEM_3 = c(0L, 1L,  0L, 1L, 0L, 1L),
-            ITEM_4 = c(0L, 1L, 0L, 1L, 0L, 1L),
-            ITEM_5 = c(0L,  1L, 0L, 1L, 0L, 1L),
-            ITEM_6 = c(0L, 1L, 0L, 1L, 0L, 1L),
-            ITEM_7 = c(0L,  1L, 0L, 1L, 0L, 1L)
+            ITEM_3 = c(0L, 1L,  NA_integer_, NA_integer_, NA_integer_, NA_integer_),
+            ITEM_4 = c(0L, 1L,  NA_integer_, NA_integer_, NA_integer_, NA_integer_),
+            ITEM_5 = c(0L, 1L,  NA_integer_, NA_integer_, NA_integer_, NA_integer_),
+            ITEM_6 = c(0L, 1L,  NA_integer_, NA_integer_, NA_integer_, NA_integer_),
+            ITEM_7 = c(0L, 1L,  NA_integer_, NA_integer_, NA_integer_, NA_integer_)
         )
     expect_equal(create_mirt_pseudo_data(m), expected)
 })

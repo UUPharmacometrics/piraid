@@ -239,6 +239,7 @@ calculate_bi_irt_link <- function(model,
                                   psi_range = NULL, 
                                   score_range = c(-Inf, Inf),
                                   range_tol = 0.3,
+                                  approx_tol_mean = 0.1,
                                   approx_tol_sd  = 0.01, 
                                   max_degree = 100){
     mirt_model <- as_mirt_model(model)
@@ -246,14 +247,24 @@ calculate_bi_irt_link <- function(model,
     result$type <- "zscore"
     # function calculatingirt_ts the mean score
     f_mean <- function(x) mirt::expected.test(mirt_model, matrix(x))
+    f_mu <- function(psi){
+        pmf <- pmf_ts(mirt_model, psi) 
+        scores <- matrix(seq(0, ncol(pmf)-1), nrow = 1)
+ #       pmf <- pmf[,-c(1, ncol(pmf))]
+        mx <- max(scores)
+        pscores <- (scores+0.5)/(mx+1)
+#        pscores <- pscores[-c(1, length(pscores))]
+        zscores <- drop(qnorm(pscores))
+        drop(pmf %*% zscores)
+    }
     # function calculating the sd score
     f_sd <- function(psi){
         pmf <- pmf_ts(mirt_model, psi) 
         scores <- matrix(seq(0, ncol(pmf)-1), nrow = 1)
-        pmf <- pmf[,-c(1, ncol(pmf))]
+        #pmf <- pmf[,-c(1, ncol(pmf))]
         mx <- max(scores)
-        pscores <- scores/mx
-        pscores <- pscores[-c(1, length(pscores))]
+        pscores <- (scores+0.5)/(mx+1)
+        # pscores <- pscores[-c(1, length(pscores))]
         zscores <- drop(qnorm(pscores))
         mu <- pmf %*% zscores
         
@@ -274,26 +285,26 @@ calculate_bi_irt_link <- function(model,
     result$range <- psi_range
     psi_grid <- seq(psi_range[1], psi_range[2], length.out = 100)
     # determine the polynomial degree necessary to approx mean fun with requested tol
-    # degree <- 0
-    # f_true <- f_mean(psi_grid)
-    # repeat{
-    #     degree <- degree+1
-    #     f_approx <- pracma::chebApprox(psi_grid, f_mean, psi_range[1], psi_range[2], degree)
-    #     error <- max(abs(f_true-f_approx))  
-    #     if(error < approx_tol_mean || degree>max_degree ) {
-    #         break
-    #     }
-    # }
-    # # determine Chebyshev polynomial coefficients
-    # coef_cheb <-  pracma::chebCoeff(f_mean, psi_range[1], psi_range[2], degree)
-    # poly_cheb <- pracma::chebPoly(degree)
-    # coef <- rev(drop(coef_cheb %*% poly_cheb))
-    # coef[1] <- coef[1] - coef_cheb[1]/2
-    # result$mean <- list(degree = degree, 
-    #                     psi = psi_grid, 
-    #                     true = f_true, 
-    #                     approx = f_approx,
-    #                     coefficients = coef)
+    degree <- 0
+    f_true <- f_mu(psi_grid)
+    repeat{
+        degree <- degree+1
+        f_approx <- pracma::chebApprox(psi_grid, f_mu, psi_range[1], psi_range[2], degree)
+        error <- max(abs(f_true-f_approx))
+        if(error < approx_tol_mean || degree>max_degree ) {
+            break
+        }
+    }
+    # determine Chebyshev polynomial coefficients
+    coef_cheb <-  pracma::chebCoeff(f_mu, psi_range[1], psi_range[2], degree)
+    poly_cheb <- pracma::chebPoly(degree)
+    coef <- rev(drop(coef_cheb %*% poly_cheb))
+    coef[1] <- coef[1] - coef_cheb[1]/2
+    result$mean <- list(degree = degree,
+                        psi = psi_grid,
+                        true = f_true,
+                        approx = f_approx,
+                        coefficients = coef)
     # determine the polynomial degree necessary to approx sd fun with requested tol
     degree <- 0
     f_true <- f_sd(psi_grid)
@@ -316,13 +327,13 @@ calculate_bi_irt_link <- function(model,
                       approx = f_approx, 
                       coefficients = coef)
     # determine approximation quality of the derivatives
-    # poly_mu <- rev(result$mean$coefficients)
+    poly_mu <- rev(result$mean$coefficients)
     poly_sigma <- rev(result$sd$coefficients)
-    # poly_dmu_dpsi <- pracma::polyder(poly_mu)
+    poly_dmu_dpsi <- pracma::polyder(poly_mu)
     poly_dsigma_dpsi <- pracma::polyder(poly_sigma)
     psi_t  <-  (2*psi_grid-(psi_range[2]+psi_range[1]))/(psi_range[2]-psi_range[1])
-    # result$mean$deriv_approx <- pracma::polyval(poly_dmu_dpsi, psi_t)*2/(psi_range[2]-psi_range[1])
-    # result$mean$deriv_true <- pracma::fderiv(f_mean, psi_grid)
+    result$mean$deriv_approx <- pracma::polyval(poly_dmu_dpsi, psi_t)*2/(psi_range[2]-psi_range[1])
+    result$mean$deriv_true <- pracma::fderiv(f_mean, psi_grid)
     result$sd$deriv_approx <- pracma::polyval(poly_dsigma_dpsi, psi_t)*2/(psi_range[2]-psi_range[1])
     result$sd$deriv_true <- pracma::fderiv(f_sd, psi_grid)
     return(result)

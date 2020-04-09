@@ -112,8 +112,9 @@ default_irt_based_bi_model <- function(model){
     cg <- add_line(cg, "MU_2 = THETA(2)")
     cg <- add_line(cg, "BASE = THETA(1) + ETA(1)")
     cg <- add_line(cg, "SLOPE = THETA(2) + ETA(2)")
-    cg <- add_line(cg, "IPRED = BASE + SLOPE*TIME")
-    cg <- add_line(cg, nm_range_transform(model$irt_link, "IPRED"))
+    cg <- add_line(cg, "LV = BASE + SLOPE*TIME")
+    cg <- add_line(cg, nm_range_transform(model$irt_link))
+    cg <- add_line(cg, "IPRED =", nm_polynom(model$irt_link$mean$coefficients))
     cg <- add_line(cg, "SD =", nm_polynom(model$irt_link$sd$coefficients))
     cg
 }

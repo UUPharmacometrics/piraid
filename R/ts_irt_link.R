@@ -129,6 +129,7 @@ plot_sd_zscore_vs_psi <- function(model, ...){
 #' @param model 
 #' @param psi_range 
 #' @param score_range 
+#' @param lv_based
 #' @param range_tol 
 #' @param approx_tol_mean 
 #' @param approx_tol_sd 
@@ -138,6 +139,7 @@ plot_sd_zscore_vs_psi <- function(model, ...){
 calculate_cv_irt_link <- function(model, 
                                   psi_range = NULL, 
                                   score_range = c(-Inf, Inf),
+                                  lv_based = TRUE, 
                                   range_tol = 0.3,
                                   approx_tol_mean = 0.1,
                                   approx_tol_sd  = 0.01, 
@@ -145,6 +147,7 @@ calculate_cv_irt_link <- function(model,
     mirt_model <- as_mirt_model(model)
     result <- list()
     result$type <- "score"
+    result$idv <- ifelse(lv_based, "psi", "score")
     # function calculatingirt_ts the mean score
     f_mean <- function(x) mirt::expected.test(mirt_model, matrix(x))
     # function calculating the sd score
@@ -175,9 +178,47 @@ calculate_cv_irt_link <- function(model,
         sol_max <- uniroot(function(psi) f_mean(psi) - score_range[2] + range_tol, psi_interval)
         psi_range <- c(sol_min$root, sol_max$root)
     }
+    psi_grid <- seq(psi_range[1], psi_range[2], length.out = 100)
+    if(!lv_based){
+        f_psi <- approxfun(y = psi_grid, x = f_mean(psi_grid), rule = 2)
+        f_sd_score <- function(score){
+            f_sd(f_psi(score))
+        }
+        # determine the polynomial degree necessary to approx mean fun with requested tol
+        degree <- 0
+        score_range <- f_mean(psi_range)
+        score_grid <- seq(f_mean(psi_range[1]), f_mean(psi_range[2]), length.out = 100)
+        f_true <- f_sd_score(score_grid)
+        result$range <- score_range
+        repeat{
+            degree <- degree+1
+            f_approx <- pracma::chebApprox(score_grid, f_sd_score, score_range[1], score_range[2], degree)
+            error <- max(abs(f_true-f_approx))  
+            if(error < approx_tol_mean || degree>max_degree ) {
+                break
+            }
+        }
+        # determine Chebyshev polynomial coefficients
+        coef_cheb <-  pracma::chebCoeff(f_sd_score, score_range[1], score_range[2], degree)
+        poly_cheb <- pracma::chebPoly(degree)
+        coef <- rev(drop(coef_cheb %*% poly_cheb))
+        coef[1] <- coef[1] - coef_cheb[1]/2
+        result$sd <- list(degree = degree, 
+                            score = score_grid, 
+                            true = f_true, 
+                            approx = f_approx,
+                            coefficients = coef)
+        # determine approximation quality of the derivatives
+        poly_sigma <- rev(result$sd$coefficients)
+        poly_dsigma_dscore <- pracma::polyder(poly_sigma)
+        score_t  <-  (2*score_grid-(score_range[2]+score_range[1]))/(score_range[2]-score_range[1])
+        result$sd$deriv_approx <- pracma::polyval(poly_dsigma_dscore, score_t)*2/(score_range[2]-score_range[1])
+        result$sd$deriv_true <- pracma::fderiv(f_sd_score, score_grid)
+        return(result)
+    }
+    
     # determine the polynomial degree necessary to approx mean fun with requested tol
     degree <- 0
-    psi_grid <- seq(psi_range[1], psi_range[2], length.out = 100)
     f_true <- f_mean(psi_grid)
     result$range <- psi_range
     repeat{
@@ -345,14 +386,14 @@ calculate_bi_irt_link <- function(model,
 #' @rdname calculate_cv_irt_link
 plot_irt_link <- function(res, plot_derivatives=FALSE){
     df <- res[c("mean","sd")] %>% 
-        purrr::map(`[`, c("approx","true","psi")) %>% 
+        purrr::map(`[`, c("approx","true",res$idv)) %>% 
         purrr::map_dfr(tibble::as_tibble, 
                        .id = "stat") %>% 
         tidyr::pivot_longer(cols = c("true", "approx"))
     
     if(plot_derivatives){
         df_deriv <- res[c("mean","sd")] %>% 
-            purrr::map(`[`, c("deriv_approx","deriv_true","psi")) %>% 
+            purrr::map(`[`, c("deriv_approx","deriv_true",res$idv)) %>% 
             purrr::map_dfr(tibble::as_tibble, 
                            .id = "stat") %>% 
             dplyr::rename(approx = "deriv_approx", true = "deriv_true") %>% 
@@ -371,8 +412,8 @@ plot_irt_link <- function(res, plot_derivatives=FALSE){
     df <- df %>% 
         dplyr::mutate(name = factor(.data$name, levels = c("true", "approx")),
                       )
-    
-    p <- ggplot2::ggplot(df, aes(psi, value, color = name, linetype = name)) +
+    idv <- rlang::sym(res$idv)
+    p <- ggplot2::ggplot(df, aes(!!idv, value, color = name, linetype = name)) +
         ggplot2::geom_line(size = 1) +
         ggplot2::scale_linetype_manual("", values = c(true = "solid", approx = 'dashed'))+
         ggplot2::scale_color_discrete("") +

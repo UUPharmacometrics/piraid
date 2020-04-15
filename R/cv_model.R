@@ -42,13 +42,21 @@ model_code.cv_model <- function(model) {
     cg <- add_code(cg, data_and_input_code(model))
     cg <- add_empty_line(cg)
     if(!is.null(model$cv_irt_link)){
-        cg <- add_code(cg, default_irt_based_cv_model(model))
+        if(model$cv_irt_link$idv == "psi"){
+            cg <- add_code(cg, default_irt_based_cv_model(model))
+        }else{
+            cg <- add_code(cg, default_irt_score_based_cv_model(model))
+        }
     }else{
         cg <- add_code(cg, default_cv_model())
     }
     cg <- add_empty_line(cg)
     if(!is.null(model$cv_irt_link)){
-        cg <- add_code(cg, default_irt_based_cv_parameters(model))
+        if(model$cv_irt_link$idv == "psi"){
+            cg <- add_code(cg, default_irt_based_cv_parameters(model))
+        }else{
+            cg <- add_code(cg, default_irt_score_based_cv_parameters(model))
+        }
     }else{
         cg <- add_code(cg, default_cv_parameters(model))
     }
@@ -69,6 +77,20 @@ default_irt_based_cv_model <- function(model){
     cg
 }
 
+default_irt_score_based_cv_model <- function(model){
+    cg <- code_generator()
+    cg <- add_line(cg, "$PRED")
+    cg <- add_line(cg, "BASE = THETA(1) * EXP(ETA(1))")
+    cg <- add_line(cg, "SLOPE = THETA(2) * EXP(ETA(2))")
+    cg <- add_line(cg, "IPRED = BASE + SLOPE*TIME")
+    cg <- add_line(cg, nm_range_transform(model$cv_irt_link, variable = "IPRED"))
+    cg <- add_line(cg, "SD =", nm_polynom(model$cv_irt_link$sd$coefficients))
+    cg <- add_line(cg, "IF(TLV.LT.-1) SD = ", model$cv_irt_link$sd$true[1])
+    cg <- add_line(cg, "IF(TLV.GT.1) SD = ", model$cv_irt_link$sd$true[length(model$cv_irt_link$sd$true)])
+    cg <- add_line(cg, "Y = IPRED + SD*EPS(1)")
+    cg
+}
+
 default_cv_model <- function() {
     cg <- code_generator()
     cg <- add_line(cg, "$PRED")
@@ -85,6 +107,18 @@ default_irt_based_cv_parameters <- function(model) {
     cg <- add_line(cg, "$THETA 0.01  ; TVSLOPE")
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$OMEGA 1  ; IIVBASE")
+    cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLOPE")
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, "$SIGMA 1 FIX")
+    cg
+}
+
+default_irt_score_based_cv_parameters <- function(model) {
+    cg <- code_generator()
+    cg <- add_line(cg, paste0("$THETA (", model$min, ",", (model$max + model$min) / 2, ",", model$max, ")  ; TVBASE"))
+    cg <- add_line(cg, "$THETA 0.01  ; TVSLOPE")
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, "$OMEGA 0.1  ; IIVBASE")
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLOPE")
     cg <- add_empty_line(cg)
     cg <- add_line(cg, "$SIGMA 1 FIX")

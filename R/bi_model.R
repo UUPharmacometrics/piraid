@@ -44,7 +44,11 @@ model_code.bi_model <- function(model) {
     if(is.null(model$irt_link)){
         cg <- add_code(cg, default_bi_model())
     }else{
-        cg <- add_code(cg, default_irt_based_bi_model(model))
+        if(model$irt_link$idv == "psi"){
+            cg <- add_code(cg, default_irt_based_bi_model(model))
+        }else{
+            cg <- add_code(cg, default_irt_score_based_bi_model(model))
+        }
     }
     cg <- add_empty_line(cg)
     cg <- add_code(cg, cutoffs(model))
@@ -119,6 +123,21 @@ default_irt_based_bi_model <- function(model){
     cg
 }
 
+default_irt_score_based_bi_model <- function(model){
+    cg <- code_generator()
+    cg <- add_line(cg, "$PRED")
+    cg <- add_line(cg, "MU_1 = THETA(1)")
+    cg <- add_line(cg, "MU_2 = THETA(2)")
+    cg <- add_line(cg, "BASE = THETA(1) + ETA(1)")
+    cg <- add_line(cg, "SLOPE = THETA(2) + ETA(2)")
+    cg <- add_line(cg, "IPRED = BASE + SLOPE*TIME")
+    cg <- add_line(cg, nm_range_transform(model$irt_link, variable = "IPRED"))
+    cg <- add_line(cg, "SD =", nm_polynom(model$irt_link$sd$coefficients))
+    cg <- add_line(cg, "IF(TLV.LT.-1) SD = ", model$irt_link$sd$true[1])
+    cg <- add_line(cg, "IF(TLV.GT.1) SD = ", model$irt_link$sd$true[length(model$irt_link$sd$true)])
+    cg
+}
+
 default_bi_model <- function() {
     cg <- code_generator()
     cg <- add_line(cg, "$PRED")
@@ -131,6 +150,18 @@ default_bi_model <- function() {
     cg
 }
 
+default_irt_based_bi_parameters <- function() {
+    cg <- code_generator()
+    cg <- add_line(cg, "$THETA 0.01  ; TVBASE")
+    cg <- add_line(cg, "$THETA 0.01  ; TVSLOPE")
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, "$OMEGA 1  ; IIVBASE")
+    cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLOPE")
+    cg
+}
+
+
+
 default_bi_parameters <- function() {
     cg <- code_generator()
     cg <- add_line(cg, "$THETA 0.01  ; TVBASE")
@@ -142,15 +173,6 @@ default_bi_parameters <- function() {
     cg
 }
 
-default_irt_based_bi_parameters <- function() {
-    cg <- code_generator()
-    cg <- add_line(cg, "$THETA 0.01  ; TVBASE")
-    cg <- add_line(cg, "$THETA 0.01  ; TVSLOPE")
-    cg <- add_empty_line(cg)
-    cg <- add_line(cg, "$OMEGA 1  ; IIVBASE")
-    cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLOPE")
-    cg
-}
 
 
 bi_simulation_code <- function(model) {

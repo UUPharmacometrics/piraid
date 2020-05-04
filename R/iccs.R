@@ -12,11 +12,6 @@
 calculate_iccs <- function(model, psi_range = c(-4, 4)) {
     mirt_model <- as_mirt_model(model)
     item_names <- get_mirt_names(model)
-    level_labels <- purrr::map(model$scale$items, "levels") %>% 
-        purrr::flatten_int() %>% 
-        unique() %>% 
-        sort() %>% 
-        sprintf("P(Y=%i)", .)
     theta <- seq(psi_range[1], psi_range[2], length.out = 100)
     df <- purrr::set_names(item_names, item_names) %>% 
         purrr::map(~ mirt::extract.item(mirt_model, .x)) %>%
@@ -39,10 +34,18 @@ calculate_iccs <- function(model, psi_range = c(-4, 4)) {
                           labels = item_name_list(model$scale)),
             category = factor(.data$category, 
                               levels = sort(unique(.data$category)), 
-                              labels = level_labels)
+                              labels = level_labels(model))
         )
     return(df)
 } 
+
+level_labels <- function(model){
+    purrr::map(model$scale$items, "levels") %>% 
+        purrr::flatten_int() %>% 
+        unique() %>% 
+        sort() %>% 
+        sprintf("P(Y=%i)", .)
+}
 
 #' @export
 #' @rdname calculate_iccs

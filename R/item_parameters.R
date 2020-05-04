@@ -99,6 +99,10 @@ is_item_parameter_fixed <- function(model, item, parameter) {
     FALSE
 }
 
+item_categories_probability_labels <- function(model, item){
+    sprintf("P(Y=%i)", item$levels)
+}
+
 #' Give a theta init string from limits
 #'
 #' init=0 gives 0

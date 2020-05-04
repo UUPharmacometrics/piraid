@@ -24,18 +24,16 @@ graded_response_model <- function(data) {
 #' MDV and EVID will be used to filter out non-observations before plotting
 #' Consolidation is handled by moving consolidated levels into the closest level blow.
 #' 
-#' @section Warning:
-#' Binary items are not handled well.
-#' 
 #' @param nmtab A data.frame from the item_parameters_tab of a model run. PSI, ITEM, DV, DIS, DIFn are needed
 #' @param model The model that was used to create the output table
 #' @param resample_psi Whether to use the resampling based diagnostic
 #' @param items_per_page The number of items to display on one page (default NULL prints all items)
 #' @param samples The number of samples to use when resample_psi = T
-#' @return A list of pages
+#' @param psi_range The range of psi values to use for the plot
+#' @return A list of plots
 #' @export
 icc_plots <- function(nmtab, model, resample_psi = FALSE, 
-                       items_per_page=NULL, samples = 50){
+                       items_per_page=NULL, samples = 10, psi_range = c(-4,4)){
     required_columns <- c("ITEM", "DV", "PSI") 
     is_present <- required_columns  %in% colnames(nmtab)
     if(!all(is_present)) stop("Column(s) ", paste(required_columns[!is_present], sep = " "), " are required but not present in the data frame.", call. = F) 
@@ -46,86 +44,126 @@ icc_plots <- function(nmtab, model, resample_psi = FALSE,
         filter_observations() %>%
         consolidate_data(model) 
     
-    pred_df <- data.frame(PSI=seq(min(nmtab$PSI), max(nmtab$PSI), length.out = 20), P = 0)
-    possible_responses <- purrr::imap_dfr(model$scale$items, ~tibble::tibble(ITEM = .y, response = .x$levels[-1]))
- 
-    grouped_df <- nmtab %>% 
-        dplyr::right_join(possible_responses, by = "ITEM") %>% 
-        dplyr::mutate(y = as.integer(.data$DV>=.data$response)) %>% 
-        dplyr::group_by(.data$ITEM, .data$response)
-    
-    ngroups <- dplyr::n_groups(grouped_df)
-    if(interactive()) cat("Calculating smoothed GAM ICCs...\n")
-    if(interactive())  pb <- utils::txtProgressBar(min = 0, max = ngroups, style = 3)
-    df_npar_fit <- grouped_df %>% 
-        dplyr::group_split() %>% 
-        purrr::map_dfr(
-            function(group_df){
-                if(resample_psi) {
-                    psi_samples <- mapply(stats::rnorm, samples, group_df$PSI, group_df$PSI_SE)
-                    p_matrix <- apply(psi_samples, 1, function(psi){
-                        fit_df <- group_df
-                        fit_df$PSI <- psi
-                        suppressWarnings(
-                            fit <- mgcv::gam(y~s(PSI), family = stats::binomial(), data = fit_df)
-                        )
-                        stats::predict(fit, newdata = pred_df, type = "response")
-                    })
-                    if(interactive()) pb$up(pb$getVal()+1)
-                    quantile_matrix <- apply(p_matrix, 1, stats::quantile, probs = c(0.05,0.95))
-                    mean_p <- rowMeans(p_matrix)
-                    return(tibble::tibble(ITEM = group_df$ITEM[1], response = group_df$response[1],
-                                          PSI = pred_df$PSI, P =  mean_p,
-                                   lower = quantile_matrix[1,], upper = quantile_matrix[2, ]))
-                }else{
-                    if(!"PSI_SE" %in% colnames(group_df)) {
-                        weights <- NULL
-                    }else{
-                        weights <- (1/group_df$PSI_SE)/sum((1/group_df$PSI_SE))
-                    }
-                    suppressWarnings(
-                        fit <- mgcv::gam(y~s(PSI), family = stats::binomial(), data = group_df, weights = weights)
-                    )
-                    pred_df$P <- stats::predict(fit, newdata = pred_df, type = "response")
-                    pred_df$ITEM <- group_df$ITEM[1] 
-                    pred_df$response <-  group_df$response[1]
-                    
-                    if(interactive()) pb$up(pb$getVal()+1)
-                    return(pred_df)
-                }
-            }
-        )
-    if(interactive()) close(pb)
-    
-    item_prms <- dplyr::filter(nmtab, !duplicated(.data$ITEM)) %>% 
-        dplyr::select("ITEM", dplyr::matches("^(DIS|DIF\\d*$|GUE$)")) 
-    
-    icc_fit <- pred_df %>%
-        merge(possible_responses) %>%
-        dplyr::full_join(item_prms, by="ITEM") %>%
-        dplyr::mutate(CAT=.data$response) %>% 
-        dplyr::mutate(P=graded_response_model(UQ(rlang::sym(".")))) %>%
-        dplyr::select("ITEM", "response", "PSI", "P")
-    
-    item_labels <- item_name_list(model$scale)
-    score_labels <- sort(unique(icc_fit$response)) %>% 
-        {set_names(paste0("score: ", .), .)}
-    if(is.null(items_per_page)){
-        n_pages <- 1
+    if(resample_psi){
+        psi_samples <- nmtab %>% 
+          dplyr::group_by(.data$ID) %>% 
+          dplyr::slice(1) %>% 
+          dplyr::select(.data$ID, .data$PSI, .data$PSI_SE) %>% 
+          dplyr::mutate(PSI_SAMPLES = purrr::map2(.data$PSI, .data$PSI_SE, ~rnorm(samples, .x, .y)))
     }else{
-        n_pages <- ceiling(length(item_labels)/items_per_page)
+        psi_samples <- nmtab %>% 
+            dplyr::group_by(.data$ID) %>% 
+            dplyr::slice(1) %>% 
+            dplyr::select(.data$ID, PSI_SAMPLES = .data$PSI)
+    }
+    
+    if(interactive()) cat("Calculating GAM-based ICCs for",length(unique(nmtab$ITEM)),
+                          "items and", length(unique(nmtab$ID)), 
+                          "subjects with", 
+                          samples, "samples per subject...\n")
+    if(interactive()) pb <- utils::txtProgressBar(max = max(nmtab$ITEM), style = 3)
+        item_names <- item_name_list(model$scale)
+        problematic_fits <- NULL
+        res <- nmtab %>% 
+          dplyr::select("ID", "DV", "ITEM") %>% 
+          dplyr::left_join(psi_samples, by = "ID") %>% 
+          dplyr::group_by(.data$ITEM) %>% 
+          dplyr::group_modify(function(df, group){
+
+            if(resample_psi){
+                psi <- df$PSI_SAMPLES %>% 
+                  purrr::transpose() %>% 
+                  purrr::map(purrr::flatten_dbl) %>% 
+                  purrr::map(matrix)
+            }else{
+                psi <- df$PSI_SAMPLES %>% 
+                    matrix()
+            }
+            dvs <- unique(df$DV) %>% 
+                sort() %>% 
+                {purrr::set_names(., paste0("cat_", seq_along(.)))}
+              rlang::with_handlers(
+                {
+                    gamres <- mirt::itemGAM(df$DV, psi, theta_lim = psi_range) %>% 
+                    unclass() %>% 
+                    tibble::as_tibble() %>% 
+                        dplyr::mutate(
+                            dv = dvs[.data$cat],
+                            cat = NULL
+                        )
+                },
+                warning = rlang::calling(function(cnd){
+                  problematic_fits <<- union(problematic_fits, group$ITEM)
+                  cnd_muffle(cnd)
+                  TRUE
+                }
+                )
+              )
+            if(interactive()) utils::setTxtProgressBar(pb, group$ITEM)
+            return(gamres)
+          })%>% 
+            dplyr::ungroup() %>% 
+            dplyr::rename(psi = .data$Theta,
+                          item = .data$ITEM,
+                          probability = .data$Prob,
+                          probability_lower = .data$Prob_low,
+                          probability_higher = .data$Prob_high) 
+      
+    if(interactive()) close(pb)    
+    if(!rlang::is_empty(problematic_fits)) 
+      rlang::warn(paste0("Problems occured during calculation of the following items: ", 
+                         paste0(problematic_fits, collapse =  ",")))
+  
+    prob_labels <- purrr::map(unique(res$item), 
+               ~item_categories_probability_labels(model, get_item(model$scale, .x)))
+    item_labels <- item_name_list(model$scale)
+    
+    res <- res %>% 
+        dplyr::mutate(
+            category = purrr::map2_chr(.data$item, .data$dv, ~purrr::pluck(prob_labels, .x, .y + 1)),
+            item = item_labels[.data$item]
+        )
+
+    df_iccs <- update_parameters(model, nmtab) %>% 
+        calculate_iccs() %>% 
+        dplyr::mutate_if(is.factor, as.character)
+
+    df_combined <- dplyr::bind_rows(
+        `GAM smooth` = res,
+        `Model fit` = df_iccs,
+        .id = "type") %>% 
+        dplyr::mutate(
+            item = factor(item, levels = item_labels)
+        )
+
+    score_labels <- purrr::map(model$scale$items, "levels") %>% 
+      purrr::flatten_int() %>% 
+      unique() %>% 
+      sort() %>% 
+      {set_names(paste0("score: ", .), paste0("cat_", .+ 1))}
+    
+    if(is.null(items_per_page)){
+      n_pages <- 1
+    }else{
+      n_pages <- ceiling(length(item_labels)/items_per_page)
     }
     purrr::map(seq_len(n_pages),
-     ~ggplot()+
-        {if(resample_psi) geom_ribbon(data = df_npar_fit, mapping = aes(PSI,ymin = lower, ymax=upper), alpha = 0.6)}+
-        geom_line(data = df_npar_fit, mapping = aes(PSI, P))+
-        geom_line(data = icc_fit, mapping = aes(PSI, P),  color = "darkred")+
-        ggforce::facet_grid_paginate(ITEM~response, 
-                                     labeller=labeller(ITEM=as_labeller(item_labels), ITEM=label_wrap_gen(20), 
-                                                       response=as_labeller(score_labels)),
-                                     nrow = items_per_page, ncol = length(score_labels), page = .x, byrow = F) +
+               ~ggplot2::ggplot(df_combined, 
+                                aes(psi, 
+                                    probability, 
+                                    ymin = probability_lower, 
+                                    ymax = probability_higher, 
+                                    color = type, 
+                                    fill = type)) +
+        geom_ribbon(data = dplyr::filter(df_combined, type == "GAM smooth"), alpha=0.5, linetype = "blank")+
+        geom_line(na.rm = TRUE)+
+        scale_color_manual("", values = c("darkgray", "darkred"))+
+        scale_fill_manual("", values = c("darkgray", NA))+
+        ggforce::facet_grid_paginate(item~category, labeller = labeller(item = label_wrap_gen(), category = label_value),
+                                   nrow = items_per_page, ncol = length(score_labels), page = .x, byrow = F)+
         theme_bw(base_size=14, base_family="") +
-        labs(x="PSI", y="P(Y>=score)"))
+        theme(legend.position = "bottom", legend.margin = ggplot2::margin())+
+        labs(x="PSI", y="Probability"))
 }
 
 #' Mirror plots for comparison of original data and simulated data

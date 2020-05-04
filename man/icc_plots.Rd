@@ -9,7 +9,8 @@ icc_plots(
   model,
   resample_psi = FALSE,
   items_per_page = NULL,
-  samples = 50
+  samples = 10,
+  psi_range = c(-4, 4)
 )
 }
 \arguments{
@@ -22,16 +23,13 @@ icc_plots(
 \item{items_per_page}{The number of items to display on one page (default NULL prints all items)}
 
 \item{samples}{The number of samples to use when resample_psi = T}
+
+\item{psi_range}{The range of psi values to use for the plot}
 }
 \value{
-A list of pages
+A list of plots
 }
 \description{
 MDV and EVID will be used to filter out non-observations before plotting
 Consolidation is handled by moving consolidated levels into the closest level blow.
 }
-\section{Warning}{
-
-Binary items are not handled well.
-}
-

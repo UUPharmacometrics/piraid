@@ -1,0 +1,286 @@
+description: > 
+  Mini-Mental State Examination (MMSE) 
+  
+  Item parameters from
+  Jones RN, Gallo JJ. Education and Sex Differences in the Mini-Mental State ExaminationEffects of
+Differential Item Functioning. J Gerontol B Psychol Sci Soc Sci. 2002 Nov;57(6):P548–58.
+items:
+- name: "What is the year?"
+  number: 1
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.88
+    - 2.42
+    - 0.0
+- name: "What season … ?"
+  number: 2
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 0.89
+    - 1.77
+    - 0.0
+- name: "What is the date?"
+  number: 3
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.24
+    - 1.21
+    - 0.0
+- name: "What is the day … ?"
+  number: 4
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.7
+    - 2.29
+    - 0.0
+- name: "What is the month?"
+  number: 5
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 2.03
+    - 2.46
+    - 0.0
+- name: "What state are we in?"
+  number: 6
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.96
+    - 2.42
+    - 0.0
+- name: "What county … ?"
+  number: 7
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.65
+    - 1.79
+    - 0.0
+- name: "What city or town … ?"
+  number: 8
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.85
+    - 2.58
+    - 0.0
+- name: "What floor of the … ?"
+  number: 9
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.58
+    - 2.78
+    - 0.0
+- name: "What is this address?"
+  number: 10
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.78
+    - 2.39
+    - 0.0
+- name: "Can repeat “apple”"
+  number: 11
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 2.54
+    - 2.71
+    - 0.0
+- name: "Can repeat “table”"
+  number: 12
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 2.41
+    - 2.71
+    - 0.0
+- name: "Can repeat “penny”"
+  number: 13
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 2.46
+    - 2.66
+    - 0.0
+- name: "Remembered “apple”"
+  number: 14
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.85
+    - 1.59
+    - 0.0
+- name: "Rremembered “table”"
+  number: 15
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.52
+    - 1.12
+    - 0.0
+- name: "Remembered “penny”"
+  number: 16
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.55
+    - 1.02
+    - 0.0
+- name: "Can repeat phrase"
+  number: 17
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.35
+    - 1.24
+    - 0.0
+- name: "First serial subtraction"
+  number: 18
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 2.39
+    - 1.07
+    - 0.0
+- name: "Second serial subtraction"
+  number: 19
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 2.34
+    - 0.61
+    - 0.0
+- name: "Third serial subtraction"
+  number: 20
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 2.39
+    - 0.55
+    - 0.0
+- name: "Fourth serial subtraction"
+  number: 21
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 2.39
+    - 0.49
+    - 0.0
+- name: "Fifth serial subtraction"
+  number: 22
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 2.29
+    - 0.39
+    - 0.0
+- name: "Spells “dlrow”"
+  number: 23
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.73
+    - 0.91
+    - 0.0
+- name: "Can name a “watch”"
+  number: 24
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 2.57
+    - 2.46
+    - 0.0
+- name: "Can name a “pencil”"
+  number: 25
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 2.54
+    - 2.48
+    - 0.0
+- name: "Reads and follows"
+  number: 26
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 2.08
+    - 2.16
+    - 0.0
+- name: "Right hand"
+  number: 27
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.4
+    - 1.15
+    - 0.0
+- name: "Folds in half"
+  number: 28
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 2.13
+    - 1.81
+    - 0.0
+- name: "Down on lap"
+  number: 29
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.83
+    - 1.7
+    - 0.0
+- name: "Writes a sentence"
+  number: 30
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.88
+    - 1.89
+    - 0.0
+- name: "Copies drawing"
+  number: 31
+  type: binary
+  levels: '[0,1]'
+  inits:
+    values:
+    - 1.35
+    - 0.88
+    - 0.0

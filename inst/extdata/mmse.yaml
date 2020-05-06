@@ -1,9 +1,58 @@
-description: > 
-  Mini-Mental State Examination (MMSE) 
-  
-  Item parameters from
-  Jones RN, Gallo JJ. Education and Sex Differences in the Mini-Mental State ExaminationEffects of
-Differential Item Functioning. J Gerontol B Psychol Sci Soc Sci. 2002 Nov;57(6):P548–58.
+scale:
+  name: Mini-Mental State Examination 
+  abbreviation: MMSE 
+  references:
+    - id: folstein1975
+      author:
+        - family: Folstein
+          given: M. F.
+        - family: Folstein
+          given: S. E.
+        - family: McHugh
+          given: P. R.
+      container-title: Journal of Psychiatric Research
+      container-title-short: J Psychiatr Res
+      DOI: 10.1016/0022-3956(75)90026-6
+      ISSN: 0022-3956
+      issue: '3'
+      issued:
+        - year: 1975
+          month: 11
+      language: eng
+      page: 189-198
+      PMID: '1202204'
+      source: PubMed
+      title: >-
+        "Mini-mental state". A practical method for grading the cognitive state of
+        patients for the clinician
+      type: article-journal
+      volume: '12'
+parameters:
+  references:
+    - id: jones2002
+      author:
+        - family: Jones
+          given: Richard N.
+        - family: Gallo
+          given: Joseph J.
+      container-title: 'The Journals of Gerontology: Series B'
+      container-title-short: J Gerontol B Psychol Sci Soc Sci
+      DOI: 10.1093/geronb/57.6.P548
+      ISSN: 1079-5014
+      issue: '6'
+      issued:
+        - year: 2002
+          month: 11
+          day: 1
+      language: en
+      page: P548-P558
+      source: academic.oup.com
+      title: >-
+        Education and Sex Differences in the Mini-Mental State ExaminationEffects of
+        Differential Item Functioning
+      type: article-journal
+      URL: 'https://academic.oup.com/psychsocgerontology/article/57/6/P548/669606'
+      volume: '57'
 items:
 - name: "What is the year?"
   number: 1

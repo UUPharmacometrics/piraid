@@ -1,14 +1,87 @@
-description: >
-  EXAcerbations of COPD Tool® for Chronic Obstructive Pulmonary Disease
-
-  EXACT-PRO initiative. The Exacerbations of Chronic Pulmo-
-  nary Disease Tool (EXACT). Patient-Reported Outcome
-  (PRO). User manual (Version 7.0) www.ema.europa.eu/docs/
-  en_GB/document_library/Other/2015/04/WC500185444.pdf.
-  Last Accessed 12 July 2018.
-
-  Initial estimates from
-  Germovsek, E., Ambery, C., Yang, S. et al. A Novel Method for Analysing Frequent Observations from Questionnaires in Order to Model Patient-Reported Outcomes: Application to EXACT® Daily Diary Data from COPD Patients. AAPS J 21, 60 (2019). https://doi.org/10.1208/s12248-019-0319-9
+scale:
+  name: Exacerbations of Chronic Pulmonary Disease Tool
+  abbreviation: EXACT
+  references:
+    - id: leidy2010
+      author:
+        - family: Leidy
+          given: Nancy Kline
+        - family: Wilcox
+          given: Teresa K.
+        - family: Jones
+          given: Paul W.
+        - family: Murray
+          given: Lindsey
+        - family: Winnette
+          given: Randall
+        - family: Howard
+          given: Kellee
+        - family: Petrillo
+          given: Jennifer
+        - family: Powers
+          given: John
+        - family: Sethi
+          given: Sanjay
+      container-title: Value in Health
+      container-title-short: Value in Health
+      DOI: 10.1111/j.1524-4733.2010.00772.x
+      ISSN: 1098-3015
+      issue: '8'
+      issued:
+        - year: 2010
+          month: 12
+          day: 1
+      language: en
+      page: 965-975
+      source: ScienceDirect
+      title: >-
+        Development of the EXAcerbations of Chronic Obstructive Pulmonary Disease
+        Tool (EXACT): A Patient-Reported Outcome (PRO) Measure
+      title-short: >-
+        Development of the EXAcerbations of Chronic Obstructive Pulmonary Disease
+        Tool (EXACT)
+      type: article-journal
+      URL: 'http://www.sciencedirect.com/science/article/pii/S1098301511718290'
+      volume: '13'
+parameters:
+  references:
+    - id: germovsek2019
+      author:
+        - family: Germovsek
+          given: Eva
+        - family: Ambery
+          given: Claire
+        - family: Yang
+          given: Shuying
+        - family: Beerahee
+          given: Misba
+        - family: Karlsson
+          given: Mats O.
+        - family: Plan
+          given: Elodie L.
+      container-title: The AAPS journal
+      container-title-short: AAPS J
+      DOI: 10.1208/s12248-019-0319-9
+      ISSN: 1550-7416
+      issue: '4'
+      issued:
+        - year: 2019
+          month: 4
+          day: 26
+      language: eng
+      page: '60'
+      PMCID: PMC6486532
+      PMID: '31028495'
+      source: PubMed
+      title: >-
+        A Novel Method for Analysing Frequent Observations from Questionnaires in
+        Order to Model Patient-Reported Outcomes: Application to EXACT® Daily Diary
+        Data from COPD Patients
+      title-short: >-
+        A Novel Method for Analysing Frequent Observations from Questionnaires in
+        Order to Model Patient-Reported Outcomes
+      type: article-journal
+      volume: '21'
 items:
   - number: 1
     name: "1.\nCongested Chest"

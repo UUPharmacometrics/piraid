@@ -1,3 +1,9 @@
+scale:
+  name: Hypothetical Rheumatoid Arthritis Scale
+  abbreviation: HRA
+  therapeutic_areas: 
+    - rheumatoid arthritis
+parameters:
 items:
   - number: 1
     name: "Patients global assessment"

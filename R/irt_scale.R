@@ -21,8 +21,51 @@ is.irt_scale <- function(x) {
 #' @export
 list_predefined_scales <- function() {
     dir <- system.file("extdata", package="piraid")
-    files <- tools::file_path_sans_ext(list.files(dir, pattern = "\\.yaml$"))
-    return(files)
+    scale_list_entry <- function(yaml_doc){
+        tryCatch(
+            tibble::tibble(name = yaml_doc$scale$name,
+                            abbreviation = yaml_doc$scale$abbreviation,
+                            items = length(yaml_doc$items),
+                            parameters = exists("parameters", yaml_doc), 
+                            parameters_reference = cite_author_year(yaml_doc$parameters$references[[1]])
+                           
+                           ),
+            error = function(e) tibble::tibble(name = NA_character_, 
+                                       abbreviation = NA_character_, 
+                                       items = NA_integer_,
+                                       parameters = NA,
+                                       parameters_reference = NA_character_)
+            )
+    }
+    df <- list.files(dir, pattern = "\\.yaml$", full.names = TRUE) %>% 
+        {purrr::set_names(., basename(.))} %>% 
+        purrr::map(purrr::possibly(yaml::yaml.load_file, NULL)) %>% 
+        purrr::map_dfr(scale_list_entry, .id = "scale_id") %>% 
+        dplyr::mutate(scale_id = gsub(pattern = "\\.yaml$", .data[["scale_id"]], replacement = ""))
+    
+    df %>% 
+    dplyr::transmute(ID = .data[["scale_id"]],
+                  Name = glue::glue("{name} ({abbreviation})"),
+                  '#Items' = .data[["items"]],
+                  'Param.' = ifelse(.data[["parameters"]], "yes", "no"),
+                  'Reference' = .data[["parameters_reference"]]) %>% 
+    as.data.frame() %>% 
+    format(justify = c("left")) %>% 
+        print(row.names = F)
+    
+    return(invisible(df))
+}
+
+cite_author_year <- function(reference){
+    if(is.null(reference)) return("")
+    if(length(reference$author)>2){
+        name <- sprintf("%s et al.", reference$author[[1]]$family)
+    }else if(length(reference$author)==2){
+        name <- sprintf("%s and %s", reference$author[[1]]$family, reference$author[[2]]$family)
+    }else{
+        name <- sprintf("%s", reference$author[[1]]$family)
+    }
+    sprintf("%s, %i", name, reference$issued[[1]]$year)
 }
 
 #' Retrieve a built in scale

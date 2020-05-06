@@ -73,12 +73,12 @@ cite_author_year <- function(reference){
 #' \code{predefined_scale} returns a scale object from a built in scale.
 #' Use \code{\link{list_predefined_scales}} to get a list of all available scales.
 #'
-#' @param scale_name The name of the scale
+#' @param scale_id The id of the scale
 #' @return A scale object or an error if the scale does not exist
 #' @export
-load_predefined_scale <- function(scale_name) {
-    scale_name <- tolower(scale_name)
-    path <- system.file("extdata", paste0(scale_name, ".yaml"), package="piraid")
+load_predefined_scale <- function(scale_id) {
+    scale_id <- tolower(scale_id)
+    path <- system.file("extdata", paste0(scale_id, ".yaml"), package="piraid")
     if (path == "") {
         stop("Error: No such predefined scale. Available scale is MDS-UPDRS")
     }

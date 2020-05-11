@@ -1,0 +1,164 @@
+scale:
+  name: Expanded Disability Status Scale
+  abbreviation: EDSS
+  references:
+  - id: kurtzke1983
+    author:
+      - family: Kurtzke
+        given: J. F.
+    container-title: Neurology
+    container-title-short: Neurology
+    DOI: 10.1212/wnl.33.11.1444
+    ISSN: 0028-3878
+    issue: '11'
+    issued:
+      - year: 1983
+        month: 11
+    language: eng
+    page: 1444-1452
+    PMID: '6685237'
+    source: PubMed
+    title: >-
+      Rating neurologic impairment in multiple sclerosis: an expanded disability
+      status scale (EDSS)
+    title-short: Rating neurologic impairment in multiple sclerosis
+    type: article-journal
+    volume: '33'
+parameters:
+  references:
+  - id: novakovic2017
+    author:
+      - family: Novakovic
+        given: A. M.
+      - family: Krekels
+        given: E. H. J.
+      - family: Munafo
+        given: A.
+      - family: Ueckert
+        given: S.
+      - family: Karlsson
+        given: M. O.
+    container-title: The AAPS Journal
+    container-title-short: AAPS J
+    DOI: 10.1208/s12248-016-9977-z
+    ISSN: 1550-7416
+    issue: '1'
+    issued:
+      - year: 2017
+        month: 1
+        day: 1
+    language: en
+    page: 172-179
+    source: link.springer.com
+    title: >-
+      Application of Item Response Theory to Modeling of Expanded Disability
+      Status Scale in Multiple Sclerosis
+    type: article-journal
+    URL: 'https://link.springer.com/article/10.1208/s12248-016-9977-z'
+    volume: '19'
+items:
+  - number: 1
+    name: "I.1\nPYRAMIDAL"
+    levels: '[0,6]'
+    type: ordcat
+    inits:
+        values:
+          - 3.16E+00
+          - -1.57E+00
+          - 1.27E+00
+          - 8.23E-01
+          - 1.43E+00
+          - 1.31E+00
+          - 4.99E+01
+  - number: 2
+    name: "I.2\nCEREBELLAR"
+    levels: '[0,5]'
+    type: ordcat
+    inits:
+        values:
+          - 2.81E+00
+          - -9.29E-01
+          - 9.79E-01
+          - 1.03E+00
+          - 1.64E+00
+          - 1.11E+00
+  - number: 3
+    name: "I.3\nBRAINSTEM"
+    levels: '[0,5]'
+    type: ordcat
+    inits:
+        values:
+          - 1.02E+00
+          - -1.21E-01
+          - 1.74E+00
+          - 2.02E+00
+          - 2.81E+00
+          - 4.99E+01
+  - number: 4
+    name: "I.4\nSENSORY" 
+    levels: '[0,6]'
+    type: ordcat
+    inits:
+        values:
+          - 9.80E-01
+          - -7.99E-01
+          - 1.20E+00
+          - 1.97E+00
+          - 2.39E+00
+          - 3.02E+00
+          - 2.35E+00
+  - number: 5
+    name: "I.5\nBOWEL&BLADDER"
+    levels: '[0,6]'
+    type: ordcat
+    inits:
+        values:
+          - 1.25E+00
+          - -1.51E-01
+          - 1.90E+00 
+          - 1.54E+00
+          - 3.03E+00 
+          - 9.62E-01
+          - 4.99E+01
+  - number: 6
+    name: "I.6\nVISUAL"
+    levels: '[0,6]'
+    type: ordcat
+    inits:
+        values:
+          - 4.24E-01
+          - 3.51E-02 
+          - 3.87E+00
+          - 2.76E+00
+          - 1.76E+00 
+          - 1.77E+00
+          - 1.75E+00
+  - number: 7
+    name: "I.7\nMENTAL"
+    levels: '[0,5]'
+    type: ordcat
+    inits:
+        values:
+          - 9.07E-01
+          - 4.00E-01
+          - 1.12E+00
+          - 4.17E+00
+          - 2.90E+00
+          - 4.99E+01
+  - number: 8
+    name: "I.8\nAMBAID" #AMBAID consists of abulation (0–500 m walk) and reliance on aid (0,1,2)
+    levels: '[0,10]'
+    type: ordcat
+    inits:
+        values:
+          - 3.71E+00 #ambulation ≥ 500 m and aid = 0;
+          - 1.14E+00 #300 m ≤ ambulation ≤ 499 m and aid = 0;
+          - 2.43E-01 #200 m ≤ ambulation ≤ 299 m and aid = 0;
+          - 2.25E-01 #100 m ≤ ambulation ≤ 199 m and aid = 0;
+          - 4.23E-01 #5 m≤ ambulation ≤ 99 m and aid = 0 or ambulation ≥50 m and aid = 1 or ambulation > 120 m and aid = 2;
+          - 4.39E-01 #10 m < ambulation ≤ 49 m and aid = 1 or 10 m ≤ ambulation ≤ 120 m and aid = 2;
+          - 4.77E-01 #ambulation≤ 5 m and use of standard wheelchair; 
+          - 1.39E-01 #ambulation of few steps requiring aid to transfer and use standard wheelchair with assistance or motorized wheelchair:
+          - 2.57E-01 #patient is wheelchair bound and capable of 'many' self-care;
+          - 3.49E-01 #patient is bed bound and capable of 'some' self-care;
+          - 4.99E+01 #patient is bed bound and not capable of any self-care.

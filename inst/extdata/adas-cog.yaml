@@ -1,0 +1,225 @@
+scale:
+  name: Alzheimer's Disease Assessment Scale-Cognitive Subscale 
+  abbreviation: ADAS-cog
+  references:
+  - id: rosen1984
+    author:
+      - family: Rosen
+        given: W G
+      - family: Mohs
+        given: R C
+      - family: Davis
+        given: K L
+    container-title: The American Journal of Psychiatry
+    container-title-short: Am J Psychiatry
+    ISSN: 0002-953X
+    issue: '11'
+    issued:
+      - year: 1984
+        month: 11
+    page: 1356-1364
+    PMID: '6496779'
+    source: NCBI PubMed
+    title: A new rating scale for Alzheimer's disease
+    type: article-journal
+    URL: 'http://www.ncbi.nlm.nih.gov/pubmed/6496779'
+    volume: '141'
+
+parameters:
+  references:
+  - id: balsis2012
+    author:
+      - family: Balsis
+        given: Steve
+      - family: Unger
+        given: Alexis A.
+      - family: Benge
+        given: Jared F.
+      - family: Geraci
+        given: Lisa
+      - family: Doody
+        given: Rachelle S.
+    container-title: Alzheimer's and Dementia
+    DOI: 10.1016/j.jalz.2011.05.2409
+    ISSN: 1552-5260
+    issue: '4'
+    issued:
+      - year: 2012
+        month: 7
+    page: 288-94
+    source: ScienceDirect
+    title: >-
+      Gaining precision on the Alzheimer’s Disease Assessment Scale-cognitive: A
+      comparison of item response theory-based scores and total scores
+    title-short: Gaining precision on the Alzheimer’s Disease Assessment Scale-cognitive
+    type: article-journal
+    URL: 'http://www.sciencedirect.com/science/article/pii/S155252601102574X'
+    volume: '8'
+items:
+  - number: 1
+    name: "I.1\nRecall error"
+    levels: '[0,10]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.87
+          - -3.24
+          - -2.99
+          - -2.65
+          - -2.25
+          - -1.65
+          - -1.10
+          - -0.65
+          - -0.11
+          - 0.46
+          - 1.15
+  - number: 2
+    name: "I.2\nNaming"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.44
+          - -0.65
+          - 0.22
+          - 0.95
+          - 1.49
+          - 2.07
+  - number: 3
+    name: "I.3\nConstruction"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 1.71  
+          - -1.47 
+          - 0.12  
+          - 0.92  
+          - 1.84  
+          - 2.25 
+  - number: 4
+    name: "I.4\nIdeational praxis" 
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.45  
+          - -0.36 
+          - 0.45  
+          - 0.92  
+          - 1.24
+          - 1.52
+  - number: 5
+    name: "I.5\nWord recognition"
+    levels: '[0,12]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.59 
+          - -2.63
+          - -1.84
+          - -1.34
+          - -1.01
+          - -0.76
+          - -0.51
+          - -0.28
+          - -0.07
+          - 0.15 
+          - 0.31 
+          - 0.55 
+          - 0.82 
+  - number: 6
+    name: "I.6\nSpeech"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.58
+          - 0.18
+          - 0.53
+          - 0.91
+          - 1.32
+          - 2.04          
+  - number: 7
+    name: "I.7\nComprehension"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 3.02
+          - -0.26
+          - 0.09
+          - 0.54
+          - 1.56
+          - 2.28
+  - number: 8
+    name: "I.8\nRecall instructions"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 3.13
+          - -0.51
+          - -0.18
+          - 0.09
+          - 0.42
+          - 0.61
+  - number: 9
+    name: "I.9\nWord finding"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.57
+          - -0.60
+          - -0.03
+          - 0.45
+          - 1.05
+          - 1.89
+  - number: 10
+    name: "I.10\nCommands"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.76
+          - -0.46
+          - 0.27
+          - 0.77 
+          - 1.41
+          - 2.25
+  - number: 11
+    name: "I.11\nOrientation"
+    levels: '[0,8]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.18
+          - -1.70
+          - -1.12
+          - -0.81
+          - -0.53
+          - -0.18
+          - 0.25
+          - 0.72 
+          - 2.11
+          
+
+
+
+
+ 
+ 
+
+ 

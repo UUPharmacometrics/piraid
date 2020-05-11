@@ -19,7 +19,7 @@ is.irt_scale <- function(x) {
 #' 
 #' @return A character vector with the names
 #' @export
-list_predefined_scales <- function() {
+list_predefined_scales <- function(print = interactive()) {
     dir <- system.file("extdata", package="piraid")
     scale_list_entry <- function(yaml_doc){
         tryCatch(
@@ -43,15 +43,15 @@ list_predefined_scales <- function() {
         purrr::map_dfr(scale_list_entry, .id = "scale_id") %>% 
         dplyr::mutate(scale_id = gsub(pattern = "\\.yaml$", .data[["scale_id"]], replacement = ""))
     
-    df %>% 
-    dplyr::transmute(ID = .data[["scale_id"]],
-                  Name = glue::glue("{name} ({abbreviation})"),
-                  '#Items' = .data[["items"]],
-                  'Param.' = ifelse(.data[["parameters"]], "yes", "no"),
-                  'Reference' = .data[["parameters_reference"]]) %>% 
-    as.data.frame() %>% 
-    format(justify = c("left")) %>% 
-        print(row.names = F)
+    if(print) df %>% 
+        dplyr::transmute(ID = .data[["scale_id"]],
+                      Name = glue::glue("{name} ({abbreviation})"),
+                      '#Items' = .data[["items"]],
+                      'Param.' = ifelse(.data[["parameters"]], "yes", "no"),
+                      'Reference' = .data[["parameters_reference"]]) %>% 
+        as.data.frame() %>% 
+        format(justify = c("left")) %>% 
+            print(row.names = F)
     
     return(invisible(df))
 }

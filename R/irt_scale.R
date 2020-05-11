@@ -110,6 +110,8 @@ load_scale <- function(path) {
             type=item$type, categories=categories, inits=as.numeric(item$inits$values))
         scale <- add_item(scale, new_irt_item)
     }
+    scale$scale <- db$scale
+    scale$parameters <- db$parameters
     scale
 }
 
@@ -264,11 +266,34 @@ print_scale_info <- function(scale, header=TRUE) {
     ordcat_items <- items_by_type(scale, item_type$ordered_categorical)
     ordcat_levels <- ordcat_level_arrays(scale)
     if (header) {
-        cat("A scale object from ", utils::packageName(), "\n\n", sep="")
+        cat("A ", utils::packageName(), " scale object\n", sep="")
     }
-    cat("Total number of items: ", length(items), "\n", sep="")
-    if(length(ordcat_items)>0)  cat("    Ordered categorical items: ", format_integers(ordcat_items), "\n", sep="")
-    if(length(binary_items)>0) cat("    Binary items: ", format_integers(binary_items), "\n", sep="")
+    scale_name <- purrr::pluck(scale, "scale", "name")
+    if(!is.null(scale_name)){
+        cat("\tScale name: \t\t", scale_name, "\n", sep="")
+    }
+    scale_abbreviation <- purrr::pluck(scale, "scale", "abbreviation")
+    if(!is.null(scale_abbreviation)){
+        cat("\tAbbreviation: \t\t", scale_abbreviation, "\n", sep="")
+    }
+    scale_references <- purrr::pluck(scale, "scale", "references")
+    if(!is.null(scale_references)){
+        cat("\tReference: \t\t", cite_author_year(scale_references[[1]]), "\n", sep = "")
+    }
+    cat("\tNumber of items: \t", length(items), "\n", sep="")
+    if(length(ordcat_items)>0)  cat("\t\tOrdered categorical: ", format_integers(ordcat_items), "\n", sep="")
+    if(length(binary_items)>0) cat("\t\tBinary: ", format_integers(binary_items), "\n", sep="")
+    has_params <- purrr::map_lgl(scale$items, ~!rlang::is_empty(.x$inits))
+    if(any(has_params)){
+        cat("\tParameters:\n")
+        prm_reference <- purrr::pluck(scale, "parameters", "references", 1)
+        if(is.null(prm_reference)) {
+            prm_reference_txt <- "Not available"
+        }else{
+            prm_reference_txt <- cite_author_year(prm_reference)
+        }
+        cat("\t\tReference:\t ", prm_reference_txt, "\n", sep = "")
+    }
 }
 
 #' Print a summary overview of a scale

@@ -4,7 +4,7 @@
 \alias{list_predefined_scales}
 \title{Retrieve a list of all built in scales}
 \usage{
-list_predefined_scales()
+list_predefined_scales(print = interactive())
 }
 \value{
 A character vector with the names

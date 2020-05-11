@@ -4,10 +4,10 @@
 \alias{load_predefined_scale}
 \title{Retrieve a built in scale}
 \usage{
-load_predefined_scale(scale_name)
+load_predefined_scale(scale_id)
 }
 \arguments{
-\item{scale_name}{The name of the scale}
+\item{scale_id}{The id of the scale}
 }
 \value{
 A scale object or an error if the scale does not exist

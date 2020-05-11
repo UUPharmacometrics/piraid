@@ -296,23 +296,22 @@ print_scale_info <- function(scale, header=TRUE) {
     }
 }
 
-#' Print a summary overview of a scale
+
+#' List available items in a scale
 #' 
 #' Generate a table with the columns Item, Levels, Type, Categories and Name to give an
 #' overview of what a scale object contains.
 #' 
-#' @param object An irt_scale object
-#' @param ... No additional arguments are supported
+#' @param scale An irt_scale object
 #' @return A data.frame with scale information
 #' @export
-summary.irt_scale <- function(object, ...) {     # ... needed to match the generic function
-    scale <- object
+list_items <- function(scale){
     n <- length(scale$items)
     df <- data.frame(Item=rep(as.numeric(NA), n), Levels=rep("", n), Type=rep("", n), Categories=rep("", n), Name=rep("", n), stringsAsFactors=FALSE)
     i <- 1
     for (item in scale$items) {
         if (length(item$categories) > 0) {
-            categories <- paste(item$categories, collapse=NULL)
+            categories <- paste(item$categories, collapse=", ")
         } else {
             categories <- ""
         }
@@ -322,6 +321,16 @@ summary.irt_scale <- function(object, ...) {     # ... needed to match the gener
     }
     df
 }
+
+#' @param object An irt_scale object
+#' @param ... No additional arguments are supported
+#' @rdname list_items
+#' @export 
+summary.irt_scale <- function(object, ...) {     # ... needed to match the generic function
+    scale <- object
+    list_items(scale)
+}
+
 
 #' Get an item from a scale
 #' 

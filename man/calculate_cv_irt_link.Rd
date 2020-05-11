@@ -10,6 +10,7 @@ calculate_cv_irt_link(
   model,
   psi_range = NULL,
   score_range = c(-Inf, Inf),
+  lv_based = TRUE,
   range_tol = 0.3,
   approx_tol_mean = 0.1,
   approx_tol_sd = 0.01,
@@ -20,7 +21,9 @@ calculate_bi_irt_link(
   model,
   psi_range = NULL,
   score_range = c(-Inf, Inf),
+  lv_based = FALSE,
   range_tol = 0.3,
+  approx_tol_mean = 0.1,
   approx_tol_sd = 0.01,
   max_degree = 100
 )

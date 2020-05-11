@@ -1,5 +1,5 @@
 context("Scale objects")
-myscale <- load_predefined_scale("MDS-UPDRS")
+myscale <- load_predefined_scale("mds-updrs")
 
 test_that("Scale constructor", {
     scale <- irt_scale()
@@ -14,7 +14,7 @@ test_that("is.irt_scale", {
 test_that("List predifined scales", {
     a <- list_predefined_scales()
     expect_true(length(a) >= 1)
-    expect_true("mds-updrs" %in% a)
+    expect_true("mds-updrs" %in% a$scale_id)
 })
 
 test_that("Predefined scale", {

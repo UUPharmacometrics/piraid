@@ -34,11 +34,16 @@ graded_response_model <- function(data) {
 diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = FALSE, samples = 10,
                        items_per_page=NULL){
   
-    required_columns <- c("ITEM", "DV", "PSI") 
+    required_columns <- c("ID", "TIME", "PSI") 
     is_present <- required_columns  %in% colnames(nmtab)
     if(!all(is_present)) stop("Column(s) ", paste(required_columns[!is_present], sep = " "), " are required but not present in the data frame.", call. = F) 
     if(!"PSI_SE" %in% colnames(nmtab) && resample_psi) stop("The column PSI_SE is required for resamples=TRUE.", call. = F)
-    if(!"PSI_SE" %in% colnames(nmtab)) rlang::warn("No standard error column (PSI_SE) was provided, the diagnostic might be affected by shrinkage.")
+    
+    if(any(!c("DV","ITEM")  %in% colnames(nmtab))){
+      rlang::inform("ITEM and DV were not present in the provided nmtab and will be extracted from the model dataset.")
+      nmtab <-  dplyr::left_join(read_dataset(model$dataset), 
+                                 dplyr::select_at(nmtab, c("ID","TIME", "PSI", "PSI_SE")), by = c("ID", "TIME"))
+    }
     
     nmtab <- nmtab %>%
         filter_observations() %>%

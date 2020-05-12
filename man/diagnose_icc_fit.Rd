@@ -7,7 +7,7 @@
 \usage{
 diagnose_icc_fit(
   model,
-  nmtab = NULL,
+  nmtab,
   psi_range = c(-4, 4),
   resample_psi = FALSE,
   samples = 10,
@@ -16,7 +16,7 @@ diagnose_icc_fit(
 
 icc_plots(
   model,
-  nmtab = NULL,
+  nmtab,
   psi_range = c(-4, 4),
   resample_psi = FALSE,
   samples = 10,

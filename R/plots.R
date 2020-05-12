@@ -31,8 +31,9 @@ graded_response_model <- function(data) {
 #' @param items_per_page The number of items to display on one page (default NULL prints all items)
 #' @return A list of plots
 #' @export
-diagnose_icc_fit <- function(model, nmtab = NULL, psi_range = c(-4,4), resample_psi = FALSE, samples = 10,
+diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = FALSE, samples = 10,
                        items_per_page=NULL){
+  
     required_columns <- c("ITEM", "DV", "PSI") 
     is_present <- required_columns  %in% colnames(nmtab)
     if(!all(is_present)) stop("Column(s) ", paste(required_columns[!is_present], sep = " "), " are required but not present in the data frame.", call. = F) 
@@ -42,7 +43,7 @@ diagnose_icc_fit <- function(model, nmtab = NULL, psi_range = c(-4,4), resample_
     nmtab <- nmtab %>%
         filter_observations() %>%
         consolidate_data(model) 
-    
+
     if(resample_psi){
         psi_samples <- nmtab %>% 
           dplyr::group_by(.data$ID) %>% 
@@ -123,7 +124,10 @@ diagnose_icc_fit <- function(model, nmtab = NULL, psi_range = c(-4,4), resample_
             item = item_labels[.data$item]
         )
 
-    df_iccs <- update_parameters(model, nmtab) %>% 
+    if(!is.null(nmtab)){
+      model <-  update_parameters(model, nmtab)
+    }
+    df_iccs <- model %>% 
         calculate_iccs() %>% 
         dplyr::mutate_if(is.factor, as.character)
 

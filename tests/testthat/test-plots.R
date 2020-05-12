@@ -15,7 +15,7 @@ test_that("icc_plots", {
     scale <- load_predefined_scale("hra-score")
     model <- irt_model(scale)
     tab <- read.table(system.file("extdata","irt_tab1", package = "piraid"), skip = 1, header = T)
-    plot_list <- icc_plots(tab, model, resample_psi = F)
+    plot_list <- diagnose_icc_fit(model, tab, resample_psi = F)
     expect_equal(length(plot_list), 1)
     expect_true(is(plot_list[[1]], "ggplot"))
 })

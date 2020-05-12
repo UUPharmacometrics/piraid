@@ -185,21 +185,20 @@ icc_plots <- diagnose_icc_fit
 #'
 #' MDV and EVID will be used to filter out non-observations before plotting
 #'
-#' @param origdata The original dataset
 #' @param model The model used to generate the data
 #' @param simdata The simulated data. Will plot only original data if this is missing
 #' @param nrow The number of rows per page to use for the matrix of plots
 #' @param ncol The number of columns per page to use for the matrix of plots
 #' @return A list of plots. One page per item.
 #' @export
-mirror_plots <- function(origdata, model, simdata=NULL, nrow=4, ncol=5) {
+diagnose_marginal_probability <- function(model, simdata=NULL, nrow=4, ncol=5) {
     scale <- model$scale
-    unique_items <- sort(unique(origdata$ITEM))
-    item_labels <- item_name_list(scale)
 
-    origdata <- origdata %>%
+    origdata <- read_dataset(model$dataset) %>% 
         filter_observations() %>%
         consolidate_data(model)
+    unique_items <- sort(unique(origdata$ITEM))
+    item_labels <- item_name_list(scale)
     origdata <- dplyr::select(origdata, "DV", "ITEM")
     origdata$type <- "observed"
 
@@ -230,6 +229,9 @@ mirror_plots <- function(origdata, model, simdata=NULL, nrow=4, ncol=5) {
     plot_list
 }
 
+#' @export
+#' @rdname diagnose_marginal_probability
+mirror_plots <- diagnose_marginal_probability
 
 #' Item response correlation plot
 #' 

@@ -57,10 +57,18 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
             dplyr::select(.data$ID, PSI_SAMPLES = .data$PSI)
     }
     
-    if(interactive()) cat("Calculating GAM-based ICCs for",length(unique(nmtab$ITEM)),
-                          "items and", length(unique(nmtab$ID)), 
-                          "subjects with", 
-                          samples, "samples per subject...\n")
+    if(interactive()){
+      if(resample_psi){
+        cat("Calculating GAM-based ICCs for",length(unique(nmtab$ITEM)),
+            "items and", length(unique(nmtab$ID)), 
+            "subjects with", 
+            samples, "samples per subject...\n")
+      }else{
+        cat("Calculating GAM-based ICCs for",length(unique(nmtab$ITEM)),
+            "items and", length(unique(nmtab$ID)), 
+            "subjects...\n")
+      }
+    } 
     if(interactive()) pb <- utils::txtProgressBar(max = max(nmtab$ITEM), style = 3)
         item_names <- item_name_list(model$scale)
         problematic_fits <- NULL

@@ -15,7 +15,7 @@ estimate_lv_values(
 \item{estimate_item_prms}{Whether to re-estimate the item parameters from the data.}
 }
 \value{
-A tibble with columns PSI (the estimated latent variable value), SE_PSI (the associated standard error), and all columns 
+A tibble with columns PSI (the estimated latent variable value), PSI_SE (the associated standard error), and all columns 
 from the data (except ITEM and DV)
 }
 \description{

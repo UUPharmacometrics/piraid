@@ -87,7 +87,7 @@ data_use_strategies <- c("baseline", "all-pooled", 'all-baseref')
 #'
 #' @param estimate_item_prms Whether to re-estimate the item parameters from the data. 
 #' 
-#' @return A tibble with columns PSI (the estimated latent variable value), SE_PSI (the associated standard error), and all columns 
+#' @return A tibble with columns PSI (the estimated latent variable value), PSI_SE (the associated standard error), and all columns 
 #' from the data (except ITEM and DV)
 #'
 #' @export
@@ -121,7 +121,7 @@ estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_esti
     
     lv_values %>% 
         dplyr::as_tibble() %>% 
-        dplyr::rename(PSI = .data$F1, SE_PSI = .data$SE_F1) %>% 
+        dplyr::rename(PSI = .data$F1, PSI_SI = .data$SE_F1) %>% 
         dplyr::bind_cols(non_item_data_wide, .)
 
 }

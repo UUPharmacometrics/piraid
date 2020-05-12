@@ -45,6 +45,6 @@ lv_model_code <- function(){
         increase_indent() %>% 
         add_line("BASE=THETA(1)+ETA(1)") %>% 
         add_line("SLP=THETA(2)+ETA(2)") %>% 
-        add_line("Y=BASE+SLP*TIME+SE_PSI*EPS(1)") %>% 
+        add_line("Y=BASE+SLP*TIME+PSI_SE*EPS(1)") %>% 
         decrease_indent()
 }

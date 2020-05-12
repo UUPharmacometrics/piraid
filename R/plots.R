@@ -22,18 +22,17 @@ graded_response_model <- function(data) {
 #' Plot item characteristic curves diagnostic
 #' 
 #' MDV and EVID will be used to filter out non-observations before plotting
-#' Consolidation is handled by moving consolidated levels into the closest level blow.
 #' 
-#' @param nmtab A data.frame from the item_parameters_tab of a model run. PSI, ITEM, DV, DIS, DIFn are needed
 #' @param model The model that was used to create the output table
+#' @param nmtab A data.frame from the item_parameters_tab of a model run. PSI, ITEM, DV, DIS, DIFn are needed
 #' @param resample_psi Whether to use the resampling based diagnostic
-#' @param items_per_page The number of items to display on one page (default NULL prints all items)
-#' @param samples The number of samples to use when resample_psi = T
 #' @param psi_range The range of psi values to use for the plot
+#' @param samples The number of samples to use when resample_psi = T
+#' @param items_per_page The number of items to display on one page (default NULL prints all items)
 #' @return A list of plots
 #' @export
-icc_plots <- function(nmtab, model, resample_psi = FALSE, 
-                       items_per_page=NULL, samples = 10, psi_range = c(-4,4)){
+diagnose_icc_fit <- function(model, nmtab = NULL, psi_range = c(-4,4), resample_psi = FALSE, samples = 10,
+                       items_per_page=NULL){
     required_columns <- c("ITEM", "DV", "PSI") 
     is_present <- required_columns  %in% colnames(nmtab)
     if(!all(is_present)) stop("Column(s) ", paste(required_columns[!is_present], sep = " "), " are required but not present in the data frame.", call. = F) 
@@ -165,6 +164,10 @@ icc_plots <- function(nmtab, model, resample_psi = FALSE,
         theme(legend.position = "bottom", legend.margin = ggplot2::margin())+
         labs(x="PSI", y="Probability"))
 }
+
+#' @export
+#' @rdname diagnose_icc_fit
+icc_plots <- diagnose_icc_fit
 
 #' Mirror plots for comparison of original data and simulated data
 #'
@@ -316,12 +319,3 @@ lv_vs_time_plot <- function(lv_dataset, lv_col = "PSI", time_col = "TIME",
     
     return(plot)
 }
-
-#item.parameters <- read.table("/home/rikard/devel/ICC_plot/item_parameters_tab1", skip=1, header=T,sep=",")
-#scale <- predefined_scale("MDS-UPDRS")
-#mirror_plots(item.parameters, scale)
-#icc_plots(item.parameters)
-
-# load PSI value & item parameters
-#psi.estimates <- read.table("/home/rikard/projects/irt/corrplot/psi_estimates_tab13", skip=1, header=T)
-#correlation_plot(psi.estimates)

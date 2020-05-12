@@ -400,6 +400,8 @@ update_parameters <- function(model, data){
         item_prms_wide <- dplyr::filter(data, !duplicated(.data$item)) %>% 
             dplyr::select("item", dplyr::matches("^dis|gue$"), dplyr::matches("^dif\\d*$")) 
         
+        if(ncol(item_prms_wide)==1) return(model)
+        
         item_prms <- item_prms_wide %>%
             tidyr::pivot_longer(cols = -.data$item, 
                                 names_to = "parameter", 

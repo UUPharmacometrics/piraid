@@ -4,10 +4,12 @@
 \alias{as_mirt_model}
 \title{Convert piraid model to mirt model}
 \usage{
-as_mirt_model(model)
+as_mirt_model(model, use_data = FALSE)
 }
 \arguments{
 \item{model}{A piraid irt_model}
+
+\item{use_data}{Whether to use the associated dataset or create pseudo data}
 }
 \value{
 An mirt SingleGroupClass

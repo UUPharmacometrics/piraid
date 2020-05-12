@@ -83,16 +83,23 @@ create_mirt_pseudo_data <- function(model){
 #' This function converts a piraid irt_model to an mirt SingleGroupClass to allow the subsequent use of mirt functions 
 #'
 #' @param model A piraid irt_model
+#' @param use_data Whether to use the associated dataset or create pseudo data
 #'
 #' @return An mirt SingleGroupClass
-as_mirt_model <- function(model){
+as_mirt_model <- function(model, use_data = FALSE){
     stopifnot(is.irt_model(model))
-    
-    pseudo_data <- create_mirt_pseudo_data(model)
+    if(use_data) {
+        df <- read_dataset(model$dataset) %>% 
+            prepare_dataset()
+        wide_data <- convert_to_wide_data(df)
+        mirt_data <- dplyr::select(wide_data, dplyr::starts_with("ITEM"))
+    }else{
+        mirt_data <- create_mirt_pseudo_data(model)
+    }
     # get item models
     types <- get_mirt_types(model)
     # get required prms
-    mirt_prms <- mirt::mirt(data=pseudo_data, model=1, itemtype=types, pars = "values")
+    mirt_prms <- mirt::mirt(data=mirt_data, model=1, itemtype=types, pars = "values")
     # convert piraid prms to mirt
     item_prms <-  piraid_estimates_to_mirt_format(list_initial_estimates(model)) 
     # update prms 
@@ -100,7 +107,7 @@ as_mirt_model <- function(model){
         dplyr::mutate(value = ifelse(is.na(.data$value_new), .data$value, .data$value_new)) %>% 
         dplyr::select(-.data$value_new)
     # evaluate model
-    mirt_model <- mirt::mirt(data=pseudo_data, model=1, itemtype = types, pars = mirt_prms, TOL = NA)
+    mirt_model <- mirt::mirt(data=mirt_data, model=1, itemtype = types, pars = mirt_prms, TOL = NA)
     return(mirt_model)
 }
 

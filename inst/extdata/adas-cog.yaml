@@ -57,7 +57,7 @@ parameters:
     volume: '8'
 items:
   - number: 1
-    name: "I.1\nRecall error"
+    name: "Recall error"
     levels: '[0,10]'
     type: ordcat
     categories: 
@@ -75,7 +75,7 @@ items:
           - 0.57
           - 0.69
   - number: 2
-    name: "I.2\nNaming"
+    name: "Naming"
     levels: '[0,5]'
     type: ordcat
     categories: 
@@ -88,7 +88,7 @@ items:
           - 0.54
           - 0.58
   - number: 3
-    name: "I.3\nConstruction"
+    name: "Construction"
     levels: '[0,5]'
     type: ordcat
     categories: 
@@ -101,7 +101,7 @@ items:
           - 0.92
           - 0.41
   - number: 4
-    name: "I.4\nIdeational praxis" 
+    name: "Ideational praxis" 
     levels: '[0,5]'
     type: ordcat
     categories: 
@@ -114,7 +114,7 @@ items:
           - 0.32
           - 0.28
   - number: 5
-    name: "I.5\nWord recognition"
+    name: "Word recognition"
     levels: '[0,12]'
     type: ordcat
     categories: 
@@ -134,7 +134,7 @@ items:
           - 0.24
           - 0.27
   - number: 6
-    name: "I.6\nSpeech"
+    name: "Speech"
     levels: '[0,5]'
     type: ordcat
     categories: 
@@ -147,7 +147,7 @@ items:
           - 0.41
           - 0.72         
   - number: 7
-    name: "I.7\nComprehension"
+    name: "Comprehension"
     levels: '[0,5]'
     type: ordcat
     categories: 
@@ -160,7 +160,7 @@ items:
           - 1.02
           - 0.72
   - number: 8
-    name: "I.8\nRecall instructions"
+    name: "Recall instructions"
     levels: '[0,5]'
     type: ordcat
     categories: 
@@ -173,7 +173,7 @@ items:
           - 0.33
           - 0.19
   - number: 9
-    name: "I.9\nWord finding"
+    name: "Word finding"
     levels: '[0,5]'
     type: ordcat
     categories: 
@@ -186,7 +186,7 @@ items:
           - 0.6
           - 0.84
   - number: 10
-    name: "I.10\nCommands"
+    name: "Commands"
     levels: '[0,5]'
     type: ordcat
     categories: 
@@ -199,7 +199,7 @@ items:
           - 0.64
           - 0.84
   - number: 11
-    name: "I.11\nOrientation"
+    name: "Orientation"
     levels: '[0,8]'
     type: ordcat
     categories: 

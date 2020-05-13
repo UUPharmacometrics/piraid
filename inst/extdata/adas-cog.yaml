@@ -1,0 +1,224 @@
+scale:
+  name: Alzheimer's Disease Assessment Scale-Cognitive Subscale 
+  abbreviation: ADAS-cog
+  references:
+  - id: rosen1984
+    author:
+      - family: Rosen
+        given: W G
+      - family: Mohs
+        given: R C
+      - family: Davis
+        given: K L
+    container-title: The American Journal of Psychiatry
+    container-title-short: Am J Psychiatry
+    ISSN: 0002-953X
+    issue: '11'
+    issued:
+      - year: 1984
+        month: 11
+    page: 1356-1364
+    PMID: '6496779'
+    source: NCBI PubMed
+    title: A new rating scale for Alzheimer's disease
+    type: article-journal
+    URL: 'http://www.ncbi.nlm.nih.gov/pubmed/6496779'
+    volume: '141'
+
+parameters:
+  references:
+  - id: balsis2012
+    author:
+      - family: Balsis
+        given: Steve
+      - family: Unger
+        given: Alexis A.
+      - family: Benge
+        given: Jared F.
+      - family: Geraci
+        given: Lisa
+      - family: Doody
+        given: Rachelle S.
+    container-title: Alzheimer's and Dementia
+    DOI: 10.1016/j.jalz.2011.05.2409
+    ISSN: 1552-5260
+    issue: '4'
+    issued:
+      - year: 2012
+        month: 7
+    page: 288-94
+    source: ScienceDirect
+    title: >-
+      Gaining precision on the Alzheimer’s Disease Assessment Scale-cognitive: A
+      comparison of item response theory-based scores and total scores
+    title-short: Gaining precision on the Alzheimer’s Disease Assessment Scale-cognitive
+    type: article-journal
+    URL: 'http://www.sciencedirect.com/science/article/pii/S155252601102574X'
+    volume: '8'
+items:
+  - number: 1
+    name: "Recall error"
+    levels: '[0,10]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.87
+          - -3.24
+          - 0.25
+          - 0.34
+          - 0.4
+          - 0.6
+          - 0.55
+          - 0.45
+          - 0.54
+          - 0.57
+          - 0.69
+  - number: 2
+    name: "Naming"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.44
+          - -0.65
+          - 0.87
+          - 0.73
+          - 0.54
+          - 0.58
+  - number: 3
+    name: "Construction"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 1.71  
+          - -1.47 
+          - 1.59
+          - 0.8
+          - 0.92
+          - 0.41
+  - number: 4
+    name: "Ideational praxis" 
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.45  
+          - -0.36 
+          - 0.81
+          - 0.47
+          - 0.32
+          - 0.28
+  - number: 5
+    name: "Word recognition"
+    levels: '[0,12]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.59 
+          - -2.63
+          - 0.79
+          - 0.5
+          - 0.33
+          - 0.25
+          - 0.25
+          - 0.23
+          - 0.21
+          - 0.22
+          - 0.16
+          - 0.24
+          - 0.27
+  - number: 6
+    name: "Speech"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.58
+          - 0.18
+          - 0.35
+          - 0.38
+          - 0.41
+          - 0.72         
+  - number: 7
+    name: "Comprehension"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 3.02
+          - -0.26
+          - 0.35
+          - 0.45
+          - 1.02
+          - 0.72
+  - number: 8
+    name: "Recall instructions"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 3.13
+          - -0.51
+          - 0.33
+          - 0.27
+          - 0.33
+          - 0.19
+  - number: 9
+    name: "Word finding"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.57
+          - -0.60
+          - 0.57
+          - 0.48
+          - 0.6
+          - 0.84
+  - number: 10
+    name: "Commands"
+    levels: '[0,5]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.76
+          - -0.46
+          - 0.73
+          - 0.5
+          - 0.64
+          - 0.84
+  - number: 11
+    name: "Orientation"
+    levels: '[0,8]'
+    type: ordcat
+    categories: 
+    inits:
+        values:
+          - 2.18
+          - -1.70
+          - 0.58
+          - 0.31
+          - 0.28
+          - 0.35
+          - 0.43
+          - 0.47
+          - 1.39
+
+
+
+
+ 
+ 
+
+ 

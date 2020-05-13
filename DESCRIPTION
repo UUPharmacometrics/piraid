@@ -1,7 +1,7 @@
 Package: piraid
 Encoding: UTF-8
-Version: 0.4
-Date: 2020-02-26
+Version: 0.4.1
+Date: 2020-05-13
 Title: An aid for development and diagnosis of pharmacometric 'IRT' models
 Authors@R: c(person("Rikard", "Nordgren", role=c("aut", "cre", "cph"), email="rikard.nordgren@farmbio.uu.se"),
              person("Sebastian", "Ueckert", role=c("aut", "cph")),
@@ -24,7 +24,9 @@ Imports:
     mirt,
     purrr,
     tibble,
-    tidyselect
+    tidyselect,
+    pracma,
+    glue
 Suggests: 
     knitr,
     rmarkdown,
@@ -40,4 +42,4 @@ URL: https://github.com/UUPharmacometrics/piraid
 BugReports: https://github.com/UUPharmacometrics/piraid/issues
 License: LGPL (>= 2)
 Copyright: 2019-2020 Rikard Nordgren, Sebastian Ueckert and Mats O. Karlsson
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0

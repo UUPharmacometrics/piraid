@@ -1,6 +1,63 @@
-description: >
-  Aberrant Behavior Checklist (ABC)
-  Aman MG, Singh NN, Stewart AW, Field CJ (1985) The aberrant behavior checklist: a behavior rating scale for the assessment of treatment effects. American journal of mental deficiency
+scale: 
+  name: Aberrant Behavior Checklist 
+  abbreviation: ABC
+  references:
+    - id: aman1985
+      author:
+        - family: Aman
+          given: M. G.
+        - family: Singh
+          given: N. N.
+        - family: Stewart
+          given: A. W.
+        - family: Field
+          given: C. J.
+      container-title: American Journal of Mental Deficiency
+      container-title-short: Am J Ment Defic
+      ISSN: 0002-9351
+      issue: '5'
+      issued:
+        - year: 1985
+          month: 3
+      language: eng
+      page: 485-491
+      PMID: '3993694'
+      source: PubMed
+      title: >-
+        The aberrant behavior checklist: a behavior rating scale for the assessment
+        of treatment effects
+      title-short: The aberrant behavior checklist
+      type: article-journal
+      volume: '89'
+parameters:
+  references:
+    - id: haem2020
+      author:
+        - family: Haem
+          given: Elham
+        - family: Doostfatemeh
+          given: Marziyeh
+        - family: Firouzabadi
+          given: Negar
+        - family: Ghazanfari
+          given: Nima
+        - family: Karlsson
+          given: Mats O.
+      container-title: Journal of Pharmacokinetics and Pharmacodynamics
+      container-title-short: J Pharmacokinet Pharmacodyn
+      DOI: 10.1007/s10928-020-09686-0
+      ISSN: 1573-8744
+      issued:
+        - year: 2020
+          month: 4
+          day: 13
+      language: en
+      source: Springer Link
+      title: >-
+        A longitudinal item response model for Aberrant Behavior Checklist (ABC)
+        data from children with autism
+      type: article-journal
+      URL: 'https://doi.org/10.1007/s10928-020-09686-0'
 items:
   - number: 1
     name: "Excessively active on ward"

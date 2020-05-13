@@ -69,6 +69,23 @@ test_that("setting initial estimates table", {
 
 })
 
+test_that("updating parameters using long format", {
+    inits <- tibble::tibble(item = c(1,2), parameter = c("DIF1", "DIF2"), value = c(0.1, 0.2))
+    mod <- update_parameters(model, inits)
+    
+    expect_equal(initial_estimate(mod, get_item(mod$scale, 1), "DIF1"), 0.1)
+    expect_equal(initial_estimate(mod, get_item(mod$scale, 2), "DIF2"), 0.2)
+})
+
+test_that("updating parameters using wide format", {
+    prms <- tibble::tibble(item = 1:2, DIF1 = c(0.1, NA), DIF2=c(NA, 0.2))
+    mod <- update_parameters(model, prms)
+    expect_equal(initial_estimate(mod, get_item(mod$scale, 1), "DIF1"), 0.1)
+    expect_equal(initial_estimate(mod, get_item(mod$scale, 2), "DIF2"), 0.2)
+})
+
+
+
 test_that("list_initial_estimates", {
     df <- list_initial_estimates(model)
     expect_equal(df$item[1], 1)

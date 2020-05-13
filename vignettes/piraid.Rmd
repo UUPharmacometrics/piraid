@@ -191,7 +191,7 @@ There are multiple ways of setting the initial estimates for the item parameters
 2. Taken from the published model in the scale
 3. A fall back value of:
        Binary: DIS=1, DIF=0.1, GUE=0.01
-       Ordered categorical: DIS=1, DIFn=$-3 + \frac{6n}{n_{cats}}$ (not lower than 0.1)
+       Ordered categorical: DIS=1, DIF1 = -2, DIFi= $\frac{4}{n_{cats}-2}$ 
 
 ### Providing user defined initial estimates
 The most straight forward way of setting some initial estimates is to use the function ```set_initial_estimates```.

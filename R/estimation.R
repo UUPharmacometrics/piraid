@@ -85,13 +85,12 @@ data_use_strategies <- c("baseline", "all-pooled", 'all-baseref')
 #' 
 #' @param model The model
 #'
-#' @param estimate_item_prms Whether to re-estimate the item parameters from the data. 
 #' 
-#' @return A tibble with columns PSI (the estimated latent variable value), SE_PSI (the associated standard error), and all columns 
+#' @return A tibble with columns PSI (the estimated latent variable value), PSI_SE (the associated standard error), and all columns 
 #' from the data (except ITEM and DV)
 #'
 #' @export
-estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_estimates(model)){
+estimate_lv_values <- function(model){
     stopifnot(is.irt_model(model))
     df <- read_dataset(model$dataset) %>% prepare_dataset()
     wide_data <- convert_to_wide_data(df)
@@ -99,29 +98,14 @@ estimate_lv_values <- function(model, estimate_item_prms = !has_all_initial_esti
     item_data_wide <- dplyr::select(wide_data, dplyr::starts_with("ITEM"))
     non_item_data_wide <- dplyr::select(wide_data, -dplyr::starts_with("ITEM"))
 
-    rlang::inform(paste("Using data with", ncol(item_data_wide), "items and", nrow(item_data_wide), "subjects"))
-    types <- prepare_mirt_type_vector(model, item_data_wide)
-
-    if(estimate_item_prms){
-        rlang::inform("Starting item paramter estimation using 'mirt'")
-        mirt_model <- mirt::mirt(data=item_data_wide, model=1, itemtype=types, verbose = interactive())
-        rlang::inform("Estimation done")
-    }else{
-        mirt_prms <- mirt::mirt(data=item_data_wide, model=1, itemtype=types, pars = "values")
-        item_prms <-  nmirt_estimates_to_mirt_format(model$item_parameters) 
-        mirt_prms <- dplyr::left_join(mirt_prms, item_prms, by = c("item","name"), suffix = c("", "_nmirt")) %>% 
-            dplyr::mutate(value = ifelse(is.na(.data$value_nmirt), .data$value, .data$value_nmirt)) %>% 
-            dplyr::select(-.data$value_nmirt)
-        mirt_model <- mirt::mirt(data=item_data_wide, model=1, itemtype = types, pars = mirt_prms, TOL = NA)
-    }
-
+    mirt_model <- as_mirt_model(model, use_data = TRUE)
     rlang::inform("Estimating latent variable values for all subjects using 'mirt'")
     lv_values <- mirt::fscores(mirt_model, method = "MAP", full.scores.SE = TRUE)
     rlang::inform("Latent variable estimation done")
     
     lv_values %>% 
         dplyr::as_tibble() %>% 
-        dplyr::rename(PSI = .data$F1, SE_PSI = .data$SE_F1) %>% 
+        dplyr::rename(PSI = .data$F1, PSI_SE = .data$SE_F1) %>% 
         dplyr::bind_cols(non_item_data_wide, .)
 
 }

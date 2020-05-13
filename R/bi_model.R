@@ -4,9 +4,10 @@
 #'
 #' @param scale_or_min A scale object or a minimum total score
 #' @param max A maximum total score
+#' @param irt_link Results of an IRT link analysis
 #' @return A model object
 #' @export
-bi_model <- function(scale_or_min, max=NULL) {
+bi_model <- function(scale_or_min, max=NULL, irt_link = NULL) {
     model <- base_model(subclass="bi_model")
     if (is.numeric(scale_or_min)) {
         model$min <- scale_or_min
@@ -19,6 +20,7 @@ bi_model <- function(scale_or_min, max=NULL) {
         model$min <- min_max[1]
         model$max <- min_max[2]
     }
+    model$irt_link <- irt_link
     model
 }
 
@@ -39,7 +41,15 @@ model_code.bi_model <- function(model) {
     cg <- add_line(cg, "$SIZES DIMNEW=10000")
     cg <- add_line(cg, "$PROBLEM")
     cg <- add_code(cg, data_and_input_code(model))
-    cg <- add_code(cg, default_bi_model())
+    if(is.null(model$irt_link)){
+        cg <- add_code(cg, default_bi_model())
+    }else{
+        if(model$irt_link$idv == "psi"){
+            cg <- add_code(cg, default_irt_based_bi_model(model))
+        }else{
+            cg <- add_code(cg, default_irt_score_based_bi_model(model))
+        }
+    }
     cg <- add_empty_line(cg)
     cg <- add_code(cg, cutoffs(model))
     cg <- add_empty_line(cg)
@@ -53,7 +63,11 @@ model_code.bi_model <- function(model) {
     cg <- add_empty_line(cg)
     cg <- add_code(cg, bi_simulation_code(model))
     cg <- add_empty_line(cg)
-    cg <- add_code(cg, default_bi_parameters())
+    if(is.null(model$irt_link)){
+        cg <- add_code(cg, default_bi_parameters())
+    }else{
+        cg <- add_code(cg, default_irt_based_bi_parameters())
+    }
     cg <- add_empty_line(cg)
     cg <- add_code(cg, bi_estimation(model))
     get_code(cg)
@@ -95,6 +109,35 @@ set_predictions <- function(bi_model) {
     cg
 }
 
+default_irt_based_bi_model <- function(model){
+    cg <- code_generator()
+    cg <- add_line(cg, "$PRED")
+    cg <- add_line(cg, "MU_1 = THETA(1)")
+    cg <- add_line(cg, "MU_2 = THETA(2)")
+    cg <- add_line(cg, "BASE = THETA(1) + ETA(1)")
+    cg <- add_line(cg, "SLOPE = THETA(2) + ETA(2)")
+    cg <- add_line(cg, "LV = BASE + SLOPE*TIME")
+    cg <- add_line(cg, nm_range_transform(model$irt_link))
+    cg <- add_line(cg, "IPRED =", nm_polynom(model$irt_link$mean$coefficients))
+    cg <- add_line(cg, "SD =", nm_polynom(model$irt_link$sd$coefficients))
+    cg
+}
+
+default_irt_score_based_bi_model <- function(model){
+    cg <- code_generator()
+    cg <- add_line(cg, "$PRED")
+    cg <- add_line(cg, "MU_1 = THETA(1)")
+    cg <- add_line(cg, "MU_2 = THETA(2)")
+    cg <- add_line(cg, "BASE = THETA(1) + ETA(1)")
+    cg <- add_line(cg, "SLOPE = THETA(2) + ETA(2)")
+    cg <- add_line(cg, "IPRED = BASE + SLOPE*TIME")
+    cg <- add_line(cg, nm_range_transform(model$irt_link, variable = "IPRED"))
+    cg <- add_line(cg, "SD =", nm_polynom(model$irt_link$sd$coefficients))
+    cg <- add_line(cg, "IF(TLV.LT.-1) SD = ", model$irt_link$sd$true[1])
+    cg <- add_line(cg, "IF(TLV.GT.1) SD = ", model$irt_link$sd$true[length(model$irt_link$sd$true)])
+    cg
+}
+
 default_bi_model <- function() {
     cg <- code_generator()
     cg <- add_line(cg, "$PRED")
@@ -107,6 +150,18 @@ default_bi_model <- function() {
     cg
 }
 
+default_irt_based_bi_parameters <- function() {
+    cg <- code_generator()
+    cg <- add_line(cg, "$THETA 0.01  ; TVBASE")
+    cg <- add_line(cg, "$THETA 0.01  ; TVSLOPE")
+    cg <- add_empty_line(cg)
+    cg <- add_line(cg, "$OMEGA 1  ; IIVBASE")
+    cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLOPE")
+    cg
+}
+
+
+
 default_bi_parameters <- function() {
     cg <- code_generator()
     cg <- add_line(cg, "$THETA 0.01  ; TVBASE")
@@ -117,6 +172,8 @@ default_bi_parameters <- function() {
     cg <- add_line(cg, "$OMEGA 0.1  ; IIVSLOPE")
     cg
 }
+
+
 
 bi_simulation_code <- function(model) {
     cg <- code_generator()

@@ -19,10 +19,53 @@ is.irt_scale <- function(x) {
 #' 
 #' @return A character vector with the names
 #' @export
-list_predefined_scales <- function() {
+list_predefined_scales <- function(print = interactive()) {
     dir <- system.file("extdata", package="piraid")
-    files <- tools::file_path_sans_ext(list.files(dir, pattern = "\\.yaml$"))
-    return(files)
+    scale_list_entry <- function(yaml_doc){
+        tryCatch(
+            tibble::tibble(name = yaml_doc$scale$name,
+                            abbreviation = yaml_doc$scale$abbreviation,
+                            items = length(yaml_doc$items),
+                            parameters = exists("parameters", yaml_doc), 
+                            parameters_reference = cite_author_year(yaml_doc$parameters$references[[1]])
+                           
+                           ),
+            error = function(e) tibble::tibble(name = NA_character_, 
+                                       abbreviation = NA_character_, 
+                                       items = NA_integer_,
+                                       parameters = NA,
+                                       parameters_reference = NA_character_)
+            )
+    }
+    df <- list.files(dir, pattern = "\\.yaml$", full.names = TRUE) %>% 
+        {purrr::set_names(., basename(.))} %>% 
+        purrr::map(purrr::possibly(yaml::yaml.load_file, NULL)) %>% 
+        purrr::map_dfr(scale_list_entry, .id = "scale_id") %>% 
+        dplyr::mutate(scale_id = gsub(pattern = "\\.yaml$", .data[["scale_id"]], replacement = ""))
+    
+    if(print) df %>% 
+        dplyr::transmute(ID = .data[["scale_id"]],
+                      Name = glue::glue("{name} ({abbreviation})"),
+                      '#Items' = .data[["items"]],
+                      'Param.' = ifelse(.data[["parameters"]], "yes", "no"),
+                      'Reference' = .data[["parameters_reference"]]) %>% 
+        as.data.frame() %>% 
+        format(justify = c("left")) %>% 
+            print(row.names = F)
+    
+    return(invisible(df))
+}
+
+cite_author_year <- function(reference){
+    if(is.null(reference)) return("")
+    if(length(reference$author)>2){
+        name <- sprintf("%s et al.", reference$author[[1]]$family)
+    }else if(length(reference$author)==2){
+        name <- sprintf("%s and %s", reference$author[[1]]$family, reference$author[[2]]$family)
+    }else{
+        name <- sprintf("%s", reference$author[[1]]$family)
+    }
+    sprintf("%s, %i", name, reference$issued[[1]]$year)
 }
 
 #' Retrieve a built in scale
@@ -30,12 +73,12 @@ list_predefined_scales <- function() {
 #' \code{predefined_scale} returns a scale object from a built in scale.
 #' Use \code{\link{list_predefined_scales}} to get a list of all available scales.
 #'
-#' @param scale_name The name of the scale
+#' @param scale_id The id of the scale
 #' @return A scale object or an error if the scale does not exist
 #' @export
-load_predefined_scale <- function(scale_name) {
-    scale_name <- tolower(scale_name)
-    path <- system.file("extdata", paste0(scale_name, ".yaml"), package="piraid")
+load_predefined_scale <- function(scale_id) {
+    scale_id <- tolower(scale_id)
+    path <- system.file("extdata", paste0(scale_id, ".yaml"), package="piraid")
     if (path == "") {
         stop("Error: No such predefined scale. Available scale is MDS-UPDRS")
     }
@@ -64,9 +107,11 @@ load_scale <- function(path) {
             name <- ""
         }
         new_irt_item <- irt_item(number=item$number, name=name, levels=item_levels(item$levels),
-            type=item$type, categories=categories, inits=item$inits$values)
+            type=item$type, categories=categories, inits=as.numeric(item$inits$values))
         scale <- add_item(scale, new_irt_item)
     }
+    scale$scale <- db$scale
+    scale$parameters <- db$parameters
     scale
 }
 
@@ -221,30 +266,52 @@ print_scale_info <- function(scale, header=TRUE) {
     ordcat_items <- items_by_type(scale, item_type$ordered_categorical)
     ordcat_levels <- ordcat_level_arrays(scale)
     if (header) {
-        cat("A scale object from ", utils::packageName(), "\n\n", sep="")
+        cat("A ", utils::packageName(), " scale object\n", sep="")
     }
-    cat("Total number of items: ", length(items), "\n", sep="")
-    if(length(ordcat_items)>0)  cat("    Ordered categorical items: ", format_integers(ordcat_items), "\n", sep="")
-    if(length(binary_items)>0) cat("    Binary items: ", format_integers(binary_items), "\n", sep="")
+    scale_name <- purrr::pluck(scale, "scale", "name")
+    if(!is.null(scale_name)){
+        cat("\tScale name: \t\t", scale_name, "\n", sep="")
+    }
+    scale_abbreviation <- purrr::pluck(scale, "scale", "abbreviation")
+    if(!is.null(scale_abbreviation)){
+        cat("\tAbbreviation: \t\t", scale_abbreviation, "\n", sep="")
+    }
+    scale_references <- purrr::pluck(scale, "scale", "references")
+    if(!is.null(scale_references)){
+        cat("\tReference: \t\t", cite_author_year(scale_references[[1]]), "\n", sep = "")
+    }
+    cat("\tNumber of items: \t", length(items), "\n", sep="")
+    if(length(ordcat_items)>0)  cat("\t\tOrdered categorical: ", format_integers(ordcat_items), "\n", sep="")
+    if(length(binary_items)>0) cat("\t\tBinary: ", format_integers(binary_items), "\n", sep="")
+    has_params <- purrr::map_lgl(scale$items, ~!rlang::is_empty(.x$inits))
+    if(any(has_params)){
+        cat("\tParameters:\n")
+        prm_reference <- purrr::pluck(scale, "parameters", "references", 1)
+        if(is.null(prm_reference)) {
+            prm_reference_txt <- "Not available"
+        }else{
+            prm_reference_txt <- cite_author_year(prm_reference)
+        }
+        cat("\t\tReference:\t ", prm_reference_txt, "\n", sep = "")
+    }
 }
 
-#' Print a summary overview of a scale
+
+#' List available items in a scale
 #' 
 #' Generate a table with the columns Item, Levels, Type, Categories and Name to give an
 #' overview of what a scale object contains.
 #' 
-#' @param object An irt_scale object
-#' @param ... No additional arguments are supported
+#' @param scale An irt_scale object
 #' @return A data.frame with scale information
 #' @export
-summary.irt_scale <- function(object, ...) {     # ... needed to match the generic function
-    scale <- object
+list_items <- function(scale){
     n <- length(scale$items)
     df <- data.frame(Item=rep(as.numeric(NA), n), Levels=rep("", n), Type=rep("", n), Categories=rep("", n), Name=rep("", n), stringsAsFactors=FALSE)
     i <- 1
     for (item in scale$items) {
         if (length(item$categories) > 0) {
-            categories <- paste(item$categories, collapse=NULL)
+            categories <- paste(item$categories, collapse=", ")
         } else {
             categories <- ""
         }
@@ -254,6 +321,16 @@ summary.irt_scale <- function(object, ...) {     # ... needed to match the gener
     }
     df
 }
+
+#' @param object An irt_scale object
+#' @param ... No additional arguments are supported
+#' @rdname list_items
+#' @export 
+summary.irt_scale <- function(object, ...) {     # ... needed to match the generic function
+    scale <- object
+    list_items(scale)
+}
+
 
 #' Get an item from a scale
 #' 
@@ -451,7 +528,7 @@ levels_as_string <- function(levels) {
 #' @keywords internal
 published_init <- function(scale, item_number, parameter_index) {
     item <- get_item(scale, item_number)
-    if ("inits" %in% names(item)) {
+    if (!rlang::is_empty(item$inits)) {
         if (!is.na(parameter_index)) {
             return(item$inits[parameter_index])
         }

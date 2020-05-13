@@ -1,6 +1,3 @@
-scale:
-  name: Hypothetical Rheumatoid Arthritis Scale
-  abbreviation: HRA
 items:
   - number: 1
     name: "Patients global assessment"

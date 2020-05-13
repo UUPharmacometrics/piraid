@@ -1,3 +1,32 @@
+scale:
+  name: MDS-Unified Parkinson's Disease Rating Scale 
+  abbreviation: MDS-UPDRS 
+parameters:
+  references:
+  - id: gottipati2017
+    author:
+      - family: Gottipati
+        given: Gopichand
+      - family: Karlsson
+        given: Mats O.
+      - family: Plan
+        given: Elodie L.
+    container-title: The AAPS journal
+    container-title-short: AAPS J
+    DOI: 10.1208/s12248-017-0058-8
+    ISSN: 1550-7416
+    issue: '3'
+    issued:
+      - year: 2017
+        month: 5
+    language: eng
+    page: 837-845
+    PMID: '28247193'
+    source: PubMed
+    title: Modeling a Composite Score in Parkinson's Disease Using Item Response Theory
+    type: article-journal
+    volume: '19'
+
 items:
   - number: 1
     name: "I.1\nCognitive impairment"

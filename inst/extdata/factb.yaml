@@ -1,0 +1,518 @@
+scale:
+  name: Functional Assessment of Cancer Therapy - Breast Cancer
+  abbreviation: FACT-B
+  references:
+  - id: brady1997
+    author:
+      - family: Brady
+        given: M. J.
+      - family: Cella
+        given: D. F.
+      - family: Mo
+        given: F.
+      - family: Bonomi
+        given: A. E.
+      - family: Tulsky
+        given: D. S.
+      - family: Lloyd
+        given: S. R.
+      - family: Deasy
+        given: S.
+      - family: Cobleigh
+        given: M.
+      - family: Shiomoto
+        given: G.
+    container-title: >-
+      Journal of Clinical Oncology: Official Journal of the American Society of
+      Clinical Oncology
+    container-title-short: J. Clin. Oncol.
+    DOI: 10.1200/JCO.1997.15.3.974
+    ISSN: 0732-183X
+    issue: '3'
+    issued:
+      - year: 1997
+        month: 3
+    language: eng
+    page: 974-986
+    PMID: '9060536'
+    source: PubMed
+    title: >-
+      Reliability and validity of the Functional Assessment of Cancer
+      Therapy-Breast quality-of-life instrument
+    type: article-journal
+    volume: '15'
+parameters:
+  references:
+  - id: schindler2018
+    author:
+      - family: Schindler
+        given: Emilie
+      - family: Friberg
+        given: Lena E.
+      - family: Lum
+        given: Bertram L.
+      - family: Wang
+        given: Bei
+      - family: Quartino
+        given: Angelica
+      - family: Li
+        given: Chunze
+      - family: Girish
+        given: Sandhya
+      - family: Jin
+        given: Jin Y.
+      - family: Karlsson
+        given: Mats O.
+    container-title: Pharmaceutical Research
+    container-title-short: Pharm. Res.
+    DOI: 10.1007/s11095-018-2403-8
+    ISSN: 1573-904X
+    issue: '6'
+    issued:
+      - year: 2018
+        month: 4
+        day: 19
+    language: eng
+    page: '122'
+    PMCID: PMC5908825
+    PMID: '29675616'
+    source: PubMed
+    title: >-
+      A Pharmacometric Analysis of Patient-Reported Outcomes in Breast Cancer
+      Patients Through Item Response Theory
+    type: article-journal
+    volume: '35'
+items:
+  - number: 1
+    name: "I.1\nLack_of_energy"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Physical_well-being
+    inits:
+        values:
+          - 2.7 
+          - -2.32
+          - 0.973
+          - 1.02
+          - 1.27
+  - number: 2
+    name: "I.2\nHave_nausea"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Physical_well-being
+    inits:
+        values:
+          - 1.47
+          - -4.00
+          - 1.02
+          - 1.16
+          - 1.27
+  - number: 3
+    name: "I.3\nMeeting_family_needs "
+    levels: '[0,4]'
+    type: ordcat
+    categories: Physical_well-being
+    inits:
+        values:
+          - 2.56
+          - -2.25
+          - 0.689
+          - 0.876
+          - 0.977
+  - number: 4
+    name: "I.4\nHave_pain" 
+    levels: '[0,4]'
+    type: ordcat
+    categories: Physical_well-being
+    inits:
+        values:
+          - 1.75
+          - -2.71
+          - 1.04
+          - 0.964
+          - 1.23
+  - number: 5
+    name: "I.5\nSide_effects"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Physical_well-being
+    inits:
+        values:
+          - 2.07
+          - -2.7
+          - 0.879
+          - 0.991
+          - 1.21
+  - number: 6
+    name: "I.6\nFeel_ill"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Physical_well-being
+    inits:
+        values:
+          - 3.15
+          - -2.46
+          - 0.737
+          - 0.871
+          - 0.914
+  - number: 7
+    name: "I.7\nSpend_time_in_bed"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Physical_well-being
+    inits:
+        values:
+          - 2.83
+          - -2.63
+          - 0.765
+          - 0.709
+          - 0.913
+  - number: 8
+    name: "II.8\nClose_to_friends"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Social_well-being
+    inits:
+        values:
+          - 3.04
+          - -2.18
+          - 0.63
+          - 0.719
+          - 0.831
+  - number: 9
+    name: "II.9\nE_support_Fmly"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Social_well-being
+    inits:
+        values:
+          - 4.68
+          - -2.1
+          - 0.478
+          - 0.593
+          - 0.735
+  - number: 10
+    name: "II.10\nE_support_Frnds"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Social_well-being
+    inits:
+        values:
+          - 3.54
+          - -1.85
+          - 0.358
+          - 0.623
+          - 0.807
+  - number: 11
+    name: "II.11\nFamily_accept"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Social_well-being
+    inits:
+        values:
+          - 2.45
+          - -2.25
+          - 0.566
+          - 0.793
+          - 0.891
+  - number: 12
+    name: "II.12\nFamily_comm"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Social_well-being
+    inits:
+        values:
+          - 3.13
+          - -2.18
+          - 0.596
+          - 0.78
+          - 0.821
+  - number: 13
+    name: "II.13\nClose_to_Partnr"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Social_well-being
+    inits:
+        values:
+          - 2.88
+          - -2.01
+          - 0.35
+          - 0.64
+          - 0.698
+  - number: 14
+    name: "II.14\nSex_life"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Social_well-being
+    inits:
+        values:
+          - 1.49
+          - -1.42
+          - 0.465
+          - 0.979
+          - 1.04
+  - number: 15
+    name: "II.15\nFeel_sad"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Social_well-being
+    inits:
+      values:
+        - 2.19
+        - -2.47
+        - 0.983
+        - 1.09
+        - 1.21
+  - number: 16
+    name: "III.16\nCoping_illness"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Emotional_well-being
+    inits:
+        values:
+          - 0.83
+          - -3.73
+          - 1.38
+          - 1.95
+          - 2.19
+  - number: 17
+    name: "III.17\nNo_hope"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Emotional_well-being
+    inits:
+        values:
+          - 2.06
+          - -2.68
+          - 0.611
+          - 1.04
+          - 0.876
+  - number: 18
+    name: "III.18\nFeel_nervous"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Emotional_well-being
+    inits:
+        values:
+          - 2.04
+          - -2.23
+          - 0.794
+          - 0.939
+          - 1.37
+  - number: 19
+    name: "III.19\nWorry_abt_death"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Emotional_well-being
+    inits:
+        values:
+          - 2.18
+          - -1.69
+          - 0.571
+          - 0.74
+          - 1.21
+  - number: 20
+    name: "III.20\nConditn_gt_worse"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Emotional_well-being
+    inits:
+        values:
+          - 2.43
+          - -1.36
+          - 0.683
+          - 0.731
+          - 1.35
+  - number: 21
+    name: "IV.21\nAble_to_work"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Functional_well-being
+    inits:
+        values:
+          - 2.03
+          - -1.96
+          - 0.925
+          - 1.05
+          - 1.17
+  - number: 22
+    name: "IV.22\nWork_fulfling"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Functional_well-being
+    inits:
+        values:
+          - 2.62
+          - -1.65
+          - 0.648
+          - 0.952
+          - 1.04
+  - number: 23
+    name: "IV.23\nEnjoy_life"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Functional_well-being
+    inits:
+        values:
+          - 4.27
+          - -1.94
+          - 0.735
+          - 0.864
+          - 0.893
+  - number: 24
+    name: "IV.24\nAccpt_illnes"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Functional_well-being
+    inits:
+        values:
+          - 1.69
+          - -2.34
+          - 0.763
+          - 1.04
+          - 1.2
+  - number: 25
+    name: "IV.25\nSleeping_well"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Functional_well-being
+    inits:
+        values:
+          - 1.43
+          - -2.56
+          - 1.06
+          - 1.46
+          - 1.23
+  - number: 26
+    name: "IV.26\nUnusal_fun"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Functional_well-being
+    inits:
+        values:
+          - 3.76
+          - -1.8
+          - 0.689
+          - 0.885
+          - 0.844
+  - number: 27
+    name: "IV.27\nQOL"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Functional_well-being
+    inits:
+        values:
+          - 3.63
+          - -1.74
+          - 0.684
+          - 0.994
+          - 0.953
+  - number: 28
+    name: "V.28\nShort_of_breath"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Breast_cancer_subscale
+    inits:
+        values:
+          - 1.19
+          - -3.91
+          - 1.28
+          - 1.21
+          - 1.3
+  - number: 29
+    name: "V.29\nWay_I_dress"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Breast_cancer_subscale
+    inits:
+        values:
+          - 0.835
+          - -4.13
+          - 1.18
+          - 1.62
+          - 1.4
+  - number: 30
+    name: "V.30\nArms_swollen"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Breast_cancer_subscale
+    inits:
+        values:
+          - 0.765
+          - -4.59
+          - 1.64
+          - 1.23
+          - 1.49
+  - number: 31
+    name: "V.31\nSexually_attractive"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Breast_cancer_subscale
+    inits:
+        values:
+          - 1.41
+          - -1.22
+          - 0.776
+          - 1.44
+          - 1.23
+  - number: 32
+    name: "V.32\nBothered_hairloss"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Breast_cancer_subscale
+    inits:
+        values:
+          - 0.84
+          - -2.82
+          - 0.796
+          - 0.854
+          - 1
+  - number: 33
+    name: "V.33\nFamily_get_same_ill"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Breast_cancer_subscale
+    inits:
+        values:
+          - 1.06
+          - -1.33
+          - 1.08
+          - 0.766
+          - 1.4
+  - number: 34
+    name: "V.34\nEffect_stress_ill"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Breast_cancer_subscale
+    inits:
+        values:
+          - 1.51
+          - -1.8
+          - 1.21
+          - 0.963
+          - 1.29
+  - number: 35
+    name: "V.35\nBothered_change_WT"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Breast_cancer_subscale
+    inits:
+        values:
+          - 0.764
+          - -3.28
+          - 1.323
+          - 1.31
+          - 1.38
+  - number: 36
+    name: "V.36\n Feel_like_woman"
+    levels: '[0,4]'
+    type: ordcat
+    categories: Breast_cancer_subscale
+    inits:
+        values:
+          - 1.52
+          - -2.2
+          - 0.975
+          - 1.12
+          - 1.25
+ 

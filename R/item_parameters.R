@@ -31,12 +31,12 @@ initial_estimate <- function(model, item, parameter) {
         0.1
     } else {
         index <- as.numeric(stringr::str_extract(parameter, '\\d+'))
-        init <- -3 + (6 * index) / length(item$levels)
-        if (init <= 0) {
-            0.1
-        } else {
-            init
+        if(index==1){
+            init <- -2
+        }else{
+            init <- 4/(length(item$levels)-2)
         }
+        return(init)
     }
 }
 
@@ -97,6 +97,10 @@ is_item_parameter_fixed <- function(model, item, parameter) {
         return(TRUE)
     }
     FALSE
+}
+
+item_categories_probability_labels <- function(model, item){
+    sprintf("P(Y=%i)", item$levels)
 }
 
 #' Give a theta init string from limits
@@ -360,6 +364,63 @@ set_initial_estimates_table <- function(model, df){
     }else if(!"init" %in% colnames(df)) rlang::abort("The columns 'init' or 'value' are required")
     
     update_parameter_table(model, df)
+}
+
+#' Update model parameters
+#' 
+#' This function updates the parameter values of the model. It accepts data in long and wide
+#' format and ,therefore, can be used to update from a NONMEM table or the output of 
+#' \code{\link{estimate_item_parameters}}.  
+#' 
+#' @details 
+#' The long format is recognized by the presence of the column 'parameter'. In long format, only the columns
+#' item, parameter and value are used.  
+#' 
+#' If the 'parameter' column is not found, the wide format is assumed for the parameter data. In wide format, the columns
+#' item, dis, gue, dif, and difN (where N indicates a number) are used. All other columns are ignored. 
+#' 
+#' Capitalization of the column or parameter names does not matter.    
+#'
+#' @param model An irt_model object
+#' @param data A data.frame 
+#'
+#' @return An irt_model object
+#' @export 
+update_parameters <- function(model, data){
+    stopifnot(is.irt_model(model))
+    stopifnot(is.data.frame(data))
+    data <- dplyr::rename_all(data, tolower)
+    if(!'item' %in% colnames(data)){
+        rlang::abort("The data column 'item' is required.")
+    }
+    if("parameter"  %in% colnames(data) ){
+        item_prms <- dplyr::select(data, c("item", "parameter","value")) %>% 
+            dplyr::mutate_at("parameter", tolower)
+    }else{
+        item_prms_wide <- dplyr::filter(data, !duplicated(.data$item)) %>% 
+            dplyr::select("item", dplyr::matches("^dis|gue$"), dplyr::matches("^dif\\d*$")) 
+        
+        if(ncol(item_prms_wide)==1) return(model)
+        
+        item_prms <- item_prms_wide %>%
+            tidyr::pivot_longer(cols = -.data$item, 
+                                names_to = "parameter", 
+                                values_to = "value",
+                                values_drop_na = TRUE) %>% 
+            dplyr::rename(item = .data$item)
+        
+    }
+    required_prms <- purrr::map_dfr(all_items(model), 
+                                    ~tibble::tibble(item = .x, 
+                                                    parameter = item_parameter_names(model, .x))) %>% 
+        dplyr::mutate_at("parameter", tolower)
+    item_prms <- dplyr::left_join(required_prms, 
+                                  item_prms, 
+                                  by = c("item", "parameter")) %>% 
+        dplyr::filter(!is.na(value)) %>% 
+        dplyr::mutate(parameter = toupper(.data$parameter),
+                      init = value)
+    return(update_parameter_table(model, item_prms))
 }
 
 

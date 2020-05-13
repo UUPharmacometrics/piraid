@@ -4,18 +4,13 @@
 \alias{estimate_lv_values}
 \title{Estimate Latent Variable Values}
 \usage{
-estimate_lv_values(
-  model,
-  estimate_item_prms = !has_all_initial_estimates(model)
-)
+estimate_lv_values(model)
 }
 \arguments{
 \item{model}{The model}
-
-\item{estimate_item_prms}{Whether to re-estimate the item parameters from the data.}
 }
 \value{
-A tibble with columns PSI (the estimated latent variable value), SE_PSI (the associated standard error), and all columns 
+A tibble with columns PSI (the estimated latent variable value), PSI_SE (the associated standard error), and all columns 
 from the data (except ITEM and DV)
 }
 \description{

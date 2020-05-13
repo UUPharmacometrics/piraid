@@ -4,12 +4,14 @@
 \alias{cv_model}
 \title{Create a continuous variable model object}
 \usage{
-cv_model(scale_or_min, max = NULL)
+cv_model(scale_or_min, max = NULL, cv_irt_link = NULL)
 }
 \arguments{
 \item{scale_or_min}{A scale object or a minimum total score}
 
 \item{max}{A maximum total score}
+
+\item{cv_irt_link}{A link object}
 }
 \value{
 A model object

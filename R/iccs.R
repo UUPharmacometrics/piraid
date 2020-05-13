@@ -33,7 +33,7 @@ calculate_iccs <- function(model, psi_range = c(-4, 4)) {
                           levels = item_names, 
                           labels = item_name_list(model$scale)),
             category = factor(.data$category, 
-                              levels = sort(unique(.data$category)), 
+                              levels = unique(.data$category), 
                               labels = level_labels(model))
         )
     return(df)

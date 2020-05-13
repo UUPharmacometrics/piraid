@@ -101,7 +101,7 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
                     unclass() %>% 
                     tibble::as_tibble() %>% 
                         dplyr::mutate(
-                            dv = dvs[.data$cat],
+                            dv = dvs[as.character(.data$cat)],
                             cat = NULL
                         )
                 },
@@ -131,6 +131,8 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
                ~item_categories_probability_labels(model, get_item(model$scale, .x)))
     item_labels <- item_name_list(model$scale)
     
+    prob_levels <- purrr::flatten_chr(prob_labels) %>% unique()
+    
     res <- res %>% 
         dplyr::mutate(
             category = purrr::map2_chr(.data$item, .data$dv, ~purrr::pluck(prob_labels, .x, .y + 1)),
@@ -149,14 +151,9 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
         `Model fit` = df_iccs,
         .id = "type") %>% 
         dplyr::mutate(
-            item = factor(item, levels = item_labels)
+            item = factor(item, levels = item_labels),
+            category = factor(category, levels = prob_levels)
         )
-
-    score_labels <- purrr::map(model$scale$items, "levels") %>% 
-      purrr::flatten_int() %>% 
-      unique() %>% 
-      sort() %>% 
-      {set_names(paste0("score: ", .), paste0("cat_", .+ 1))}
     
     if(is.null(items_per_page)){
       n_pages <- 1
@@ -176,7 +173,7 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
         scale_color_manual("", values = c("darkgray", "darkred"))+
         scale_fill_manual("", values = c("darkgray", NA))+
         ggforce::facet_grid_paginate(item~category, labeller = labeller(item = label_wrap_gen(), category = label_value),
-                                   nrow = items_per_page, ncol = length(score_labels), page = .x, byrow = F)+
+                                   nrow = items_per_page, ncol = length(prob_levels), page = .x, byrow = F)+
         theme_bw(base_size=14, base_family="") +
         theme(legend.position = "bottom", legend.margin = ggplot2::margin())+
         labs(x="PSI", y="Probability"))

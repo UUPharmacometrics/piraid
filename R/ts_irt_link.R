@@ -413,7 +413,7 @@ calculate_bi_irt_link <- function(model,
     poly_dsigma_dpsi <- pracma::polyder(poly_sigma)
     psi_t  <-  (2*psi_grid-(psi_range[2]+psi_range[1]))/(psi_range[2]-psi_range[1])
     result$mean$deriv_approx <- pracma::polyval(poly_dmu_dpsi, psi_t)*2/(psi_range[2]-psi_range[1])
-    result$mean$deriv_true <- pracma::fderiv(f_mean, psi_grid)
+    result$mean$deriv_true <- pracma::fderiv(f_mu, psi_grid)
     result$sd$deriv_approx <- pracma::polyval(poly_dsigma_dpsi, psi_t)*2/(psi_range[2]-psi_range[1])
     result$sd$deriv_true <- pracma::fderiv(f_sd, psi_grid)
     return(result)
@@ -524,3 +524,84 @@ calculate_cv_irt_information <- function(res, psi_range = c(-4, 4)){
     )
 }
 
+
+#' Calculate latent variable information for an IRT-informed BI model
+#'
+#' @param res Result object from an IRT link-analysis
+#' @param psi_range Latent variable range
+#'
+#' @return A tibble
+#' @export
+calculate_bi_irt_information <- function(res, psi_range = c(-4,4)){
+    # polynomials for mean and SD
+    poly_mu <- rev(res$mean$coefficients)
+    poly_sigma <- rev(res$sd$coefficients)
+    # polynomials for derivatives of mean and SD
+    poly_dmu_dpsi <- pracma::polyder(poly_mu)
+    poly_dsigma_dpsi <- pracma::polyder(poly_sigma)
+    
+    prob_bi <- function(y, psi, ymax){
+        q_lower <- qnorm(y/(ymax+1))
+        q_upper <- qnorm((y+1)/(ymax+1))
+        psi_t <- (2*psi-(res$range[2]+res$range[1]))/(res$range[2]-res$range[1])
+        sigma <- pracma::polyval(poly_sigma, psi_t)
+        mu <- pracma::polyval(poly_mu, psi_t)
+        z_upper <- (q_upper - mu)/sigma
+        z_lower <- (q_lower - mu)/sigma
+        if(z_lower>0&&z_upper>0){
+            tmp <- z_lower
+            z_lower <- -z_upper
+            z_upper <- -tmp
+        }
+        pnorm(z_upper)-pnorm(z_lower)
+    }
+    
+    # d_loglike <- function(y, psi, ymax){
+    #     z_lower <- qnorm(y/(ymax+1))
+    #     z_upper <- qnorm((y+1)/(ymax+1))
+    #     psi_t <- (2*psi-(res$range[2]+res$range[1]))/(res$range[2]-res$range[1])
+    #     sigma <- pracma::polyval(poly_sigma, psi_t)
+    #     mu <- pracma::polyval(poly_mu, psi_t)
+    #     # derivative of mu w.r.t. psi
+    #     d_mu_dpsi <- pracma::polyval(poly_dmu_dpsi, psi_t)*2/(res$range[2]-res$range[1])
+    #     d_sigma_dpsi <- pracma::polyval(poly_dsigma_dpsi, psi_t)*2/(res$range[2]-res$range[1])
+    #     
+    #     1/prob_bi(y, psi, ymax)*(-dnorm(z_upper, mu, sigma)+dnorm(z_lower, mu, sigma))*((mu-psi)*d_sigma_dpsi-sigma*d_mu_dpsi)/sigma^2
+    # }
+    
+   
+    
+    log_prob_bi <- function(y, psi, ymax){
+        q_lower <- qnorm(y/(ymax+1))
+        q_upper <- qnorm((y+1)/(ymax+1))
+        psi_t <- (2*psi-(res$range[2]+res$range[1]))/(res$range[2]-res$range[1])
+        sigma <- pracma::polyval(poly_sigma, psi_t)
+        mu <- pracma::polyval(poly_mu, psi_t)
+        z_upper <- (q_upper - mu)/sigma
+        z_lower <- (q_lower - mu)/sigma
+        if(z_lower>0 && z_upper>0){
+            tmp <- z_lower
+            z_lower <- -z_upper
+            z_upper <- -tmp
+        }
+        lpz_lower <- pnorm(z_lower, lower.tail = TRUE, log.p = TRUE)
+        lpz_upper <- pnorm(z_upper, lower.tail = TRUE, log.p = TRUE)
+        ifelse(lpz_upper>lpz_lower, 
+               lpz_upper+log1p(-exp(lpz_lower-lpz_upper)),
+               lpz_lower+log1p(-exp(lpz_upper-lpz_lower)))
+    }
+    
+    
+    d_loglike <- function(y, psi, ymax) {
+        pracma::fderiv(function(x) log_prob_bi(y, x, ymax), psi)
+    }
+    
+    
+    fi <- function(psi, ymax){
+        sum(purrr::map_dbl(seq_len(ymax+1)-1, ~prob_bi(.x, psi, ymax)*d_loglike(.x, psi, ymax)^2))
+    }
+    tibble::tibble(
+        psi = seq(psi_range[1], psi_range[2], length.out = 100),
+        information = purrr::map_dbl(.data$psi, ~fi(., 70))
+    )
+}

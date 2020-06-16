@@ -501,6 +501,13 @@ get_nm_cv_irt_link <- function(res, digits = 6){
     return(cg)
 }
 
+#' Calculate latent variable information for an IRT-informed CV model
+#'
+#' @param res Result object from an IRT link-analysis
+#' @param psi_range Latent variable range
+#'
+#' @return A tibble
+#' @export
 calculate_cv_irt_information <- function(res, psi_range = c(-4, 4)){
     # polynomials for mean and SD
     poly_mu <- rev(res$mean$coefficients)

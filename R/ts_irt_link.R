@@ -97,16 +97,15 @@ plot_sd_score_vs_psi <- function(model, ...){
 #' @export
 calculate_sd_zscore_vs_psi <- function(model, psi_range = c(-4, 4)){
     psi_grid <- seq(psi_range[1], psi_range[2], length.out = 100)
-    pmf <- pmf_ts(model, psi_grid)
+    pmf <- pmf_ts(model, psi_grid) 
     scores <- matrix(seq(0, ncol(pmf)-1), nrow = 1)
-    pmf <- pmf[,-c(1, ncol(pmf))]
     mx <- max(scores)
-    pscores <- scores/mx
-    pscores <- pscores[-c(1, length(pscores))]
+    pscores <- (scores+0.5)/(mx+1)
     zscores <- drop(qnorm(pscores))
     mu <- pmf %*% zscores
     
     var <- diag(t(vapply(mu, function(mu_i)  zscores-mu_i, FUN.VALUE = zscores))^2 %*% t(pmf))
+
     tibble::tibble(
         psi = psi_grid,
         sd_zscore = sqrt(var)

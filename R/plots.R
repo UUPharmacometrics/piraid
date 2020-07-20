@@ -135,7 +135,7 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
     
     res <- res %>% 
         dplyr::mutate(
-            category = purrr::map2_chr(.data$item, .data$dv, ~purrr::pluck(prob_labels, .x, .y + 1)),
+            category = purrr::map2_chr(.data$item, .data$dv, ~purrr::pluck(prob_labels, .x, as.character(.y))),
             item = item_labels[.data$item]
         )
 

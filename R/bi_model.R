@@ -46,7 +46,7 @@ model_code.bi_model <- function(model) {
     cg <- add_line(cg, "$SIZES DIMNEW=10000")
     cg <- add_line(cg, "$PROBLEM")
     cg <- add_code(cg, data_and_input_code(model)) %>% 
-        add_line("$ABBREVIATED DECLARE Z(70)") %>% 
+        add_line("$ABBREVIATED DECLARE Z(", model$max - model$min + 1, ")") %>% 
         add_line("$ABBREVIATED DECLARE INTEGER I")
     
     if(is.null(model$irt_link)){

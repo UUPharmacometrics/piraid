@@ -28,12 +28,12 @@ graded_response_model <- function(data) {
 #' @param resample_psi Whether to use the resampling based diagnostic
 #' @param psi_range The range of psi values to use for the plot
 #' @param samples The number of samples to use when resample_psi = T
-#' @param items
-#' @param items_per_page The number of items to display on one page (default NULL prints all items)
+#' @param items Which items to plot (default NULL prints all items)
+#' @param items_per_page The maximum number of items to display on one page (default prints everything on one page)
 #' @return A list of plots
 #' @export
 diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = FALSE, samples = 10, items = NULL,
-                       items_per_page=NULL){
+                       items_per_page=Inf){
   
     required_columns <- c("ID", "TIME", "PSI") 
     is_present <- required_columns  %in% colnames(nmtab)
@@ -172,7 +172,7 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
             category = factor(.data$category, levels = unique(df_labels$category))
         )
     
-    if (is.null(items_per_page)) {
+    if (items_per_page == Inf) {
       n_pages <- 1
     }else{
       n_pages <- ceiling(length(unique(df_labels$item_label))/items_per_page)
@@ -189,8 +189,13 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
         geom_line(na.rm = TRUE)+
         scale_color_manual("", values = c("darkgray", "darkred"))+
         scale_fill_manual("", values = c("darkgray", NA))+
-        ggforce::facet_grid_paginate(item_label~category, labeller = labeller(item = label_wrap_gen(), category = label_value),
-                                   nrow = items_per_page, ncol = length(levels(df_combined$category)), page = .x, byrow = F)+
+        ggforce::facet_grid_paginate(
+          item_label~category, 
+          labeller = labeller(
+            item = label_wrap_gen(), 
+            category = label_value),
+          nrow = min(length(unique(df_combined$item)), items_per_page), 
+          ncol = length(levels(df_combined$category)), page = .x, byrow = F) +
         theme_bw(base_size=14, base_family="") +
         theme(legend.position = "bottom", legend.margin = ggplot2::margin())+
         labs(x="PSI", y="Probability"))

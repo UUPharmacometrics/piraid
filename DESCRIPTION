@@ -1,6 +1,6 @@
 Package: piraid
 Encoding: UTF-8
-Version: 0.4.1
+Version: 0.4.1.9000
 Date: 2020-05-13
 Title: An aid for development and diagnosis of pharmacometric 'IRT' models
 Authors@R: c(person("Rikard", "Nordgren", role=c("aut", "cre", "cph"), email="rikard.nordgren@farmbio.uu.se"),

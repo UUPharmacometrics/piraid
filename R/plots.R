@@ -28,10 +28,11 @@ graded_response_model <- function(data) {
 #' @param resample_psi Whether to use the resampling based diagnostic
 #' @param psi_range The range of psi values to use for the plot
 #' @param samples The number of samples to use when resample_psi = T
+#' @param items
 #' @param items_per_page The number of items to display on one page (default NULL prints all items)
 #' @return A list of plots
 #' @export
-diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = FALSE, samples = 10,
+diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = FALSE, samples = 10, items = NULL,
                        items_per_page=NULL){
   
     required_columns <- c("ID", "TIME", "PSI") 
@@ -45,11 +46,14 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
                                  dplyr::select_at(nmtab, c("ID","TIME", "PSI", "PSI_SE")), by = c("ID", "TIME"))
     }
     
+    if (is.null(items)) items <- unique(nmtab$ITEM)
+    
     nmtab <- nmtab %>%
         filter_observations() %>%
-        consolidate_data(model) 
+        consolidate_data(model)  %>% 
+        dplyr::filter(.data$ITEM %in% items)
 
-    if(resample_psi){
+    if(resample_psi) {
         psi_samples <- nmtab %>% 
           dplyr::group_by(.data$ID) %>% 
           dplyr::slice(1) %>% 
@@ -75,7 +79,7 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
       }
     }
     quiet_gam <- purrr::quietly(purrr::possibly(mirt::itemGAM, otherwise = NULL))
-    if(interactive()) pb <- utils::txtProgressBar(max = max(nmtab$ITEM), style = 3)
+    if(interactive()) pb <- utils::txtProgressBar(max = length(unique(nmtab$ITEM)), style = 3)
         item_names <- item_name_list(model$scale)
         problematic_fits <- NULL
         res <- nmtab %>% 
@@ -116,7 +120,7 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
               )
               problematic_fits <<- union(problematic_fits, group$ITEM)
             }
-            if (interactive()) utils::setTxtProgressBar(pb, group$ITEM)
+            if (interactive()) utils::setTxtProgressBar(pb, utils::getTxtProgressBar(pb) + 1)
             return(df_gamres)
           }) %>% 
             dplyr::ungroup() %>% 
@@ -132,6 +136,7 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
                          paste0(problematic_fits, collapse =  ",")))
     df_labels <-  item_name_list(model$scale) %>% 
       tibble::enframe(name = "item", value = "item_label") %>% 
+      dplyr::filter(.data$item %in% items) %>% 
       dplyr::mutate(
         .cat = purrr::map(.data$item, 
                           ~item_categories_probability_labels(model, get_item(model$scale, .x)) %>% 
@@ -155,7 +160,8 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
     df_iccs <- model %>% 
         calculate_iccs() %>% 
         dplyr::mutate_if(is.factor, as.character) %>% 
-      dplyr::rename(item_label = "item")
+      dplyr::rename(item_label = "item") %>% 
+      dplyr::filter(item_label %in% unique(df_labels$item_label))
 
     df_combined <- dplyr::bind_rows(
         `GAM smooth` = res,

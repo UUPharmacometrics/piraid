@@ -73,7 +73,8 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
             "items and", length(unique(nmtab$ID)), 
             "subjects...\n")
       }
-    } 
+    }
+    quiet_gam <- purrr::quietly(purrr::possibly(mirt::itemGAM, otherwise = NULL))
     if(interactive()) pb <- utils::txtProgressBar(max = max(nmtab$ITEM), style = 3)
         item_names <- item_name_list(model$scale)
         problematic_fits <- NULL
@@ -94,27 +95,30 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
             }
             dvs <- unique(df$DV) %>% 
                 sort() %>% 
-                {purrr::set_names(., paste0("cat_", seq_along(.)))}
-              rlang::with_handlers(
-                {
-                    gamres <- mirt::itemGAM(df$DV, psi, theta_lim = psi_range) %>% 
-                    unclass() %>% 
-                    tibble::as_tibble() %>% 
-                        dplyr::mutate(
-                            dv = dvs[as.character(.data$cat)],
-                            cat = NULL
-                        )
-                },
-                warning = rlang::calling(function(cnd){
-                  problematic_fits <<- union(problematic_fits, group$ITEM)
-                  cnd_muffle(cnd)
-                  TRUE
-                }
-                )
+              {purrr::set_names(., paste0("cat_", seq_along(.)))}
+            
+            gamres <- quiet_gam(df$DV, psi, theta_lim = psi_range)
+            if (!is.null(gamres$result)) {
+              df_gamres <- gamres$result %>% 
+                      unclass() %>%
+                      tibble::as_tibble() %>%
+                          dplyr::mutate(
+                              dv = dvs[as.character(.data$cat)],
+                              cat = NULL
+                          )
+            } else {
+              df_gamres <- tibble::tibble(
+                Theta = NA_real_, 
+                Prob = NA_real_, 
+                Prob_high = NA_real_, 
+                Prob_low = NA_real_, 
+                dv = NA_real_
               )
-            if(interactive()) utils::setTxtProgressBar(pb, group$ITEM)
-            return(gamres)
-          })%>% 
+              problematic_fits <<- union(problematic_fits, group$ITEM)
+            }
+            if (interactive()) utils::setTxtProgressBar(pb, group$ITEM)
+            return(df_gamres)
+          }) %>% 
             dplyr::ungroup() %>% 
             dplyr::rename(psi = .data$Theta,
                           item = .data$ITEM,
@@ -126,39 +130,46 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
     if(!rlang::is_empty(problematic_fits)) 
       rlang::warn(paste0("Problems occured during calculation of the following items: ", 
                          paste0(problematic_fits, collapse =  ",")))
-  
-    prob_labels <- purrr::map(unique(res$item), 
-               ~item_categories_probability_labels(model, get_item(model$scale, .x)))
-    item_labels <- item_name_list(model$scale)
-    
-    prob_levels <- purrr::flatten_chr(prob_labels) %>% unique()
-    
-    res <- res %>% 
-        dplyr::mutate(
-            category = purrr::map2_chr(.data$item, .data$dv, ~purrr::pluck(prob_labels, .x, as.character(.y))),
-            item = item_labels[.data$item]
-        )
+    df_labels <-  item_name_list(model$scale) %>% 
+      tibble::enframe(name = "item", value = "item_label") %>% 
+      dplyr::mutate(
+        .cat = purrr::map(.data$item, 
+                          ~item_categories_probability_labels(model, get_item(model$scale, .x)) %>% 
+                            tibble::enframe(name = "dv", value = "category"))
+      ) %>% 
+      tidyr::unnest(cols = ".cat") %>% 
+      dplyr::mutate(
+        dv = as.numeric(.data$dv),
+        item = as.numeric(.data$item)
+      )
 
-    if(!is.null(nmtab)){
+    res <- dplyr::left_join(
+      df_labels,
+      res,
+      by = c("dv","item")
+    )
+
+    if (!is.null(nmtab)) {
       model <-  update_parameters(model, nmtab)
     }
     df_iccs <- model %>% 
         calculate_iccs() %>% 
-        dplyr::mutate_if(is.factor, as.character)
+        dplyr::mutate_if(is.factor, as.character) %>% 
+      dplyr::rename(item_label = "item")
 
     df_combined <- dplyr::bind_rows(
         `GAM smooth` = res,
         `Model fit` = df_iccs,
         .id = "type") %>% 
         dplyr::mutate(
-            item = factor(item, levels = item_labels),
-            category = factor(category, levels = prob_levels)
+            item_label = factor(.data$item_label, levels = unique(df_labels$item_label)),
+            category = factor(.data$category, levels = unique(df_labels$category))
         )
     
-    if(is.null(items_per_page)){
+    if (is.null(items_per_page)) {
       n_pages <- 1
     }else{
-      n_pages <- ceiling(length(item_labels)/items_per_page)
+      n_pages <- ceiling(length(unique(df_labels$item_label))/items_per_page)
     }
     purrr::map(seq_len(n_pages),
                ~ggplot2::ggplot(df_combined, 
@@ -172,8 +183,8 @@ diagnose_icc_fit <- function(model, nmtab, psi_range = c(-4,4), resample_psi = F
         geom_line(na.rm = TRUE)+
         scale_color_manual("", values = c("darkgray", "darkred"))+
         scale_fill_manual("", values = c("darkgray", NA))+
-        ggforce::facet_grid_paginate(item~category, labeller = labeller(item = label_wrap_gen(), category = label_value),
-                                   nrow = items_per_page, ncol = length(prob_levels), page = .x, byrow = F)+
+        ggforce::facet_grid_paginate(item_label~category, labeller = labeller(item = label_wrap_gen(), category = label_value),
+                                   nrow = items_per_page, ncol = length(levels(df_combined$category)), page = .x, byrow = F)+
         theme_bw(base_size=14, base_family="") +
         theme(legend.position = "bottom", legend.margin = ggplot2::margin())+
         labs(x="PSI", y="Probability"))

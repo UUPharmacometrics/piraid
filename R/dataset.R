@@ -57,7 +57,7 @@ read_dataset <- function(filename, id='ID', time='TIME', item='ITEM', dv='DV') {
     replace(cols, cols==dv, 'DV')
     mandatory_columns <- c('ID', 'TIME', 'ITEM', 'DV')
     if (!all(mandatory_columns %in% cols)) {
-        stop(paste0("Mandatory columns ", paste(cols[!(mandatory_columns %in% cols)], collapse=", "), " not present in dataset"))
+        stop(paste0("Mandatory columns ", paste(mandatory_columns[!(mandatory_columns %in% cols)], collapse=", "), " not present in dataset"))
     }
     colnames(df) <- cols
     df

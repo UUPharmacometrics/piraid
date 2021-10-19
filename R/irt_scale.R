@@ -205,7 +205,7 @@ create_scale_from_df <- function(df, item='ITEM', dv='DV', name=NULL, type=NULL)
                 type_of_item <- item_type$binary
             }
         }
-        new_item <- irt_item(as.numeric(item_no), item_name, levels, type_of_item)
+        new_item <- irt_item(as.integer(item_no), item_name, as.integer(levels), type_of_item)
         scale <- add_item(scale, new_item)
     }
     scale

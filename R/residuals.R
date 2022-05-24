@@ -22,7 +22,7 @@ calculate_wreslike <- function(ptab) {
     ptab$lower <- apply(ptab, 1, lower, colnames(ptab)) 
     ptab$upper <- apply(ptab, 1, upper, colnames(ptab))
     
-    ptab <- ptab %>% dplyr::rowwise() %>% dplyr::mutate(WRESLIKE=stats::qnorm(stats::runif(1, min=lower, max=upper)))
+    ptab <- ptab %>% dplyr::rowwise() %>% dplyr::mutate(WRESLIKE=stats::qnorm(stats::runif(1, min=lower, max=upper))) %>% dplyr::ungroup()
 
     subset(ptab, select=-c(lower, upper))
 }

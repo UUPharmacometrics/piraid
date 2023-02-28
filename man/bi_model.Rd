@@ -4,7 +4,7 @@
 \alias{bi_model}
 \title{Create a bounded integer model object}
 \usage{
-bi_model(scale_or_min, max = NULL, irt_link = NULL)
+bi_model(scale_or_min, max = NULL, irt_link = NULL, stable_log_like = FALSE)
 }
 \arguments{
 \item{scale_or_min}{A scale object or a minimum total score}
@@ -12,6 +12,8 @@ bi_model(scale_or_min, max = NULL, irt_link = NULL)
 \item{max}{A maximum total score}
 
 \item{irt_link}{Results of an IRT link analysis}
+
+\item{stable_log_like}{Should the stable log-likelihood implementation be used}
 }
 \value{
 A model object

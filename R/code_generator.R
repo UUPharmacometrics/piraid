@@ -15,7 +15,7 @@ add_code <- function(generator, generator2) {
 
 add_line <- function(generator, ...) {
     dots <- dots_list(...) 
-    if(is.null(dots$sep)) dots$sep <- " "                          
+    if(is.null(dots$sep)) dots$sep <- ""                          
     line <- rlang::exec(paste, !!!dots)
     generator$code = c(generator$code, indent_line(line, generator$indent_level))
     generator

@@ -11,7 +11,8 @@ diagnose_icc_fit(
   psi_range = c(-4, 4),
   resample_psi = FALSE,
   samples = 10,
-  items_per_page = NULL
+  items = NULL,
+  items_per_page = Inf
 )
 
 icc_plots(
@@ -20,7 +21,8 @@ icc_plots(
   psi_range = c(-4, 4),
   resample_psi = FALSE,
   samples = 10,
-  items_per_page = NULL
+  items = NULL,
+  items_per_page = Inf
 )
 }
 \arguments{
@@ -34,7 +36,9 @@ icc_plots(
 
 \item{samples}{The number of samples to use when resample_psi = T}
 
-\item{items_per_page}{The number of items to display on one page (default NULL prints all items)}
+\item{items}{Which items to plot (default NULL prints all items)}
+
+\item{items_per_page}{The maximum number of items to display on one page (default prints everything on one page)}
 }
 \value{
 A list of plots

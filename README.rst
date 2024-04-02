@@ -1,13 +1,10 @@
-piraid
-======
-
+# piraid
 An R package for item response theory modelling
 
-Installation
-------------
+## Installation
 
 Install with
 
-.. code:: r
-
-  devtools::install_github("UUPharmacometrics/piraid", build_vignettes=TRUE)
+```r
+devtools::install_github("UUPharmacometrics/piraid", build_vignettes=TRUE)
+```

@@ -42,88 +42,101 @@ set_dataset.bi_model <- function(model, path, use_path=TRUE, data_columns=NULL, 
 
 #' @export
 model_code.bi_model <- function(model) {
-    cg <- code_generator()
-    cg <- add_line(cg, "$SIZES DIMNEW=10000")
-    cg <- add_line(cg, "$PROBLEM")
-    cg <- add_code(cg, data_and_input_code(model)) %>% 
-        add_line("$ABBREVIATED DECLARE Z(", model$max - model$min + 1, ")") %>% 
-        add_line("$ABBREVIATED DECLARE INTEGER I")
-    
-    if(is.null(model$irt_link)){
-        cg <- add_code(cg, default_bi_model())
+  possible_scores = sort(unique(Reduce(
+    function(x, y) unique(round(as.vector(outer(x, y, "+")), 6)),
+    model$irt_link$item_labels)))
+  possible_scores = possible_scores*model$irt_link$corr_factor
+  cg <- code_generator()
+  cg <- add_line(cg, "$SIZES DIMNEW=10000")
+  cg <- add_line(cg, "$PROBLEM")
+  cg <- add_code(cg, data_and_input_code(model)) %>% 
+    add_line("$ABBREVIATED DECLARE Z(", length(possible_scores), ")") %>% 
+    add_line("$ABBREVIATED DECLARE INTEGER I")
+  
+  if(is.null(model$irt_link)){
+    cg <- add_code(cg, default_bi_model())
+  }else{
+    if(model$irt_link$idv == "psi"){
+      cg <- add_code(cg, default_irt_based_bi_model(model))
     }else{
-        if(model$irt_link$idv == "psi"){
-            cg <- add_code(cg, default_irt_based_bi_model(model))
-        }else{
-            cg <- add_code(cg, default_irt_score_based_bi_model(model))
-        }
+      cg <- add_code(cg, default_irt_score_based_bi_model(model))
     }
-    cg <- add_empty_line(cg) %>% 
-        add_code(cutoffs(model)) %>% 
-        add_empty_line() %>% 
-        add_code(zscores(model)) %>% 
-        add_empty_line() %>% 
-        add_code(zscore_selection(model)) %>% 
-        add_empty_line() 
-    if (model$stable_log_like) {
-        cg <- add_code(cg, bi_loglikelihood_improved(model))
-    }else{
-        cg <- add_code(cg, bi_loglikelihood(model)) 
-    }    
-    cg <- cg %>% 
-        add_empty_line() %>% 
-        add_code(bi_simulation_code(model)) %>% 
-        add_empty_line()
-    if (is.null(model$irt_link)) {
-        cg <- add_code(cg, default_bi_parameters())
-    }else{
-        cg <- add_code(cg, default_irt_based_bi_parameters())
-    }
-    cg <- add_empty_line(cg)
-    cg <- add_code(cg, bi_estimation(model))
-    get_code(cg)
+  }
+  cg <- add_empty_line(cg) %>% 
+    add_code(cutoffs(model, possible_scores)) %>% 
+    add_empty_line() %>% 
+    add_code(zscores(model, possible_scores)) %>% 
+    add_empty_line() %>% 
+    add_code(zscore_selection(model, possible_scores)) %>% 
+    add_empty_line() 
+  if (model$stable_log_like) {
+    cg <- add_code(cg, bi_loglikelihood_improved(model))
+  }else{
+    cg <- add_code(cg, bi_loglikelihood(model, possible_scores)) 
+  }    
+  cg <- cg %>% 
+    add_empty_line() %>% 
+    add_code(bi_simulation_code(model, 
+                                model$irt_link$sim_default,
+                                possible_scores)) %>% 
+    add_empty_line()
+  if (is.null(model$irt_link)) {
+    cg <- add_code(cg, default_bi_parameters())
+  }else{
+    cg <- add_code(cg, default_irt_based_bi_parameters())
+  }
+  cg <- add_empty_line(cg)
+  cg <- add_code(cg, bi_estimation(model))
+  get_code(cg)
 }
 
-cutoffs <- function(bi_model) {
-    cg <- code_generator()
-    cg <- banner_comment(cg, "BI cut-offs")
-    n <- bi_model$max - bi_model$min + 1
-    cuts <- stats::qnorm(1:(n-1)/n)
-    nums <- 1:(n-1)
-    lines <- paste0("CO", nums, " = ", cuts)
-    cg <- add_lines(cg, lines)
-    cg
+cutoffs <- function(bi_model, possible_scores) {
+  cg <- code_generator()
+  cg <- banner_comment(cg, "BI cut-offs")
+  n <- length(possible_scores)
+  cuts <- stats::qnorm(1:(n-1)/n)
+  nums <- 1:(n-1)
+  lines <- paste0("CO", nums, " = ", cuts)
+  cg <- add_lines(cg, lines)
+  cg
 }
 
-zscores <- function(bi_model) {
-    n <- bi_model$max - bi_model$min + 1
-    nums <- 1:(n - 1)
-    lines <- paste0("Z(", nums, ") = ", "(CO", nums, "-IPRED)/SD")
-    code_generator() %>% 
-        banner_comment("BI z-scores") %>% 
-        add_lines(lines)
+zscores <- function(bi_model, possible_scores) {
+  n <- length(possible_scores)
+  nums <- 1:(n - 1)
+  lines <- paste0("Z(", nums, ") = ", "(CO", nums, "-IPRED)/SD")
+  code_generator() %>% 
+    banner_comment("BI z-scores") %>% 
+    add_lines(lines)
 }
 
-zscore_selection <- function(bi_model) {
-    n <- bi_model$max - bi_model$min + 1
-    nums <- 1:(n - 1)
-    lines_lower <- paste0("IF(DV.EQ.", nums, ") ZL = Z(", nums, ")")
-    lines_upper <- paste0("IF(DV.EQ.", nums - 1, ") ZU = Z(", nums, ")")
-    
-    code_generator() %>% 
-        banner_comment("z-score selection") %>% 
-        add_lines(lines_lower) %>% 
-        add_lines(lines_upper)
+zscore_selection <- function(bi_model, possible_scores) {
+  # # n <- bi_model$max - bi_model$min + 1
+  # # nums <- 1:(n - 1)
+  n = length(possible_scores)
+  lines_lower <- paste0("IF(DV.EQ.", 
+                        round(possible_scores[2:n], 6), 
+                        ") ZL = Z(", 
+                        1:(n-1), ")")
+  lines_upper <- paste0("IF(DV.EQ.", 
+                        round(possible_scores[1:(n - 1)], 6), 
+                        ") ZU = Z(", 
+                        1:(n-1), ")")
+  
+  code_generator() %>% 
+    banner_comment("z-score selection") %>% 
+    add_lines(lines_lower) %>% 
+    add_lines(lines_upper)
 }
 
-bi_loglikelihood <- function(bi_model) {
-    code_generator() %>% 
-        add_line("IF(DV.EQ.", bi_model$min, ") P = PHI(ZU)") %>% 
-        add_line("IF(DV.GT.", bi_model$min, ".AND.DV.LT.", bi_model$max,") P = PHI(ZU) - PHI(ZL)") %>% 
-        add_line("IF(DV.EQ.", bi_model$max, ") P = 1 - PHI(ZL)") %>% 
-        add_empty_line() %>% 
-        add_line("IF(P.LT.1E-16) P = 1E-16") %>% 
-        add_line("Y = -2*LOG(P)")
+bi_loglikelihood <- function(bi_model, possible_scores) {
+  code_generator() %>% 
+    add_line("IF(DV.EQ.", min(possible_scores), ") P = PHI(ZU)") %>% 
+    add_line("IF(DV.GT.", min(possible_scores), ".AND.DV.LT.", max(possible_scores),") P = PHI(ZU) - PHI(ZL)") %>% 
+    add_line("IF(DV.EQ.", max(possible_scores), ") P = 1 - PHI(ZL)") %>% 
+    add_empty_line() %>% 
+    add_line("IF(P.LT.1E-16) P = 1E-16") %>% 
+    add_line("Y = -2*LOG(P)")
 }
 
 bi_loglikelihood_improved <- function(bi_model) {
@@ -228,21 +241,44 @@ default_bi_parameters <- function() {
 
 
 
-bi_simulation_code <- function(model) {
+bi_simulation_code <- function(model, 
+                               sim_default_flag,
+                               possible_scores) {
+  if(sim_default_flag){
     code_generator() %>% 
-        banner_comment("Simulation code") %>% 
-        add_line("IF (ICALL.EQ.4) THEN") %>%
-        increase_indent() %>% 
-        add_line("I = ", model$max) %>% 
-        add_line("CALL RANDOM(2, R)") %>% 
-        add_line("DOWHILE(I>", model$min,".AND.R<=PHI(Z(I)))") %>% 
-        increase_indent() %>% 
-        add_line("I = I - 1") %>% 
-        decrease_indent() %>% 
-        add_line("ENDDO") %>% 
-        add_line("DV = I") %>% 
-        decrease_indent() %>% 
-        add_line("ENDIF")
+      banner_comment("Simulation code") %>% 
+      add_line("IF (ICALL.EQ.4) THEN") %>%
+      increase_indent() %>% 
+      add_line("I = ", (length(possible_scores)-1)) %>% 
+      add_line("CALL RANDOM(2, R)") %>% 
+      add_line("DOWHILE(I>", model$min,".AND.R<=PHI(Z(I)))") %>% 
+      increase_indent() %>% 
+      add_line("I = I - 1") %>% 
+      decrease_indent() %>% 
+      add_line("ENDDO") %>% 
+      add_line("DV = I") %>% 
+      decrease_indent() %>% 
+      add_line("ENDIF")}
+  else {
+    n <- length(possible_scores)
+    nums <- 0:(n-1)
+    lines <- paste0("IF(I.EQ.", nums, ")  DV=", 
+                    round(possible_scores, 6))
+    code_generator() %>% 
+      banner_comment("Simulation code") %>% 
+      add_line("IF (ICALL.EQ.4) THEN") %>%
+      increase_indent() %>% 
+      add_line("I = ", (length(possible_scores)-1)) %>% 
+      add_line("CALL RANDOM(2, R)") %>% 
+      add_line("DOWHILE(I>", 0,".AND.R<=PHI(Z(I)))") %>% 
+      increase_indent() %>% 
+      add_line("I = I - 1") %>% 
+      decrease_indent() %>% 
+      add_line("ENDDO") %>%
+      add_lines(lines)  %>% 
+      decrease_indent() %>%
+      add_line("ENDIF")
+  }
 }
 
 

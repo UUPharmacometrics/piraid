@@ -1,18 +1,61 @@
+combine_dist <- function(scores1, probs1, scores2, probs2) {
+  sums <- outer(scores1, scores2, "+")
+  probs <- outer(probs1, probs2, "*")
+  out <- tapply(
+    probs,
+    INDEX = as.character(sums),
+    FUN = sum)
+  list(
+    scores = as.numeric(names(out)),
+    probs = as.numeric(out)
+  )
+}
 
-# the function calculates the probability mass function for the total score given psi
-pmf_ts <- function(model, psi){
-    if(inherits(model, "SingleGroupClass")){
-        mirt_model <- model
-    }else{
-        mirt_model <- as_mirt_model(model)
+# the function calculates the probability mass function for the total score 
+# given psi and item_lables
+# the output is matrix 
+# rows - number of psi values; columns - number of unique total score values
+pmf_ts_labels <- function(model, psi, item_labels){
+  if(inherits(model, "SingleGroupClass")){
+    mirt_model <- model
+  }else{
+    mirt_model <- as_mirt_model(model)
+  }
+  
+  possible_scores = sort(unique(Reduce(
+    function(x, y) unique(round(as.vector(outer(x, y, "+")), 6)),
+    item_labels)))
+  
+  item_names <- extract.mirt(model, "itemnames")
+  prob_trace <- lapply(item_names, function(nm) {
+    probtrace(extract.item(model, nm), as.matrix(psi))})
+  names(prob_trace) <- item_names
+  
+  n_psi <- length(psi)
+  
+  score_probs <- matrix(
+    nrow = n_psi,
+    ncol = length(possible_scores),
+    dimnames = list(NULL, possible_scores)
+  )
+  
+  for(th in seq_len(n_psi)) {
+    dist <- list(
+      scores = item_labels[[1]],
+      probs = prob_trace[[1]][th, ]
+    )
+    for(i in 2:length(item_labels)) {
+      dist <- combine_dist(dist$scores,
+                           dist$probs,
+                           item_labels[[i]],
+                           prob_trace[[i]][th, ])
     }
-    pgf <- purrr::map(mirt::extract.mirt(mirt_model, "itemnames"), ~mirt::extract.item(mirt_model, .x)) %>%
-        purrr::map(~mirt::probtrace(.x, as.matrix(psi))) %>% 
-        purrr::map(~as.list(as.data.frame(t(.x)))) %>% 
-        purrr::transpose() %>% 
-        purrr::map(~purrr::reduce(.x, function(x, y) pracma::polymul(y, x), .init = 1)) 
-    
-    do.call(rbind, args = pgf)
+    idx <- match(dist$scores, possible_scores)
+    score_probs[th, idx] <- dist$probs
+  }
+  colnames(score_probs) <- paste0("V", seq_len(ncol(score_probs)))
+  rownames(score_probs) <- paste0("V", seq_len(nrow(score_probs)))
+  return(score_probs)
 }
 
 mean_score <- function(pmf){
@@ -132,7 +175,7 @@ plot_sd_zscore_vs_psi <- function(model, ...){
 #' @param range_tol 
 #' @param approx_tol_mean 
 #' @param approx_tol_sd 
-#' @param item_labels - list if the form list("ITEM_1"=c(...), "ITEM_2"=c(...),..., "ITEM_N"=c(...))
+#' @param item_labels - list in the form list("ITEM_1"=c(...), "ITEM_2"=c(...),..., "ITEM_N"=c(...))
 #'
 #' @return
 #' @export
@@ -302,6 +345,9 @@ calculate_cv_irt_link <- function(model, item_labels = NULL,
 
 
 #' @rdname calculate_bi_irt_link
+#' @param item_labels - list in the form list("ITEM_1"=c(...), "ITEM_2"=c(...),..., "ITEM_N"=c(...)) 
+#' @param corr_factor - correction factor for the total score computation 
+#' @param sim_dafault - keep the simulation as default through the loop (TRUE), or define with IF statements (FALSE)
 #' @export
 calculate_bi_irt_link <- function(model, 
                                   psi_range = NULL, 
@@ -310,35 +356,72 @@ calculate_bi_irt_link <- function(model,
                                   range_tol = 0.3,
                                   approx_tol_mean = 0.1,
                                   approx_tol_sd  = 0.01, 
-                                  max_degree = 100){
-    mirt_model <- as_mirt_model(model)
+                                  max_degree = 100,
+                                  item_labels = NULL,
+                                  corr_factor = 1,
+                                  sim_default = TRUE){
+    
+  if(is.null(item_labels)){
+    # # The default attribution 
+    # # list("ITEM_1"=c(0,1,2...,m1), "ITEM_2"=c(0,1,2,..,m2),..., "ITEM_N"=c(0,1,2,...,mn))
+    item_labels <- setNames(
+      lapply(model$scale$items, function(item) {
+        0:(length(item$levels) - 1)
+      }),paste0("ITEM_", seq_along(model$scale$items))
+    )
+    
+  } else {
+    
+    # check if all ITEMs are supplied with labels
+    if(length(model$scale$items)!=length(item_labels)){
+      stop(paste0("Numbers of items in the model and in the list of labels do not match: ",
+                  length(model$scale$items), " items in the model, but ",
+                  length(item_labels), " items in the list of labels"),
+           call. = FALSE)
+    }
+    
+    # check if all levels of each item have new labels
+    mismatch <- vapply(
+      c(1:length(model$scale$items)),
+      function(item) {length(model$scale$items[[item]]$levels) != length(item_labels[[paste0("ITEM_",item)]])},
+      logical(1))
+    if (any(mismatch)) {
+      stop(paste0("Mismatch in the number of labels for: ",
+                  paste("ITEM_", c(1:length(model$scale$items))[mismatch], collapse = ", ", sep="")),
+           call. = FALSE)
+    }
+  }
+  
+  mirt_model <- as_mirt_model(model)
     result <- list()
     result$type <- "zscore"
     result$idv <- ifelse(lv_based, "psi", "zscore")
     # function calculatingirt_ts the mean score
-    f_mean <- function(x) mirt::expected.test(mirt_model, matrix(x))
-    f_mu <- function(psi){
-        pmf <- pmf_ts(mirt_model, psi) 
-        scores <- matrix(seq(0, ncol(pmf)-1), nrow = 1)
- #       pmf <- pmf[,-c(1, ncol(pmf))]
-        mx <- max(scores)
-        pscores <- (scores+0.5)/(mx+1)
-#        pscores <- pscores[-c(1, length(pscores))]
-        zscores <- drop(qnorm(pscores))
-        drop(pmf %*% zscores)
+    f_mean <- function(x, item_labels_values){
+      item_probs = mirt::expected.test(mirt_model, x,
+                                       individual=TRUE, probs.only=TRUE)
+      vec_labels = unlist(item_labels_values, use.names = FALSE)
+      return(rowSums(item_probs * rep(vec_labels, 
+                                      each = nrow(item_probs))))
     }
-    # function calculating the sd score
-    f_sd <- function(psi){
-        pmf <- pmf_ts(mirt_model, psi) 
-        scores <- matrix(seq(0, ncol(pmf)-1), nrow = 1)
-        #pmf <- pmf[,-c(1, ncol(pmf))]
-        mx <- max(scores)
-        pscores <- (scores+0.5)/(mx+1)
-        # pscores <- pscores[-c(1, length(pscores))]
-        zscores <- drop(qnorm(pscores))
-        mu <- pmf %*% zscores
-        
-        sqrt(diag(t(vapply(mu, function(mu_i)  zscores-mu_i, FUN.VALUE = zscores))^2 %*% t(pmf)))
+    # function calculating the mean z-score
+    f_mu_labels <- function(model, psi, item_labels){
+      pmf <- pmf_ts_labels(model, psi, item_labels) 
+      scores <- matrix(seq(0, ncol(pmf)-1), nrow = 1)
+      mx <- max(scores)
+      pscores <- (scores+0.5)/(mx+1)
+      zscores <- drop(qnorm(pscores))
+      drop(pmf %*% zscores)
+    }
+    # function calculating the sd z-score
+    f_sd_labels <- function(model, psi, item_labels){
+      pmf <- pmf_ts_labels(model, psi, item_labels)
+      scores <- matrix(seq(0, ncol(pmf)-1), nrow = 1)
+      mx <- max(scores)
+      pscores <- (scores+0.5)/(mx+1)
+      zscores <- drop(qnorm(pscores))
+      mu <- pmf %*% zscores
+      sqrt(diag(t(vapply(mu, function(mu_i)  zscores-mu_i, FUN.VALUE = zscores))^2 %*% t(pmf)))
     }
     if(is.null(psi_range)){
         # determine psi range for approximation
@@ -354,56 +437,23 @@ calculate_bi_irt_link <- function(model,
     }
     result$range <- psi_range
     psi_grid <- seq(psi_range[1], psi_range[2], length.out = 100)
-    if(!lv_based){
-        f_psi <- approxfun(y = psi_grid, x = f_mu(psi_grid), rule = 2)
-        f_sd_zscore <- function(score){
-            f_sd(f_psi(score))
-        }
-        # determine the polynomial degree necessary to approx mean fun with requested tol
-        degree <- 0
-        zscore_range <- f_mu(psi_range)
-        zscore_grid <- seq(f_mu(psi_range[1]), f_mu(psi_range[2]), length.out = 100)
-        f_true <- f_sd_zscore(zscore_grid)
-        result$range <- zscore_range
-        repeat{
-            degree <- degree+1
-            f_approx <- pracma::chebApprox(zscore_grid, f_sd_zscore, zscore_range[1], zscore_range[2], degree)
-            error <- max(abs(f_true-f_approx))  
-            if(error < approx_tol_sd || degree>max_degree ) {
-                break
-            }
-        }
-        # determine Chebyshev polynomial coefficients
-        coef_cheb <-  pracma::chebCoeff(f_sd_zscore, zscore_range[1], zscore_range[2], degree)
-        poly_cheb <- pracma::chebPoly(degree)
-        coef <- rev(drop(coef_cheb %*% poly_cheb))
-        coef[1] <- coef[1] - coef_cheb[1]/2
-        result$sd <- list(degree = degree, 
-                          zscore = zscore_grid, 
-                          true = f_true, 
-                          approx = f_approx,
-                          coefficients = coef)
-        # determine approximation quality of the derivatives
-        poly_sigma <- rev(result$sd$coefficients)
-        poly_dsigma_dscore <- pracma::polyder(poly_sigma)
-        score_t  <-  (2*zscore_grid-(zscore_range[2]+zscore_range[1]))/(zscore_range[2]-zscore_range[1])
-        result$sd$deriv_approx <- pracma::polyval(poly_dsigma_dscore, score_t)*2/(zscore_range[2]-zscore_range[1])
-        result$sd$deriv_true <- pracma::fderiv(f_sd_zscore, zscore_grid)
-        return(result)
-    }
+    
     # determine the polynomial degree necessary to approx mean fun with requested tol
     degree <- 0
-    f_true <- f_mu(psi_grid)
+    f_true <- f_mu_labels(mirt_model, psi_grid, item_labels)
     repeat{
-        degree <- degree+1
-        f_approx <- pracma::chebApprox(psi_grid, f_mu, psi_range[1], psi_range[2], degree)
-        error <- max(abs(f_true-f_approx))
-        if(error < approx_tol_mean || degree>max_degree ) {
-            break
-        }
+      degree <- degree+1
+      f_approx <- pracma::chebApprox(psi_grid, 
+                                     function(psi) f_mu_labels(mirt_model, psi, item_labels), 
+                                     psi_range[1], psi_range[2], degree)
+      error <- max(abs(f_true-f_approx))
+      if(error < approx_tol_mean || degree>max_degree ) {
+        break
+      }
     }
     # determine Chebyshev polynomial coefficients
-    coef_cheb <-  pracma::chebCoeff(f_mu, psi_range[1], psi_range[2], degree)
+    coef_cheb <-  pracma::chebCoeff(function(psi) f_mu_labels(mirt_model, psi, item_labels), 
+                                    psi_range[1], psi_range[2], degree)
     poly_cheb <- pracma::chebPoly(degree)
     coef <- rev(drop(coef_cheb %*% poly_cheb))
     coef[1] <- coef[1] - coef_cheb[1]/2
@@ -414,17 +464,20 @@ calculate_bi_irt_link <- function(model,
                         coefficients = coef)
     # determine the polynomial degree necessary to approx sd fun with requested tol
     degree <- 0
-    f_true <- f_sd(psi_grid)
+    f_true <- f_sd_labels(mirt_model, psi_grid, item_labels)
     repeat{
-        degree <- degree+1
-        f_approx <- pracma::chebApprox(psi_grid, f_sd, psi_range[1], psi_range[2], degree)
-        error <- max(abs(f_true-f_approx))  
-        if(error < approx_tol_sd || degree>max_degree ) {
-            break
-        }
+      degree <- degree+1
+      f_approx <- pracma::chebApprox(psi_grid, 
+                                     function(psi) f_sd_labels(mirt_model, psi, item_labels), 
+                                     psi_range[1], psi_range[2], degree)
+      error <- max(abs(f_true-f_approx))  
+      if(error < approx_tol_sd || degree>max_degree ) {
+        break
+      }
     }
     # determine Chebyshev polynomial coefficients
-    coef_cheb <-  pracma::chebCoeff(f_sd, psi_range[1], psi_range[2], degree)
+    coef_cheb <-  pracma::chebCoeff(function(psi) f_sd_labels(mirt_model, psi, item_labels), 
+                                    psi_range[1], psi_range[2], degree)
     poly_cheb <- pracma::chebPoly(degree)
     coef <- rev(drop(coef_cheb %*% poly_cheb))
     coef[1] <- coef[1] - coef_cheb[1]/2
@@ -433,6 +486,7 @@ calculate_bi_irt_link <- function(model,
                       true = f_true, 
                       approx = f_approx, 
                       coefficients = coef)
+    
     # determine approximation quality of the derivatives
     poly_mu <- rev(result$mean$coefficients)
     poly_sigma <- rev(result$sd$coefficients)
@@ -440,9 +494,15 @@ calculate_bi_irt_link <- function(model,
     poly_dsigma_dpsi <- pracma::polyder(poly_sigma)
     psi_t  <-  (2*psi_grid-(psi_range[2]+psi_range[1]))/(psi_range[2]-psi_range[1])
     result$mean$deriv_approx <- pracma::polyval(poly_dmu_dpsi, psi_t)*2/(psi_range[2]-psi_range[1])
-    result$mean$deriv_true <- pracma::fderiv(f_mu, psi_grid)
+    result$mean$deriv_true <- pracma::fderiv(function(psi) f_mu_labels(mirt_model, psi, item_labels), 
+                                             psi_grid)
     result$sd$deriv_approx <- pracma::polyval(poly_dsigma_dpsi, psi_t)*2/(psi_range[2]-psi_range[1])
-    result$sd$deriv_true <- pracma::fderiv(f_sd, psi_grid)
+    result$sd$deriv_true <- pracma::fderiv(function(psi) f_sd_labels(mirt_model, psi, item_labels), 
+                                           psi_grid)
+    
+    result$item_labels = item_labels
+    result$corr_factor = corr_factor
+    result$sim_default = sim_default
     return(result)
 }
 

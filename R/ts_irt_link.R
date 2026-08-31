@@ -168,8 +168,8 @@ plot_sd_zscore_vs_psi <- function(model, ...){
 
 #' Determine IRT-based links for CV or BI models
 #'
-#' @param model 
-#' @param psi_range 
+#' @param model An IRT model object 
+#' @param psi_range Range of the psi variable
 #' @param score_range 
 #' @param lv_based
 #' @param range_tol 
